@@ -65,6 +65,11 @@
   h1 { margin: 0; font-size: 28px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
   .facts { display: flex; flex-wrap: wrap; gap: 6px 20px; color: var(--ink-2); font-size: 13px; }
   .facts b { color: var(--ink); font-weight: 600; }
+  .desc { margin: 2px 0 0; color: var(--ink-2); max-width: 78ch; }
+  .links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
+  .links a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--grid); }
+  .links a:hover { color: var(--accent); border-color: var(--accent); }
+  footer a { color: inherit; }
 
   .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
   .control { display: flex; align-items: center; gap: 8px; }
@@ -138,9 +143,12 @@
     <div class="eyebrow" id="eyebrow"></div>
     <h1 id="title"></h1>
     <div class="facts" id="facts"></div>
+    <p class="desc" id="desc" hidden></p>
+    <nav class="links" id="links" aria-label="Más información" hidden></nav>
   </header>
 
   <div class="controls" role="group" aria-label="Opciones del gráfico">
+    <div class="control" id="testctl" hidden><span class="control-label" id="lt">Prueba</span><div class="seg" id="tseg" role="group" aria-labelledby="lt"></div></div>
     <div class="control"><span class="control-label" id="lx">Eje X</span><div class="seg" id="xseg" role="group" aria-labelledby="lx"></div></div>
     <div class="control"><span class="control-label" id="ly">Eje Y</span><div class="seg" id="yseg" role="group" aria-labelledby="ly"></div></div>
     <label class="check"><input type="checkbox" id="logx"> Escala logarítmica</label>
@@ -170,6 +178,9 @@
 
 <script>
 const DATA = /*__DATA__*/null;
+// Una o varias pruebas: { tests: [...] , repoUrl? }. El hash (#sql) elige la prueba.
+const TESTS = DATA.tests ?? [DATA];
+let cur = TESTS.find((t) => '#' + t.test === location.hash) ?? TESTS[0];
 
 const NS = 'http://www.w3.org/2000/svg';
 const nf = (d) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: d, minimumFractionDigits: d });
@@ -219,9 +230,16 @@ const sv = (tag, attrs = {}) => {
 
 // ---------- cabecera ----------
 function header() {
-  document.getElementById('eyebrow').textContent = `Benchmark opencode · prueba ${DATA.test}`;
-  document.getElementById('title').textContent = DATA.title;
-  const scored = DATA.models.filter((m) => m.score != null);
+  document.getElementById('facts').replaceChildren();
+  const desc = document.getElementById('desc');
+  desc.textContent = cur.description ?? '';
+  desc.hidden = !cur.description;
+  const links = document.getElementById('links');
+  links.replaceChildren(...(cur.links ?? []).map(([label, href]) => el('a', { href }, label)));
+  links.hidden = !(cur.links ?? []).length;
+  document.getElementById('eyebrow').textContent = `Benchmark opencode · prueba ${cur.test}`;
+  document.getElementById('title').textContent = cur.title;
+  const scored = cur.models.filter((m) => m.score != null);
   const best = [...scored].sort((a, b) => b.score - a.score)[0];
   const facts = document.getElementById('facts');
   const add = (label, value) => {
@@ -230,11 +248,11 @@ function header() {
     s.append(el('b', {}, value));
     facts.append(s);
   };
-  add('Modelos con nota', `${scored.length} de ${DATA.models.length}`);
+  add('Modelos con nota', `${scored.length} de ${cur.models.length}`);
   if (best) add('Mejor nota', `${best.name} · ${fmt.score(best.score)}`);
-  add('Suite oculta', `${DATA.hiddenTotal} casos`);
-  add('Juez', DATA.judge);
-  add('Actualizado', new Date(DATA.generatedAt).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }));
+  add('Suite oculta', `${cur.hiddenTotal} casos`);
+  add('Juez', cur.judge);
+  add('Actualizado', new Date(cur.generatedAt).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }));
 }
 
 // ---------- controles ----------
@@ -253,6 +271,15 @@ function controls() {
       box.append(b);
     }
   };
+  const tctl = document.getElementById('testctl');
+  tctl.hidden = TESTS.length < 2;
+  const tseg = document.getElementById('tseg');
+  tseg.replaceChildren();
+  for (const t of TESTS) {
+    const b = el('button', { type: 'button', 'aria-pressed': String(t === cur) }, t.short ?? t.test.toUpperCase());
+    b.addEventListener('click', () => selectTest(t));
+    tseg.append(b);
+  }
   seg('xseg', X, 'x');
   seg('yseg', Y, 'y');
   const log = document.getElementById('logx');
@@ -295,7 +322,7 @@ let points = [], front = new Set();
 function render() {
   const xm = X[state.x], ym = Y[state.y];
   document.getElementById('chart-title').textContent = `${ym.title} frente a ${xm.title}`;
-  points = DATA.models
+  points = cur.models
     .map((m) => ({ m, x: xm.get(m), y: ym.get(m) }))
     .filter((p) => p.x != null && p.y != null && (!state.log || p.x > 0));
   front = frontier(points);
@@ -542,7 +569,7 @@ function drawTable() {
     head.append(th);
   }
   const col = COLS.find((c) => c.k === state.sort);
-  const rows = [...DATA.models].sort((a, b) => {
+  const rows = [...cur.models].sort((a, b) => {
     const va = col.get(a), vb = col.get(b);
     if (va == null && vb == null) return a.name.localeCompare(b.name);
     if (va == null) return 1;
@@ -551,7 +578,7 @@ function drawTable() {
   });
   const body = document.getElementById('tbody');
   body.replaceChildren();
-  const rankOf = new Map([...DATA.models].filter((m) => m.score != null).sort((a, b) => b.score - a.score).map((m, i) => [m.slug, i + 1]));
+  const rankOf = new Map([...cur.models].filter((m) => m.score != null).sort((a, b) => b.score - a.score).map((m, i) => [m.slug, i + 1]));
   for (const m of rows) {
     const tr = el('tr');
     tr.append(el('td', { class: 'rank' }, rankOf.get(m.slug) ?? ''));
@@ -579,15 +606,32 @@ function drawTable() {
 // ---------- notas ----------
 function notes() {
   const f = document.getElementById('notes');
-  const W = DATA.weights;
+  f.replaceChildren();
+  const W = cur.weights;
   const lines = [
-    `Nota 0–10 = corrección ${W.correctness} (suite oculta de ${DATA.hiddenTotal} casos) + autonomía ${W.autonomy} + tests propios ${W.ownTests} + código ${W.codeQuality} + robustez ${W.robustness}, según RUBRIC.md de la prueba.`,
+    `Nota 0–10 = corrección ${W.correctness} (suite oculta de ${cur.hiddenTotal} casos) + autonomía ${W.autonomy} + tests propios ${W.ownTests} + código ${W.codeQuality} + robustez ${W.robustness}, según RUBRIC.md de la prueba.`,
     'Frontera de eficiencia: modelos que ningún otro supera a la vez en el eje Y y en el eje X elegidos. Cambia al cambiar de eje.',
     'Coste: precio de lista que registra opencode por sesión (con la suscripción Go es orientativo). Tokens generados: salida + razonamiento. Pasos: llamadas al modelo. Tiempo: tiempo activo del agente.',
     'Cada modelo usa su variante de razonamiento más alta disponible (etiqueta bajo el nombre).',
   ];
   for (const l of lines) f.append(el('div', {}, l));
+  if (DATA.repoUrl) {
+    const r = el('div');
+    r.append('La suite oculta no se publica. Código, soluciones de los modelos y datos: ', el('a', { href: DATA.repoUrl }, 'repositorio en GitHub'), '.');
+    f.append(r);
+  }
 }
+
+function selectTest(t) {
+  if (t === cur) return;
+  cur = t;
+  history.replaceState(null, '', '#' + t.test);
+  header();
+  controls();
+  render();
+  notes();
+}
+window.addEventListener('hashchange', () => { const t = TESTS.find((x) => '#' + x.test === location.hash); if (t) selectTest(t); });
 
 header();
 controls();
