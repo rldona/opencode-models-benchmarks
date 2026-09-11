@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+.publish/
+*.tmp-*
+scripts/.bench.next.mjs
+benchmarks/*/results/*.running
+.publish-private.json

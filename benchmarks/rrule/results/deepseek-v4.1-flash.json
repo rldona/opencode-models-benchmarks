@@ -1,0 +1,114 @@
+{
+  "test": "rrule",
+  "slug": "deepseek-v4.1-flash",
+  "name": "DeepSeek V4.1 Flash",
+  "expectedModel": "opencode-go/deepseek-v4.1-flash",
+  "collectedAt": "2026-09-11T13:06:31.292Z",
+  "session": {
+    "id": "ses_f7044f730ffe4NwGaVnbqCYO3T",
+    "childSessions": 0,
+    "title": "Implementar expansor RRULE en TypeScript con Vitest",
+    "models": [
+      "opencode-go/deepseek-v4.1-flash (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 215698,
+    "activeMs": 209658,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 1,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 16,
+    "toolCalls": 22,
+    "toolErrors": 0,
+    "tools": {
+      "bash": 8,
+      "glob": 1,
+      "question": 1,
+      "todowrite": 3,
+      "write": 9
+    },
+    "errors": [],
+    "tokens": {
+      "input": 24157,
+      "output": 12640,
+      "reasoning": 28646,
+      "cacheRead": 523264,
+      "cacheWrite": 0
+    },
+    "cost": 0.029964941999999998,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/deepseek-v4.1-flash/rrule",
+    "hash": "84601ebfddc6",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 15,
+      "passed": 15,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 15,
+        "passed": 15,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 15,
+        "passed": 15,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 15,
+        "passed": 15,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 502,
+      "test": 216,
+      "srcFiles": 4,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

@@ -1,0 +1,115 @@
+{
+  "test": "rrule",
+  "slug": "glm-5.3-flash",
+  "name": "GLM-5.3-Flash",
+  "expectedModel": "opencode-go/glm-5.3-flash",
+  "collectedAt": "2026-09-11T13:06:37.624Z",
+  "session": {
+    "id": "ses_f6fee4132ffe753qHzGV0z1FAi",
+    "childSessions": 0,
+    "title": "rrule · GLM-5.3-Flash",
+    "models": [
+      "opencode-go/glm-5.3-flash (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 633783,
+    "activeMs": 631841,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 20,
+    "toolCalls": 24,
+    "toolErrors": 1,
+    "tools": {
+      "bash": 5,
+      "glob": 1,
+      "todowrite": 4,
+      "write": 6,
+      "edit": 7,
+      "read": 1
+    },
+    "errors": [],
+    "tokens": {
+      "input": 140383,
+      "output": 58827,
+      "reasoning": 0,
+      "cacheRead": 973696,
+      "cacheWrite": 0
+    },
+    "cost": 0.07968183000000001,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/glm-5.3-flash/rrule",
+    "hash": "62a02ccfabb8",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 17,
+        "passed": 17,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 17,
+        "passed": 17,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 17,
+        "passed": 17,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 376,
+      "test": 240,
+      "srcFiles": 3,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

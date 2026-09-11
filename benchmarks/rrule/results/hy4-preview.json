@@ -1,0 +1,129 @@
+{
+  "test": "rrule",
+  "slug": "hy4-preview",
+  "name": "Hy4 preview",
+  "expectedModel": "opencode-go/hy4-preview",
+  "collectedAt": "2026-09-11T13:06:49.807Z",
+  "session": {
+    "id": "ses_f6fe48228ffe78G71EABKUrEv8",
+    "childSessions": 0,
+    "title": "rrule · Hy4 preview",
+    "models": [
+      "opencode-go/hy4-preview (high)"
+    ],
+    "variant": "high",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 751263,
+    "activeMs": 749036,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 40,
+    "toolCalls": 44,
+    "toolErrors": 0,
+    "tools": {
+      "bash": 20,
+      "write": 15,
+      "edit": 6,
+      "read": 3
+    },
+    "errors": [],
+    "tokens": {
+      "input": 101115,
+      "output": 20465,
+      "reasoning": 20341,
+      "cacheRead": 1353024,
+      "cacheWrite": 0
+    },
+    "cost": 0.24321272400000005,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": "..",
+          "kind": "ancestro",
+          "status": "completed",
+          "blocked": false
+        },
+        {
+          "tool": "bash",
+          "target": "../../../.npm/_cacache",
+          "kind": "home",
+          "status": "completed",
+          "blocked": false
+        }
+      ],
+      "leaked": false,
+      "explored": true
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/hy4-preview/rrule",
+    "hash": "504b287e0a91",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 40,
+      "passed": 40,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 431,
+      "test": 539,
+      "srcFiles": 4,
+      "testFiles": 6
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

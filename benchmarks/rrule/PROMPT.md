@@ -1,0 +1,3 @@
+En un proyecto TypeScript nuevo con Vitest, implementa un expansor de eventos recurrentes que soporte un subconjunto de RRULE: FREQ (DAILY, WEEKLY, MONTHLY), INTERVAL, BYDAY (para WEEKLY y MONTHLY, incluyendo formas como 2TU y -1FR), COUNT y UNTIL. Debe recibir la fecha de inicio, la regla y una zona horaria IANA, y devolver las ocurrencias entre dos instantes, respetando la hora local aunque haya cambio de hora (DST). No uses librerías externas salvo Vitest.
+
+Escribe tests que cubran: un evento semanal que cruza el cambio de hora de octubre en Europe/Madrid, "último viernes de mes", meses sin día 31, y COUNT combinado con BYDAY. Ejecuta los tests y no termines hasta que pasen todos.

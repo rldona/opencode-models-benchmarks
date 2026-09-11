@@ -1,0 +1,115 @@
+{
+  "test": "rrule",
+  "slug": "kimi-k2.7-code",
+  "name": "Kimi K2.7 Code",
+  "expectedModel": "opencode-go/kimi-k2.7-code",
+  "collectedAt": "2026-09-11T13:06:54.271Z",
+  "session": {
+    "id": "ses_f6fe07678ffe2LxKe9TtLwiAud",
+    "childSessions": 0,
+    "title": "rrule · Kimi K2.7 Code",
+    "models": [
+      "opencode-go/kimi-k2.7-code"
+    ],
+    "variant": "default",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 523036,
+    "activeMs": 521068,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 22,
+    "toolCalls": 26,
+    "toolErrors": 1,
+    "tools": {
+      "read": 2,
+      "glob": 1,
+      "todowrite": 5,
+      "bash": 7,
+      "write": 9,
+      "edit": 2
+    },
+    "errors": [],
+    "tokens": {
+      "input": 38194,
+      "output": 10275,
+      "reasoning": 10182,
+      "cacheRead": 395776,
+      "cacheWrite": 0
+    },
+    "cost": 0.19330973999999998,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/kimi-k2.7-code/rrule",
+    "hash": "70899bd265b9",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 386,
+      "test": 111,
+      "srcFiles": 5,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

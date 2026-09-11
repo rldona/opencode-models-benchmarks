@@ -1,0 +1,33 @@
+{
+  "title": "SQL",
+  "description": "Motor SQL en memoria con semántica de SQLite: SELECT con JOIN/LEFT JOIN, GROUP BY/HAVING, ORDER BY, LIMIT/OFFSET, NULL con lógica de tres valores, enteros frente a reales y rendimiento con 100.000 filas.",
+  "weights": {
+    "correctness": 5,
+    "autonomy": 1,
+    "ownTests": 1.5,
+    "codeQuality": 2,
+    "robustness": 0.5
+  },
+  "timeout": 60,
+  "extraTzs": [],
+  "forbiddenImports": [
+    "node:sqlite",
+    "sqlite",
+    "sqlite3",
+    "better-sqlite3",
+    "child_process",
+    "node:child_process"
+  ],
+  "hiddenTimeoutMs": {
+    "main": 180000,
+    "perf": 150000
+  },
+  "hiddenCaseTimeoutMs": {
+    "main": 30000,
+    "perf": 60000
+  },
+  "excludeModels": [
+    "glm-5.3"
+  ],
+  "excludeReason": "Cuota de opencode-go: GLM-5.3 ($3 / 5 h) consumió el 42 % de la ventana en RRULE"
+}

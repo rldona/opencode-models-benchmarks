@@ -1,0 +1,122 @@
+{
+  "test": "rrule",
+  "slug": "gpt-5.6-luna",
+  "name": "GPT-5.6 Luna",
+  "expectedModel": "opencode-go/gpt-5.6-luna",
+  "collectedAt": "2026-09-11T13:06:42.061Z",
+  "session": {
+    "id": "ses_f6fee4120ffeU1b95ofA318b6R",
+    "childSessions": 0,
+    "title": "rrule · GPT-5.6 Luna",
+    "models": [
+      "opencode-go/gpt-5.6-luna (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 373657,
+    "activeMs": 371573,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 18,
+    "toolCalls": 27,
+    "toolErrors": 2,
+    "tools": {
+      "glob": 7,
+      "read": 6,
+      "todowrite": 3,
+      "bash": 9,
+      "apply_patch": 2
+    },
+    "errors": [],
+    "tokens": {
+      "input": 54,
+      "output": 11412,
+      "reasoning": 22234,
+      "cacheRead": 467661,
+      "cacheWrite": 71697
+    },
+    "cost": 0.06766347,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "read",
+          "target": "models",
+          "kind": "repo",
+          "status": "error",
+          "blocked": true
+        }
+      ],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/gpt-5.6-luna/rrule",
+    "hash": "8905e2c02c82",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 653,
+      "test": 116,
+      "srcFiles": 2,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

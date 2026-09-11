@@ -1,0 +1,112 @@
+{
+  "test": "rrule",
+  "slug": "glm-5.3",
+  "name": "GLM-5.3",
+  "expectedModel": "opencode-go/glm-5.3",
+  "collectedAt": "2026-09-11T13:06:34.525Z",
+  "session": {
+    "id": "ses_f6fee4143ffeLUtTVfwNhceEsR",
+    "childSessions": 0,
+    "title": "rrule · GLM-5.3",
+    "models": [
+      "opencode-go/glm-5.3 (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 922162,
+    "activeMs": 920208,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 8,
+    "toolCalls": 16,
+    "toolErrors": 0,
+    "tools": {
+      "bash": 5,
+      "write": 11
+    },
+    "errors": [],
+    "tokens": {
+      "input": 100126,
+      "output": 15316,
+      "reasoning": 64135,
+      "cacheRead": 361367,
+      "cacheWrite": 0
+    },
+    "cost": 0.5837162199999999,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/glm-5.3/rrule",
+    "hash": "68438699302d",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 60,
+      "passed": 60,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 60,
+        "passed": 60,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 60,
+        "passed": 60,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 60,
+        "passed": 60,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 569,
+      "test": 510,
+      "srcFiles": 5,
+      "testFiles": 3
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

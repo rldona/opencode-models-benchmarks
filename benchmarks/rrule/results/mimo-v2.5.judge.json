@@ -1,0 +1,197 @@
+{
+  "test": "rrule",
+  "slug": "mimo-v2.5",
+  "judgedAt": "2026-09-11T11:18:26.060Z",
+  "projectHash": "324415a7ac35",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.5536588,
+    "turns": 31,
+    "isError": false,
+    "usage": {
+      "input_tokens": 44,
+      "cache_creation_input_tokens": 43246,
+      "cache_read_input_tokens": 1199889,
+      "output_tokens": 13790,
+      "output_tokens_details": {
+        "thinking_tokens": 8585
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 43246,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 484,
+          "cache_read_input_tokens": 67171,
+          "cache_creation_input_tokens": 1819,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1819
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "durationMs": 167175,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 7,
+      "strengths": [
+        "Separación clara en módulos (types, parser, timezone, generator) con tipos precisos sin `any`",
+        "Conversión de hora local a UTC vía Intl.DateTimeFormat, sin dependencias externas ni asumir la TZ de la máquina",
+        "Bucle de generación acotado con MAX_ITER y corta en cuanto se supera COUNT, UNTIL o el rango, evitando iterar sin límite",
+        "Manejo correcto de BYDAY con nth y 'last' (2TU, -1FR) y de clamping de días inexistentes en el mes"
+      ],
+      "weaknesses": [
+        "`fromLocal` solo hace una corrección de offset (no iterativa como debería); en horas locales inexistentes durante el salto de primavera devuelve un instante cuya hora local resultante no coincide con la solicitada (ej. pide 02:30 y el round-trip da 01:30)",
+        "La expansión semanal de BYDAY calcula el offset respecto al día de referencia en curso, no respecto al inicio de semana (WKST); con INTERVAL>1 y DTSTART que no es el día más temprano del conjunto BYDAY puede desalinear qué semanas se generan",
+        "`advancePeriod` recibe parámetros y/m/d que nunca usa (usa las variables de closure homónimas), código confuso y con variable shadowing innecesaria",
+        "No valida INTERVAL<=0, COUNT negativo ni BYDAY vacío/duplicado; errores de parseo son genéricos sin indicar posición"
+      ]
+    },
+    "testQuality": {
+      "score": 8,
+      "strengths": [
+        "Aserciones exactas tanto en instante UTC como en hora local de pared para los casos de DST, distinguiendo antes/después del cambio de hora",
+        "Cubre explícitamente los cuatro escenarios pedidos por el enunciado con fechas y valores calculados a mano en los comentarios, no derivados de la propia implementación",
+        "Añade casos no pedidos pero relevantes: INTERVAL en DAILY y WEEKLY, UNTIL, año bisiesto con día 29 de febrero",
+        "Nombres de test descriptivos que documentan el escenario y el resultado esperado"
+      ],
+      "weaknesses": [
+        "No prueba el caso ambiguo (hora repetida en el retroceso de otoño) ni la hora inexistente (salto de primavera) que sí afecta a `fromLocal`, dejando sin cubrir el propio punto débil del código",
+        "Todos los tests monthly con BYDAY empiezan con DTSTART coincidiendo con el primer/único día BYDAY de esa semana, sin ejercitar el caso WEEKLY;INTERVAL>1 combinado con varios BYDAY donde el bug de anclaje de semana se manifestaría",
+        "No hay test de UNTIL exclusivo/inclusivo en el límite exacto ni de varias zonas horarias distintas de Europe/Madrid y UTC"
+      ]
+    },
+    "bugs": [
+      "`fromLocal` (src/timezone.ts) usa una sola corrección de offset en vez de iterar; para horas locales que no existen por el salto de primavera (DST gap) produce un instante cuya hora local real difiere en una hora de la solicitada, sin avisar",
+      "La expansión WEEKLY con BYDAY ancla los offsets al día de referencia en curso (no a un inicio de semana fijo tipo WKST=MO), lo que con INTERVAL>1 y DTSTART que no es el día BYDAY más temprano puede generar una cadencia distinta a la esperada por RFC 5545",
+      "El manejo de horas ambiguas en el retroceso de otoño (02:30 ocurre dos veces) no está documentado ni es configurable: siempre resuelve al segundo paso (offset post-DST) sin que el usuario pueda elegir"
+    ],
+    "summary": "Implementación sólida y bien organizada que cubre correctamente los cuatro escenarios pedidos, con tests concretos y fiables; el punto débil real es la conversión hora-local→UTC, que falla silenciosamente en horas inexistentes del salto de primavera, un caso límite que los propios tests no llegan a ejercitar."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 16,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": false
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": false
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": true
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": true
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": true
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": true
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": false
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expandRRule } from '../src/index.js';\n\nexport const expand: Expand = (input) => {\n  return expandRRule(\n    input.rrule,\n    new Date(input.dtstartUtc),\n    input.tz,\n    new Date(input.from),\n    new Date(input.to),\n  );\n};\n"
+}

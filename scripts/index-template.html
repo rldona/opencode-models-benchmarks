@@ -1,0 +1,140 @@
+<title>opencode models benchmarks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --hair: rgba(11, 11, 11, 0.1);
+    --accent: #2a78d6;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --hair: rgba(255, 255, 255, 0.1); --accent: #3987e5;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --hair: rgba(255, 255, 255, 0.1); --accent: #3987e5;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.55 var(--sans); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 64px; display: grid; gap: 32px; }
+  header { display: grid; gap: 10px; max-width: 68ch; }
+  .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 0; font-size: 32px; line-height: 1.12; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+  .lede { margin: 0; color: var(--ink-2); }
+  .tests { display: grid; gap: 20px; }
+  .test { background: var(--surface); border: 1px solid var(--hair); border-radius: 12px; padding: 24px; display: grid; gap: 16px; }
+  .test-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px; }
+  h2 { margin: 0; font-size: 22px; font-weight: 600; }
+  .facts { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; color: var(--ink-2); }
+  .facts b { color: var(--ink); font-weight: 600; }
+  .desc { margin: 0; color: var(--ink-2); max-width: 72ch; }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+  @media (max-width: 720px) { .body { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+  th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
+  th { font-weight: 500; color: var(--ink-2); font-size: 12px; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .rank { color: var(--muted); font: 400 12px var(--mono); }
+  .var { font: 500 10px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-left: 8px; }
+  .score { font-weight: 600; }
+  .empty { color: var(--ink-2); font-size: 14px; }
+  .actions { display: grid; gap: 8px; min-width: 200px; }
+  .btn { display: inline-flex; justify-content: center; align-items: center; padding: 10px 14px; border-radius: 8px; background: var(--ink); color: var(--surface); font-weight: 500; text-decoration: none; }
+  .btn:hover { background: var(--accent); }
+  .links { display: grid; gap: 4px; font-size: 13px; }
+  .links a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--grid); padding: 4px 0; }
+  .links a:hover { color: var(--accent); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  footer { color: var(--ink-2); font-size: 13px; display: grid; gap: 6px; max-width: 72ch; }
+  footer a { color: inherit; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Benchmark de modelos de programación</div>
+    <h1>opencode models benchmarks</h1>
+    <p class="lede">Cada modelo de opencode-go resuelve la misma tarea en autopiloto, aislado en su carpeta y con su variante de razonamiento más alta. La nota 0–10 combina una suite de tests oculta, la valoración de un juez (código y tests), la autonomía y la robustez.</p>
+  </header>
+  <div class="tests" id="tests"></div>
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const nf = (d) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+const cost = (v) => (v == null ? '—' : v === 0 ? '$0' : '$' + (v < 0.1 ? nf(4) : nf(2)).format(v));
+const el = (tag, attrs = {}, text) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (text != null) n.textContent = text;
+  return n;
+};
+
+const box = document.getElementById('tests');
+for (const t of DATA.tests) {
+  const sec = el('section', { class: 'test', 'aria-labelledby': `t-${t.id}` });
+  const head = el('div', { class: 'test-head' });
+  head.append(el('h2', { id: `t-${t.id}` }, t.title));
+  const facts = el('div', { class: 'facts' });
+  const fact = (label, value) => { const s = el('span'); s.append(label + ' ', el('b', {}, value)); facts.append(s); };
+  fact('Modelos con nota', `${t.scored} de ${t.total}`);
+  fact('Suite oculta', `${t.hiddenTotal} casos`);
+  head.append(facts);
+  sec.append(head, el('p', { class: 'desc' }, t.description));
+
+  const body = el('div', { class: 'body' });
+  const left = el('div');
+  if (t.top.length) {
+    const table = el('table');
+    const thead = el('thead');
+    const hr = el('tr');
+    for (const h of ['#', 'Modelo', 'Nota', 'Suite oculta', 'Coste']) hr.append(el('th', { scope: 'col' }, h));
+    thead.append(hr);
+    const tb = el('tbody');
+    t.top.forEach((m, i) => {
+      const tr = el('tr');
+      tr.append(el('td', { class: 'rank' }, String(i + 1)));
+      const n = el('td');
+      n.append(el('span', {}, m.name), el('span', { class: 'var' }, (m.variant || 'default').toUpperCase()));
+      tr.append(n, el('td', { class: 'num score' }, nf(1).format(m.score)), el('td', { class: 'num' }, m.hidden ?? '—'), el('td', { class: 'num' }, cost(m.cost)));
+      tb.append(tr);
+    });
+    table.append(thead, tb);
+    left.append(table);
+  } else {
+    left.append(el('p', { class: 'empty' }, 'Todavía no hay resultados publicados para esta prueba.'));
+  }
+  const actions = el('div', { class: 'actions' });
+  actions.append(el('a', { class: 'btn', href: t.report }, 'Ver informe gráfico'));
+  const links = el('div', { class: 'links' });
+  for (const [label, href] of t.links) links.append(el('a', { href }, label));
+  actions.append(links);
+  body.append(left, actions);
+  sec.append(body);
+  box.append(sec);
+}
+
+const foot = document.getElementById('foot');
+foot.append(el('div', {}, 'La suite oculta de cada prueba no se publica, para que siga siendo válida en futuras tiradas. Sí se publican el enunciado, la rúbrica, el contrato del adaptador, las soluciones de cada modelo y sus resultados.'));
+const upd = el('div');
+upd.append('Actualizado el ' + new Date(DATA.generatedAt).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' }) + ' · ');
+upd.append(el('a', { href: DATA.repoUrl }, 'Código y datos en GitHub'));
+foot.append(upd);
+</script>

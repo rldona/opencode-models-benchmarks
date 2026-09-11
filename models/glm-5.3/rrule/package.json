@@ -1,0 +1,16 @@
+{
+  "name": "rrule-expander",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Expansor de eventos recurrentes (subconjunto de RRULE) con soporte de zonas horarias IANA",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
+  }
+}

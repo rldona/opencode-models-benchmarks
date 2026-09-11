@@ -1,0 +1,197 @@
+{
+  "test": "rrule",
+  "slug": "kimi-k2.7-code",
+  "judgedAt": "2026-09-11T11:10:19.659Z",
+  "projectHash": "70899bd265b9",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.33734819999999993,
+    "turns": 19,
+    "isError": false,
+    "usage": {
+      "input_tokens": 24,
+      "cache_creation_input_tokens": 33641,
+      "cache_read_input_tokens": 549761,
+      "output_tokens": 9008,
+      "output_tokens_details": {
+        "thinking_tokens": 4755
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 33641,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 404,
+          "cache_read_input_tokens": 57648,
+          "cache_creation_input_tokens": 1737,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1737
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "durationMs": 108475,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 7,
+      "strengths": [
+        "Buena separación en módulos: parser, timezone, types y expander",
+        "Tipos precisos sin 'any' y con interfaces claras (RRule, LocalParts, ByDayPart)",
+        "Conversión hora local↔UTC correcta y robusta ante DST mediante iteración de convergencia",
+        "Valida entradas (FREQ requerido, INTERVAL/COUNT >=1, formatos de BYDAY/UNTIL) y lanza errores claros"
+      ],
+      "weaknesses": [
+        "generateDaily/Weekly/Monthly siempre materializan candidatos hasta ~100 años antes de aplicar COUNT/UNTIL/ventana, en vez de generar de forma perezosa; ineficiente aunque acotado",
+        "BYDAY mensual sin posición numérica solo produce la primera ocurrencia del mes (caso no exigido por el enunciado, pero deja un comportamiento parcial sin advertencia clara)",
+        "parseUntil sin sufijo 'Z' construye un Date en la zona horaria de la máquina, no en UTC, lo que puede dar resultados inconsistentes entre entornos",
+        "El corte de seguridad final ('generated > 10000') es prácticamente inalcanzable dado que los límites previos ya acotan la lista, es código muerto"
+      ]
+    },
+    "testQuality": {
+      "score": 8,
+      "strengths": [
+        "Cubre los cuatro escenarios pedidos con aserciones exactas de instantes y hora local, no solo longitudes",
+        "Valores esperados calculados manualmente (razonamiento de calendario/offset), no derivados de la propia implementación",
+        "Añade casos extra no pedidos: INTERVAL>1 y UNTIL inclusivo, con tres zonas horarias distintas (Europe/Madrid, UTC, America/New_York)",
+        "Nombres de test descriptivos y verificación explícita de la diferencia de 169h en el cruce de DST"
+      ],
+      "weaknesses": [
+        "No hay tests de ventana parcial (from/to que recorten la serie) ni de validación de errores (FREQ no soportado, INTERVAL inválido, etc.)",
+        "No se prueba BYDAY con varios días en la misma semana/mes combinados",
+        "No se cubre el cambio de hora de primavera (spring-forward) ni horas locales inexistentes/ambiguas"
+      ]
+    },
+    "bugs": [
+      "Las funciones de generación por frecuencia recorren siempre hasta el límite de seguridad (~100 años) antes de aplicar COUNT/UNTIL o la ventana solicitada, aunque el resultado final sea correcto",
+      "parseUntil interpreta un UNTIL sin 'Z' en la zona horaria local del proceso en lugar de UTC, lo que puede producir resultados distintos según la máquina",
+      "BYDAY mensual sin posición numérica (p. ej. 'TU' suelto) solo devuelve la primera ocurrencia del mes en vez de todas las coincidencias, comportamiento no documentado para quien lea la firma pública"
+    ],
+    "summary": "Solución sólida y correcta para el subconjunto de RRULE pedido, con buena separación de responsabilidades, tipado estricto y manejo correcto del DST; los tests cubren con precisión los cuatro escenarios exigidos y algunos extra, aunque el algoritmo de generación es innecesariamente eager y hay algún caso límite no documentado."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 18,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": true
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": true
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": true
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": true
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": true
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": false
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": true
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expand as solutionExpand } from '../src/expander';\n\nexport const expand: Expand = (input) => {\n  const results = solutionExpand(\n    input.dtstartLocal,\n    input.rrule,\n    input.tz,\n    new Date(input.from),\n    new Date(input.to)\n  );\n  return results.map((d) => d.toISOString());\n};\n\nexport const adapterWorkarounds: string[] = [];\n"
+}

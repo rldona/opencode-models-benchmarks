@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clasificación SQL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --hair: rgba(11, 11, 11, 0.1);
+    --accent: #2a78d6;
+    --accent-wash: rgba(42, 120, 214, 0.1);
+    --rest: #898781;
+    --good: #0ca30c;
+    --warning: #b07a00;
+    --critical: #d03b3b;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #ffffff;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --hair: rgba(255, 255, 255, 0.1);
+      --accent: #3987e5;
+      --accent-wash: rgba(57, 135, 229, 0.16);
+      --rest: #898781;
+      --warning: #fab219;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --hair: rgba(255, 255, 255, 0.1);
+    --accent: #3987e5;
+    --accent-wash: rgba(57, 135, 229, 0.16);
+    --rest: #898781;
+    --warning: #fab219;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 var(--sans); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 56px; display: grid; gap: 20px; }
+
+  header { display: grid; gap: 6px; }
+  .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 0; font-size: 28px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px 20px; color: var(--ink-2); font-size: 13px; }
+  .facts b { color: var(--ink); font-weight: 600; }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .control { display: flex; align-items: center; gap: 8px; }
+  .control-label { font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 8px; background: var(--surface); padding: 2px; }
+  .seg button {
+    font: 500 13px/1 var(--sans); color: var(--ink-2); background: transparent; border: 0; border-radius: 6px;
+    padding: 7px 11px; cursor: pointer;
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+  .check input { accent-color: var(--accent); margin: 0; }
+  button:focus-visible, input:focus-visible, .pt:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .card { background: var(--surface); border: 1px solid var(--hair); border-radius: 12px; }
+  .chart-card { position: relative; padding: 16px 16px 8px; }
+  .chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding: 0 4px 6px; }
+  .chart-title { font-weight: 600; font-size: 15px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); align-items: center; }
+  .key { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .key svg { flex: none; width: auto; }
+  svg { display: block; width: 100%; overflow: visible; }
+  .empty { padding: 48px 16px; text-align: center; color: var(--ink-2); }
+
+  .tip {
+    position: absolute; pointer-events: none; min-width: 210px; max-width: 280px; padding: 10px 12px;
+    background: var(--surface); border: 1px solid var(--hair); border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14); font-size: 12px; display: grid; gap: 6px; z-index: 5;
+  }
+  .tip .t-name { font-weight: 600; font-size: 13px; }
+  .tip .t-var { font: 500 10px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .tip .t-score { font-size: 22px; font-weight: 600; line-height: 1; }
+  .tip dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; }
+  .tip dt { color: var(--ink-2); }
+  .tip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .tip .t-front { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+  .tip .t-cats { color: var(--ink-2); font: 400 11px/1.4 var(--mono); }
+
+  .table-card { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--grid); }
+  th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
+  thead th { position: sticky; top: 0; background: var(--surface); font-weight: 500; color: var(--ink-2); }
+  th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  th button[data-dir]::after { content: attr(data-dir); margin-left: 4px; color: var(--accent); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: var(--accent-wash); }
+  td.num { font-variant-numeric: tabular-nums; }
+  .rank { color: var(--muted); font: 400 12px var(--mono); }
+  .m-name { font-weight: 500; }
+  .m-var { font: 500 10px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-left: 8px; }
+  .score { font-weight: 600; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rest); vertical-align: middle; }
+  .dot.front { background: var(--accent); }
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-2); }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pill, var(--muted)); }
+  .pill.ok { --pill: var(--good); }
+  .pill.warn { --pill: var(--warning); }
+  .pill.bad { --pill: var(--critical); }
+  .pill.run { --pill: var(--accent); }
+
+  footer { color: var(--ink-2); font-size: 12px; display: grid; gap: 4px; max-width: 80ch; }
+  footer code { font: 12px var(--mono); }
+  @media (max-width: 640px) { h1 { font-size: 23px; } .wrap { padding: 20px 14px 40px; } }
+  @media (prefers-reduced-motion: no-preference) { .pt circle.mark { transition: r 120ms ease; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <div class="controls" role="group" aria-label="Opciones del gráfico">
+    <div class="control"><span class="control-label" id="lx">Eje X</span><div class="seg" id="xseg" role="group" aria-labelledby="lx"></div></div>
+    <div class="control"><span class="control-label" id="ly">Eje Y</span><div class="seg" id="yseg" role="group" aria-labelledby="ly"></div></div>
+    <label class="check"><input type="checkbox" id="logx"> Escala logarítmica</label>
+  </div>
+
+  <section class="card chart-card" aria-labelledby="chart-title">
+    <div class="chart-head">
+      <div class="chart-title" id="chart-title"></div>
+      <div class="legend" aria-hidden="true">
+        <span class="key"><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="5" r="4" fill="var(--accent)"/></svg>Frontera de eficiencia</span>
+        <span class="key"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="var(--rest)"/></svg>Resto de modelos</span>
+      </div>
+    </div>
+    <div id="chart"></div>
+    <div class="tip" id="tip" hidden></div>
+  </section>
+
+  <section class="card table-card" aria-label="Clasificación">
+    <table>
+      <thead><tr id="thead"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+
+  <footer id="notes"></footer>
+</div>
+
+<script>
+const DATA = {"test":"sql","title":"Clasificación SQL","generatedAt":"2026-09-11T13:07:56.052Z","hiddenTotal":173,"judge":"claude:sonnet","weights":{"correctness":5,"autonomy":1,"ownTests":1.5,"codeQuality":2,"robustness":0.5},"models":[{"slug":"deepseek-v4-pro","name":"DeepSeek V4 Pro (New)","variant":"max","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"deepseek-v4.1-flash","name":"DeepSeek V4.1 Flash","variant":"max","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"glm-5.3-flash","name":"GLM-5.3-Flash","variant":"max","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"gpt-5.6-luna","name":"GPT-5.6 Luna","variant":"max","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"grok-4.6","name":"Grok 4.6","variant":"xhigh","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"hy4-preview","name":"Hy4 preview","variant":"high","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"kimi-k2.7-code","name":"Kimi K2.7 Code","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"kimi-k3","name":"Kimi K3","variant":"max","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"longcat-2.0","name":"LongCat-2.0","variant":"high","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"mimo-v2.5","name":"MiMo V2.5","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"mimo-v2.5-pro","name":"MiMo V2.5 Pro","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"minimax-m2.7","name":"MiniMax-M2.7","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"minimax-m3","name":"MiniMax-M3","variant":"thinking","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"muse-spark-1.3-contributor","name":"Muse Spark 1.3 Contributor","variant":"xhigh","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"qwen3.6-plus","name":"Qwen3.6 Plus","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"qwen3.7-max","name":"Qwen3.7 Max","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"qwen3.7-plus","name":"Qwen3.7 Plus","variant":"default","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"qwen3.8-flash","name":"Qwen3.8 Flash","variant":"xhigh","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null},{"slug":"qwen3.8-max","name":"Qwen3.8 Max","variant":"xhigh","status":"pending","score":null,"hidden":null,"categories":null,"code":null,"tests":null,"cost":null,"tokensOut":null,"steps":null,"activeMs":null,"interventions":null}]};
+
+const NS = 'http://www.w3.org/2000/svg';
+const nf = (d) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: d, minimumFractionDigits: d });
+const fmt = {
+  cost: (v) => (v == null ? '—' : v === 0 ? '$0' : '$' + (v < 0.1 ? nf(4) : nf(2)).format(v)),
+  tokens: (v) => (v == null ? '—' : v >= 1e6 ? nf(2).format(v / 1e6) + ' M' : v >= 1e3 ? nf(1).format(v / 1e3) + ' k' : String(v)),
+  steps: (v) => (v == null ? '—' : String(v)),
+  time: (ms) => {
+    if (ms == null) return '—';
+    const s = Math.round(ms / 1000), m = Math.floor(s / 60);
+    return m ? `${m} min ${String(s % 60).padStart(2, '0')} s` : `${s} s`;
+  },
+  score: (v) => (v == null ? '—' : nf(1).format(v)),
+  pct: (v) => (v == null ? '—' : nf(0).format(v) + ' %'),
+};
+
+const X = {
+  cost: { label: 'Coste', title: 'coste por tarea', get: (m) => m.cost, f: fmt.cost, unit: 'USD, precio de lista según opencode' },
+  tokens: { label: 'Tokens generados', title: 'tokens generados', get: (m) => m.tokensOut, f: fmt.tokens, unit: 'salida + razonamiento' },
+  steps: { label: 'Pasos', title: 'pasos del agente', get: (m) => m.steps, f: fmt.steps, unit: 'llamadas al modelo' },
+  time: { label: 'Tiempo', title: 'tiempo activo', get: (m) => m.activeMs, f: fmt.time, unit: 'minutos' },
+};
+const Y = {
+  score: { label: 'Nota', title: 'Nota (0–10)', get: (m) => m.score, f: fmt.score, max: 10 },
+  hidden: { label: 'Suite oculta', title: 'Suite oculta (% de casos)', get: (m) => (m.hidden ? (100 * m.hidden.passed) / m.hidden.total : null), f: fmt.pct, max: 100 },
+};
+
+const store = {
+  get(k, d) { try { return localStorage.getItem('rep:' + k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('rep:' + k, v); } catch {} },
+};
+const state = { x: store.get('x', 'cost'), y: store.get('y', 'score'), log: store.get('log', '0') === '1', sort: 'score', dir: -1 };
+if (!X[state.x]) state.x = 'cost';
+if (!Y[state.y]) state.y = 'score';
+
+const el = (tag, attrs = {}, text) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (text != null) n.textContent = text;
+  return n;
+};
+const sv = (tag, attrs = {}) => {
+  const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  return n;
+};
+
+// ---------- cabecera ----------
+function header() {
+  document.getElementById('eyebrow').textContent = `Benchmark opencode · prueba ${DATA.test}`;
+  document.getElementById('title').textContent = DATA.title;
+  const scored = DATA.models.filter((m) => m.score != null);
+  const best = [...scored].sort((a, b) => b.score - a.score)[0];
+  const facts = document.getElementById('facts');
+  const add = (label, value) => {
+    const s = el('span');
+    s.append(label + ' ');
+    s.append(el('b', {}, value));
+    facts.append(s);
+  };
+  add('Modelos con nota', `${scored.length} de ${DATA.models.length}`);
+  if (best) add('Mejor nota', `${best.name} · ${fmt.score(best.score)}`);
+  add('Suite oculta', `${DATA.hiddenTotal} casos`);
+  add('Juez', DATA.judge);
+  add('Actualizado', new Date(DATA.generatedAt).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }));
+}
+
+// ---------- controles ----------
+function controls() {
+  const seg = (id, opts, key) => {
+    const box = document.getElementById(id);
+    box.replaceChildren();
+    for (const [k, o] of Object.entries(opts)) {
+      const b = el('button', { type: 'button', 'aria-pressed': String(state[key] === k) }, o.label);
+      b.addEventListener('click', () => {
+        state[key] = k;
+        store.set(key, k);
+        controls();
+        render();
+      });
+      box.append(b);
+    }
+  };
+  seg('xseg', X, 'x');
+  seg('yseg', Y, 'y');
+  const log = document.getElementById('logx');
+  log.checked = state.log;
+  log.onchange = () => {
+    state.log = log.checked;
+    store.set('log', log.checked ? '1' : '0');
+    render();
+  };
+}
+
+// ---------- escalas ----------
+function niceStep(span, target) {
+  const raw = span / target, mag = 10 ** Math.floor(Math.log10(raw)), r = raw / mag;
+  return (r >= 5 ? 10 : r >= 2 ? 5 : r >= 1 ? 2 : 1) * mag;
+}
+function linTicks(lo, hi, n) {
+  const st = niceStep(hi - lo, n), out = [];
+  for (let v = Math.ceil(lo / st) * st; v <= hi + st * 1e-9; v += st) out.push(+v.toPrecision(12));
+  return out;
+}
+function logTicks(lo, hi) {
+  const out = [];
+  for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++)
+    for (const m of [1, 2, 5]) { const v = m * 10 ** e; if (v >= lo * 0.999 && v <= hi * 1.001) out.push(v); }
+  return out;
+}
+
+// Frontera de Pareto: nadie tiene a la vez más (o igual) Y y menos (o igual) X.
+function frontier(points) {
+  const s = [...points].sort((a, b) => a.x - b.x || b.y - a.y);
+  const out = new Set();
+  let best = -Infinity;
+  for (const p of s) if (p.y > best) { out.add(p.m.slug); best = p.y; }
+  return out;
+}
+
+let points = [], front = new Set();
+
+function render() {
+  const xm = X[state.x], ym = Y[state.y];
+  document.getElementById('chart-title').textContent = `${ym.title} frente a ${xm.title}`;
+  points = DATA.models
+    .map((m) => ({ m, x: xm.get(m), y: ym.get(m) }))
+    .filter((p) => p.x != null && p.y != null && (!state.log || p.x > 0));
+  front = frontier(points);
+  drawChart(xm, ym);
+  drawTable();
+}
+
+// ---------- gráfico ----------
+const measureCtx = document.createElement('canvas').getContext('2d');
+function textW(t, font) { measureCtx.font = font; return measureCtx.measureText(t).width; }
+
+function drawChart(xm, ym) {
+  const box = document.getElementById('chart');
+  box.replaceChildren();
+  hideTip();
+  if (!points.length) {
+    box.append(el('div', { class: 'empty' }, 'Todavía no hay modelos con nota en esta prueba.'));
+    return;
+  }
+  const W = Math.max(320, box.clientWidth), H = W < 640 ? 440 : 560;
+  // Margen derecho amplio: con el eje invertido, los modelos más baratos quedan en el borde derecho y sus
+  // etiquetas necesitan sitio fuera del área de datos.
+  const M = { top: 34, right: W < 640 ? 96 : 150, bottom: 58, left: 58 };
+  const pw = W - M.left - M.right, ph = H - M.top - M.bottom;
+
+  const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
+  let x0, x1, sx, xt;
+  if (state.log) {
+    x0 = Math.min(...xs) / 1.6; x1 = Math.max(...xs) * 1.6;
+    const l0 = Math.log10(x0), l1 = Math.log10(x1);
+    sx = (v) => M.left + (1 - (Math.log10(v) - l0) / (l1 - l0)) * pw; // invertido: más caro a la izquierda
+    xt = logTicks(x0, x1);
+  } else {
+    x0 = 0; x1 = Math.max(...xs) * 1.1;
+    const st = niceStep(x1, 5); x1 = Math.ceil(x1 / st) * st;
+    sx = (v) => M.left + (1 - (v - x0) / (x1 - x0)) * pw;
+    xt = linTicks(x0, x1, 5);
+  }
+  const yMax = ym.max, ySt = niceStep(yMax - Math.min(...ys), 6);
+  const y0 = Math.max(0, Math.floor((Math.min(...ys) - ySt) / ySt) * ySt), y1 = yMax;
+  const sy = (v) => M.top + (1 - (v - y0) / (y1 - y0)) * ph;
+  const yt = linTicks(y0, y1, 6);
+
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `${ym.title} frente a ${xm.title}. La tabla inferior contiene los mismos datos.` });
+  const g = sv('g');
+
+  for (const v of yt) {
+    g.append(sv('line', { x1: M.left, x2: M.left + pw, y1: sy(v), y2: sy(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
+    const t = sv('text', { x: M.left - 10, y: sy(v) + 4, 'text-anchor': 'end', fill: 'var(--muted)', 'font-size': 11, 'font-family': 'var(--mono)' });
+    t.textContent = state.y === 'hidden' ? `${v} %` : String(v);
+    g.append(t);
+  }
+  for (const v of xt) {
+    g.append(sv('line', { x1: sx(v), x2: sx(v), y1: M.top, y2: M.top + ph, stroke: 'var(--grid)', 'stroke-width': 1 }));
+    const t = sv('text', { x: sx(v), y: M.top + ph + 20, 'text-anchor': 'middle', fill: 'var(--muted)', 'font-size': 11, 'font-family': 'var(--mono)' });
+    t.textContent = xm.f(v);
+    g.append(t);
+  }
+  g.append(sv('line', { x1: M.left, x2: M.left + pw, y1: M.top + ph, y2: M.top + ph, stroke: 'var(--axis)', 'stroke-width': 1 }));
+
+  const xl = sv('text', { x: M.left + pw / 2, y: H - 12, 'text-anchor': 'middle', fill: 'var(--ink-2)', 'font-size': 12 });
+  xl.textContent = `${xm.label} (${xm.unit}) · menos es mejor →`;
+  g.append(xl);
+  const eff = sv('text', { x: M.left + pw, y: M.top - 14, 'text-anchor': 'end', fill: 'var(--muted)', 'font-size': 12, 'font-style': 'italic' });
+  eff.textContent = 'más eficiente ↗';
+  g.append(eff);
+
+  // Línea de la frontera.
+  const fp = points.filter((p) => front.has(p.m.slug)).sort((a, b) => a.x - b.x);
+  if (fp.length > 1) {
+    g.append(sv('polyline', {
+      points: fp.map((p) => `${sx(p.x)},${sy(p.y)}`).join(' '),
+      fill: 'none', stroke: 'var(--accent)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round',
+    }));
+  }
+
+  // Puntos: primero el resto, encima la frontera.
+  const ordered = [...points].sort((a, b) => front.has(a.m.slug) - front.has(b.m.slug));
+  for (const p of ordered) {
+    p.px = sx(p.x); p.py = sy(p.y);
+    const isF = front.has(p.m.slug);
+    const pt = sv('g', { class: 'pt', tabindex: 0, role: 'img', 'aria-label': `${p.m.name}: ${ym.label} ${ym.f(p.y)}, ${xm.label.toLowerCase()} ${xm.f(p.x)}${isF ? ', en la frontera de eficiencia' : ''}` });
+    pt.append(sv('circle', { cx: p.px, cy: p.py, r: 12, fill: 'transparent' }));
+    const c = sv('circle', { class: 'mark', cx: p.px, cy: p.py, r: 5, fill: isF ? 'var(--accent)' : 'var(--rest)', stroke: 'var(--surface)', 'stroke-width': 2 });
+    pt.append(c);
+    pt.addEventListener('focus', () => showTip(p, xm, ym));
+    pt.addEventListener('blur', hideTip);
+    p.node = c;
+    g.append(pt);
+  }
+
+  // Etiquetas con evitación de choques; si no caben, quedan en tooltip y tabla.
+  const nameFont = '500 12px "IBM Plex Sans", system-ui, sans-serif';
+  const varFont = '500 10px "IBM Plex Mono", ui-monospace, monospace';
+  const taken = points.map((p) => ({ x0: p.px - 7, x1: p.px + 7, y0: p.py - 7, y1: p.py + 7 }));
+  const free = (b) =>
+    b.x0 >= M.left && b.x1 <= W - 4 && b.y0 >= M.top - 4 && b.y1 <= M.top + ph &&
+    !taken.some((o) => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0);
+  const byPriority = [...points].sort((a, b) => front.has(b.m.slug) - front.has(a.m.slug) || b.y - a.y);
+  for (const p of byPriority) {
+    const variant = (p.m.variant || 'default').toUpperCase();
+    const w = Math.max(textW(p.m.name, nameFont), textW(variant, varFont) * 1.06) + 2;
+    const h = 26;
+    const tries = [
+      { ax: 'start', x: p.px + 9, y: p.py - 11 },
+      { ax: 'end', x: p.px - 9, y: p.py - 11 },
+      { ax: 'middle', x: p.px, y: p.py - 36 },
+      { ax: 'middle', x: p.px, y: p.py + 10 },
+      { ax: 'start', x: p.px + 9, y: p.py - 26 },
+      { ax: 'end', x: p.px - 9, y: p.py - 26 },
+      { ax: 'start', x: p.px + 9, y: p.py + 2 },
+      { ax: 'end', x: p.px - 9, y: p.py + 2 },
+      // Más lejos, con línea guía, para los puntos apiñados.
+      ...[[30, -38], [30, 14], [-30, -38], [-30, 14], [44, -62], [44, 38], [-44, -62], [-44, 38]].map(([dx, dy]) => (
+        { ax: dx > 0 ? 'start' : 'end', x: p.px + dx, y: p.py + dy, lead: true }
+      )),
+    ];
+    for (const t of tries) {
+      const bx0 = t.ax === 'start' ? t.x : t.ax === 'end' ? t.x - w : t.x - w / 2;
+      const b = { x0: bx0 - 2, x1: bx0 + w + 2, y0: t.y - 1, y1: t.y + h + 1 };
+      if (!free(b)) continue;
+      taken.push(b);
+      if (t.lead) {
+        // La guía va del borde del punto a la línea del nombre, sin tocar el texto.
+        const ty = t.y + 7, tx = t.ax === 'start' ? t.x - 3 : t.x + 3;
+        const ang = Math.atan2(ty - p.py, tx - p.px);
+        g.append(sv('line', {
+          x1: p.px + Math.cos(ang) * 8, y1: p.py + Math.sin(ang) * 8, x2: tx, y2: ty,
+          stroke: 'var(--axis)', 'stroke-width': 1,
+        }));
+      }
+      const n = sv('text', { x: t.x, y: t.y + 11, 'text-anchor': t.ax, fill: 'var(--ink)', 'font-size': 12, 'font-weight': 500, 'font-family': 'var(--sans)' });
+      n.textContent = p.m.name;
+      const v = sv('text', { x: t.x, y: t.y + 23, 'text-anchor': t.ax, fill: 'var(--muted)', 'font-size': 10, 'font-weight': 500, 'font-family': 'var(--mono)', 'letter-spacing': '0.06em' });
+      v.textContent = variant;
+      g.append(n, v);
+      break;
+    }
+  }
+
+  // Capa de hover: el punto más cercano (radio 48 px), no hace falta acertar en el círculo.
+  const hit = sv('rect', { x: M.left, y: M.top, width: pw, height: ph, fill: 'transparent' });
+  hit.addEventListener('pointermove', (e) => {
+    const r = svg.getBoundingClientRect(), k = W / r.width;
+    const mx = (e.clientX - r.left) * k, my = (e.clientY - r.top) * k;
+    let best = null, bd = 48;
+    for (const p of points) { const d = Math.hypot(p.px - mx, p.py - my); if (d < bd) { bd = d; best = p; } }
+    best ? showTip(best, xm, ym) : hideTip();
+  });
+  hit.addEventListener('pointerleave', hideTip);
+  svg.append(g, hit); // la capa de hover encima; los puntos siguen accesibles con el teclado
+  box.append(svg);
+  box._svg = svg; box._W = W;
+}
+
+let hot = null;
+function showTip(p, xm, ym) {
+  if (hot && hot !== p) hot.node.setAttribute('r', 5);
+  hot = p;
+  p.node.setAttribute('r', 7);
+  const tip = document.getElementById('tip');
+  tip.replaceChildren();
+  const m = p.m;
+  const head = el('div');
+  head.append(el('div', { class: 't-name' }, m.name), el('div', { class: 't-var' }, (m.variant || 'default').toUpperCase()));
+  tip.append(head);
+  tip.append(el('div', { class: 't-score' }, ym.f(p.y)));
+  const dl = el('dl');
+  const row = (k, v) => dl.append(el('dt', {}, k), el('dd', {}, v));
+  if (state.y !== 'score') row('Nota', fmt.score(m.score));
+  row('Suite oculta', m.hidden ? `${m.hidden.passed}/${m.hidden.total}` : '—');
+  row('Código · tests (juez)', m.code != null ? `${m.code} · ${m.tests}` : '—');
+  row('Coste', fmt.cost(m.cost));
+  row('Tokens generados', fmt.tokens(m.tokensOut));
+  row('Pasos', fmt.steps(m.steps));
+  row('Tiempo activo', fmt.time(m.activeMs));
+  row('Intervenciones', m.interventions ?? '—');
+  tip.append(dl);
+  if (m.categories) tip.append(el('div', { class: 't-cats' }, m.categories));
+  if (front.has(m.slug)) {
+    const f = el('div', { class: 't-front' });
+    f.append(el('span', { class: 'dot front' }), 'En la frontera de eficiencia');
+    tip.append(f);
+  }
+  tip.hidden = false;
+  const card = tip.parentElement, box = document.getElementById('chart');
+  const k = box.getBoundingClientRect().width / box._W;
+  const cx = box.offsetLeft + p.px * k, cy = box.offsetTop + p.py * k;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let left = cx + 16, top = cy - th / 2;
+  if (left + tw > card.clientWidth - 8) left = cx - tw - 16;
+  top = Math.max(8, Math.min(top, card.clientHeight - th - 8));
+  tip.style.left = `${Math.max(8, left)}px`;
+  tip.style.top = `${top}px`;
+}
+function hideTip() {
+  if (hot) hot.node.setAttribute('r', 5);
+  hot = null;
+  document.getElementById('tip').hidden = true;
+}
+
+// ---------- tabla ----------
+const STATUS = {
+  scored: ['ok', 'Evaluado'],
+  zero: ['bad', 'Sin proyecto'],
+  forbidden: ['bad', 'Motor prohibido'],
+  unjudged: ['warn', 'Pendiente de juez'],
+  running: ['run', 'Ejecutando'],
+  quota: ['warn', 'Cortado por cuota'],
+  access: ['warn', 'Sin acceso al modelo'],
+  pending: ['', 'Pendiente'],
+};
+const COLS = [
+  { k: 'rank', label: '#', sort: false },
+  { k: 'name', label: 'Modelo', get: (m) => m.name.toLowerCase() },
+  { k: 'score', label: 'Nota', get: (m) => m.score },
+  { k: 'hidden', label: 'Suite oculta', get: (m) => (m.hidden ? m.hidden.passed / m.hidden.total : null) },
+  { k: 'code', label: 'Código', get: (m) => m.code },
+  { k: 'tests', label: 'Tests', get: (m) => m.tests },
+  { k: 'cost', label: 'Coste', get: (m) => m.cost },
+  { k: 'tokens', label: 'Tokens', get: (m) => m.tokensOut },
+  { k: 'steps', label: 'Pasos', get: (m) => m.steps },
+  { k: 'time', label: 'Tiempo', get: (m) => m.activeMs },
+  { k: 'status', label: 'Estado', get: (m) => m.status },
+];
+
+function drawTable() {
+  const head = document.getElementById('thead');
+  head.replaceChildren();
+  for (const c of COLS) {
+    const th = el('th', { scope: 'col' });
+    if (c.sort === false) th.textContent = c.label;
+    else {
+      const b = el('button', { type: 'button' }, c.label);
+      if (state.sort === c.k) b.setAttribute('data-dir', state.dir < 0 ? '↓' : '↑');
+      b.addEventListener('click', () => {
+        state.dir = state.sort === c.k ? -state.dir : c.k === 'name' || c.k === 'cost' || c.k === 'tokens' || c.k === 'steps' || c.k === 'time' ? 1 : -1;
+        state.sort = c.k;
+        drawTable();
+      });
+      th.append(b);
+      th.setAttribute('aria-sort', state.sort === c.k ? (state.dir < 0 ? 'descending' : 'ascending') : 'none');
+    }
+    head.append(th);
+  }
+  const col = COLS.find((c) => c.k === state.sort);
+  const rows = [...DATA.models].sort((a, b) => {
+    const va = col.get(a), vb = col.get(b);
+    if (va == null && vb == null) return a.name.localeCompare(b.name);
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    return (va < vb ? -1 : va > vb ? 1 : 0) * state.dir || (b.score ?? -1) - (a.score ?? -1);
+  });
+  const body = document.getElementById('tbody');
+  body.replaceChildren();
+  const rankOf = new Map([...DATA.models].filter((m) => m.score != null).sort((a, b) => b.score - a.score).map((m, i) => [m.slug, i + 1]));
+  for (const m of rows) {
+    const tr = el('tr');
+    tr.append(el('td', { class: 'rank' }, rankOf.get(m.slug) ?? ''));
+    const n = el('td');
+    const inChart = points.some((p) => p.m.slug === m.slug);
+    n.append(el('span', { class: 'dot' + (front.has(m.slug) ? ' front' : ''), style: inChart ? '' : 'visibility:hidden', 'aria-hidden': 'true' }), ' ');
+    n.append(el('span', { class: 'm-name' }, m.name), el('span', { class: 'm-var' }, (m.variant || 'default').toUpperCase()));
+    tr.append(n);
+    tr.append(el('td', { class: 'num score' }, fmt.score(m.score)));
+    tr.append(el('td', { class: 'num' }, m.hidden ? `${m.hidden.passed}/${m.hidden.total}` : '—'));
+    tr.append(el('td', { class: 'num' }, m.code ?? '—'));
+    tr.append(el('td', { class: 'num' }, m.tests ?? '—'));
+    tr.append(el('td', { class: 'num' }, fmt.cost(m.cost)));
+    tr.append(el('td', { class: 'num' }, fmt.tokens(m.tokensOut)));
+    tr.append(el('td', { class: 'num' }, fmt.steps(m.steps)));
+    tr.append(el('td', { class: 'num' }, fmt.time(m.activeMs)));
+    const [cls, txt] = STATUS[m.status] ?? ['', m.status];
+    const st = el('td');
+    st.append(el('span', { class: 'pill ' + cls }, txt));
+    tr.append(st);
+    body.append(tr);
+  }
+}
+
+// ---------- notas ----------
+function notes() {
+  const f = document.getElementById('notes');
+  const W = DATA.weights;
+  const lines = [
+    `Nota 0–10 = corrección ${W.correctness} (suite oculta de ${DATA.hiddenTotal} casos) + autonomía ${W.autonomy} + tests propios ${W.ownTests} + código ${W.codeQuality} + robustez ${W.robustness}, según RUBRIC.md de la prueba.`,
+    'Frontera de eficiencia: modelos que ningún otro supera a la vez en el eje Y y en el eje X elegidos. Cambia al cambiar de eje.',
+    'Coste: precio de lista que registra opencode por sesión (con la suscripción Go es orientativo). Tokens generados: salida + razonamiento. Pasos: llamadas al modelo. Tiempo: tiempo activo del agente.',
+    'Cada modelo usa su variante de razonamiento más alta disponible (etiqueta bajo el nombre).',
+  ];
+  for (const l of lines) f.append(el('div', {}, l));
+}
+
+header();
+controls();
+render();
+notes();
+let rt;
+window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 120); });
+document.fonts?.ready.then(render);
+</script>
+
+</body>
+</html>

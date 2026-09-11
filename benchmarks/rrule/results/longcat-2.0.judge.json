@@ -1,0 +1,195 @@
+{
+  "test": "rrule",
+  "slug": "longcat-2.0",
+  "judgedAt": "2026-09-11T11:32:56.421Z",
+  "projectHash": "4cb2c5a4d25d",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.5125294,
+    "turns": 32,
+    "isError": false,
+    "usage": {
+      "input_tokens": 48,
+      "cache_creation_input_tokens": 36939,
+      "cache_read_input_tokens": 1214142,
+      "output_tokens": 11915,
+      "output_tokens_details": {
+        "thinking_tokens": 5770
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 36939,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 376,
+          "cache_read_input_tokens": 62469,
+          "cache_creation_input_tokens": 214,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 214
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "durationMs": 141457,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 4,
+      "strengths": [
+        "Buena separación en módulos (types, parse, timezone, expand, index) con tipos propios sin `any`",
+        "Conversión local↔UTC con refinamiento iterativo para lidiar con DST, en vez de asumir offsets fijos",
+        "Algoritmo acotado por frecuencia (avanza por semanas/meses, no día a día) con early-exit al alcanzar COUNT/UNTIL/rango"
+      ],
+      "weaknesses": [
+        "UNTIL no funciona en absoluto: usa `Date.parse` sobre el formato básico de RFC5545 ('20250403T170000Z'), que no es válido para Date.parse y lanza excepción siempre",
+        "MONTHLY con varios valores BYDAY no ordenados por día de semana (p.ej. 'FR,MO') genera ocurrencias fuera de orden cronológico dentro del mismo mes, a diferencia de WEEKLY que sí ordena por weekday",
+        "Los segundos del dtstart se descartan silenciosamente en toda la cadena (LocalParts solo tiene hour/minute)",
+        "Sin validación de entradas en `expand()` (asume rule/startUTC ya válidos) y sin límite explícito de iteraciones más allá del rango de fechas"
+      ]
+    },
+    "testQuality": {
+      "score": 6,
+      "strengths": [
+        "Cubre los 4 escenarios pedidos con aserciones concretas (horas locales, offsets, días de la semana, meses exactos)",
+        "El test de meses sin 31 y el de COUNT+BYDAY usan valores esperados fijos e independientes (array de meses, patrón de weekdays)",
+        "El test de DST verifica explícitamente el cambio de offset UTC+2→UTC+1 además de la hora local"
+      ],
+      "weaknesses": [
+        "No hay ningún test de UNTIL ni de INTERVAL>1, pese a que el enunciado los pide como parte del subconjunto soportado",
+        "Varias aserciones (DST, último viernes) se apoyan en funciones de la propia solución (utcToLocal/localToUTC) para construir los valores esperados, en vez de usar instantes ISO fijos calculados a mano",
+        "No hay tests de ventana parcial (from/to que recorten ocurrencias) ni de otras zonas horarias distintas de Europe/Madrid"
+      ]
+    },
+    "bugs": [
+      "UNTIL siempre lanza 'Invalid UNTIL' porque parseRRule usa Date.parse sobre el formato básico RFC5545 (sin separadores), que Date.parse no reconoce",
+      "MONTHLY con BYDAY multivaluado no ordenado (ej. 'FR,MO') produce ocurrencias en el orden de la lista BYDAY, no en orden cronológico dentro del mes",
+      "Los segundos de dtstartLocal se pierden silenciosamente en toda la cadena de conversión de zona horaria"
+    ],
+    "summary": "Arquitectura limpia y manejo de DST correcto para los casos probados, pero UNTIL está completamente roto por un parseo de fecha inválido y MONTHLY con varios BYDAY puede devolver resultados desordenados; los tests cubren bien los cuatro escenarios pedidos pero no detectan estos bugs porque no prueban UNTIL, INTERVAL ni BYDAY multivaluado en MONTHLY."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 17,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": true
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": true
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": true
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": false
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": false
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": true
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": true
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { parseRRule, expand as solutionExpand } from '../src/index';\n\nexport const expand: Expand = (input) => {\n  const rule = parseRRule(input.rrule);\n  const startUTC = Date.parse(input.dtstartUtc);\n  const rangeStart = Date.parse(input.from);\n  const rangeEnd = Date.parse(input.to);\n\n  const occurrences = solutionExpand(rule, startUTC, input.tz, rangeStart, rangeEnd);\n\n  return occurrences.map((ms) => new Date(ms).toISOString());\n};\n"
+}
