@@ -18,19 +18,20 @@ La tabla la regenera `node scripts/bench.mjs collect|judge|report`. Las columnas
 | LongCat-2.0 | **7.9** | ✅ | 17/19 | 4 | 6 | 4/4 | ✅ | 4/4 | ✅ | ✅ | ninguna | 298/98 | 20m 53s | 20m 55s | 0 (plan) | 30 | 33 (0) | 101.0k | 11.6k | 51.1k | 1.43M | $0.1141 | high |  |  |  |  |  |
 | MiMo V2.5 | **8.7** | ✅ | 16/19 | 7 | 8 | 4/4 | ✅ | 13/13 | ✅ | ✅ | ninguna | 446/355 | 5m 11s | 5m 12s | 0 (plan) | 26 | 27 (0) | 50.0k | 29.8k | 0 | 513.9k | $0.0168 | default |  |  |  |  |  |
 | MiMo V2.5 Pro | **8.2** | ✅ | 13/19 | 8 | 8 | 4/4 | ✅ | 25/25 | ✅ | ✅ | ninguna | 533/520 | 7m 33s | 7m 36s | 0 (plan) | 44 | 42 (0) | 52.2k | 24.9k | 0 | 1.12M | $0.0485 | default |  |  |  |  |  |
-| MiniMax-M2.7 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| MiniMax-M2.7 | **5.5** | ✅ | 9/19 | 6 | 6 | 4/4 | ✅ | 7/7 | ✅ | ❌ 1 | ninguna | 324/207 | 30m 52s | 30m 54s | 2 (plan) | 60 | 69 (1) | 64.4k | 30.1k | 38.6k | 1.69M | $0.2030 | default |  |  |  |  |  |
 | MiniMax-M3 | **9.1** | ✅ | 17/19 | 8 | 8 | 4/4 | ✅ | 19/19 | ✅ | ✅ | ninguna | 399/273 | 6m 49s | 6m 51s | 0 (plan) | 40 | 38 (0) | 40.5k | 34.4k | 13.8k | 1.33M | $0.1500 | thinking |  |  |  |  |  |
 | Muse Spark 1.3 Contributor | **8.1** | ✅ | 14/19 | 7 | 8 | 4/4 | ✅ | 8/8 | ✅ | ✅ | ninguna | 578/187 | 3m 41s | 3m 44s | 0 (plan) | 26 | 26 (0) | 48.7k | 15.8k | 9.0k | 574.8k | $0.0110 | xhigh |  |  |  |  |  |
 | Qwen3.6 Plus | **7.3** | ✅ | 13/19 | 5 | 7 | 4/4 | ✅ | 10/10 | ✅ | ❌ 1 | ninguna | 373/158 | 4m 15s | 4m 17s | 0 (plan) | 20 | 18 (1) | 291.0k | 11.0k | 833 | 0 | $0.1809 | default |  |  |  |  |  |
 | Qwen3.7 Max | **8.6** | ✅ | 17/19 | 7 | 6 | 4/4 | ✅ | 7/7 | ✅ | ✅ | ninguna | 301/171 | 4m 45s | 4m 47s | 0 (plan) | 16 | 19 (0) | 64.4k | 10.0k | 12.9k | 255.7k | $0.4605 | default |  |  |  |  |  |
-| Qwen3.7 Plus |  | ✅ ⚠️ |  |  |  |  | ⚠️ accedió 👀 fuera | 7/7 | ✅ | ✅ | ninguna | 301/171 | 7m 30s | 7m 32s | 0 (plan) | 36 | 121 (59) | 183.5k | 24.5k | 3.3k | 596.2k | $0.1418 | default |  |  |  |  |  |
-| Qwen3.8 Flash |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Qwen3.8 Max |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Qwen3.7 Plus | **8.5** | ✅ ⚠️ | 17/19 | 6 | 7 | 4/4 | ⚠️ accedió 👀 fuera | 7/7 | ✅ | ✅ | ninguna | 301/171 | 7m 30s | 7m 32s | 0 (plan) | 36 | 121 (59) | 183.5k | 24.5k | 3.3k | 596.2k | $0.1418 | default |  |  |  |  |  |
+| Qwen3.8 Flash | **9.5** | ✅ | 18/19 | 9 | 9 | 4/4 | ✅ | 55/55 | ✅ | ✅ | ninguna | 892/762 | 26m 02s | 26m 04s | 0 (plan) | 76 | 74 (3) | 456 | 83.9k | 0 | 5.00M | $0.1417 | xhigh |  |  |  |  |  |
+| Qwen3.8 Max | **6.3**\* | ⏹ no terminó (≈70 %)\* | 19/19 | 9 | 0 | 0/4 | ✅ | 0/0 | ❌ UTC, America/New_York, Asia/Kolkata | ✅ | ninguna | 1038/0 | 28m 30s | 28m 32s | 0 (plan) | 33 | 38 (1) | 95.5k | 24.7k | 34.5k | 1.19M | $0.8425 | xhigh |  |  |  |  | Detenido a mano por coste: $0,84 en 24 min sin terminar (cuota de 5 h) |
 
 ## Leyenda
 
 - **Nota** (0-10): corrección 4 + autonomía 1 + tests propios 2 + código 2 + robustez 1 − penalización. Ver [RUBRIC.md](RUBRIC.md).
 - **Suite oculta**: casos de referencia que pasa la solución (el modelo no los conoce). **Cód.** / **Cal. tests**: nota del juez sobre 10. **Cobertura**: escenarios del enunciado que sus tests cubren según el juez.
+- **\***: el modelo no terminó (se detuvo a mano por tardar o gastar demasiado); se valora el código tal como estaba, con autonomía 0. Estado ⏹.
 - **Estado**: ✅ todos los tests del modelo pasan al re-ejecutarlos · ❌ alguno falla o no hay tests · ⏳ sesión sin terminar · ⛔ la sesión terminó sin generar proyecto (nota 0) · ⚠️ avisos (modelo distinto al esperado, timeout…; ver el JSON).
 - **Aislamiento**: ✅ limpio · 🔒 intentó leer fuera de su carpeta pero se bloqueó · ⚠️ accedió a otras rutas del repo (resultado contaminado: otras soluciones, resultados o suite oculta) · 👀 exploró tu carpeta personal fuera del benchmark (no contamina, pero se registra) · ℹ️ opencode le pasó el fichero abierto en el editor.
 - **Tests**: tests del propio modelo que pasan / total, ejecutados de nuevo con `vitest run` en la TZ del sistema.

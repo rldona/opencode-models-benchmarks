@@ -11,17 +11,21 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 | 3 | Hy4 preview | **9.8** | 4 | 1 | 1.95 | 1.8 | 1 |  |
 | 4 | GLM-5.3-Flash | **9.6** | 4 | 1 | 1.95 | 1.6 | 1 |  |
 | 5 | GPT-5.6 Luna | **9.6** | 4 | 1 | 1.8 | 1.8 | 1 |  |
-| 6 | DeepSeek V4 Pro (New) | **9.4** | 4 | 1 | 1.75 | 1.6 | 1 |  |
-| 7 | Grok 4.6 | **9.2** | 4 | 1 | 1.55 | 1.6 | 1 |  |
-| 8 | MiniMax-M3 | **9.1** | 3.58 | 1 | 1.9 | 1.6 | 1 |  |
-| 9 | Kimi K2.7 Code | **8.9** | 3.79 | 1 | 1.7 | 1.4 | 1 |  |
-| 10 | Kimi K3 | **8.9** | 3.37 | 1 | 1.9 | 1.6 | 1 |  |
-| 11 | MiMo V2.5 | **8.7** | 3.37 | 1 | 1.9 | 1.4 | 1 |  |
-| 12 | Qwen3.7 Max | **8.6** | 3.58 | 1 | 1.65 | 1.4 | 1 |  |
-| 13 | MiMo V2.5 Pro | **8.2** | 2.74 | 1 | 1.9 | 1.6 | 1 |  |
-| 14 | Muse Spark 1.3 Contributor | **8.1** | 2.95 | 1 | 1.8 | 1.4 | 1 |  |
-| 15 | LongCat-2.0 | **7.9** | 3.58 | 1 | 1.5 | 0.8 | 1 |  |
-| 16 | Qwen3.6 Plus | **7.3** | 2.74 | 1 | 1.85 | 1 | 0.75 |  |
+| 6 | Qwen3.8 Flash | **9.5** | 3.79 | 1 | 1.95 | 1.8 | 1 |  |
+| 7 | DeepSeek V4 Pro (New) | **9.4** | 4 | 1 | 1.75 | 1.6 | 1 |  |
+| 8 | Grok 4.6 | **9.2** | 4 | 1 | 1.55 | 1.6 | 1 |  |
+| 9 | MiniMax-M3 | **9.1** | 3.58 | 1 | 1.9 | 1.6 | 1 |  |
+| 10 | Kimi K2.7 Code | **8.9** | 3.79 | 1 | 1.7 | 1.4 | 1 |  |
+| 11 | Kimi K3 | **8.9** | 3.37 | 1 | 1.9 | 1.6 | 1 |  |
+| 12 | MiMo V2.5 | **8.7** | 3.37 | 1 | 1.9 | 1.4 | 1 |  |
+| 13 | Qwen3.7 Max | **8.6** | 3.58 | 1 | 1.65 | 1.4 | 1 |  |
+| 14 | Qwen3.7 Plus | **8.5** | 3.58 | 1 | 1.7 | 1.2 | 1 |  |
+| 15 | MiMo V2.5 Pro | **8.2** | 2.74 | 1 | 1.9 | 1.6 | 1 |  |
+| 16 | Muse Spark 1.3 Contributor | **8.1** | 2.95 | 1 | 1.8 | 1.4 | 1 |  |
+| 17 | LongCat-2.0 | **7.9** | 3.58 | 1 | 1.5 | 0.8 | 1 |  |
+| 18 | Qwen3.6 Plus | **7.3** | 2.74 | 1 | 1.85 | 1 | 0.75 |  |
+| 19 | Qwen3.8 Max\* | **6.3**\* | 4 | 0 | 0 | 1.8 | 0.5 |  |
+| 20 | MiniMax-M2.7 | **5.5** | 1.89 | 0 | 1.65 | 1.2 | 0.75 |  |
 
 ## DeepSeek V4.1 Flash — 9.8
 
@@ -189,6 +193,44 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 - 🐛 No se ha detectado ningún bug funcional en la implementación tras revisión y pruebas ad-hoc de los casos límite
 
 <sub>Juez: claude:sonnet · 2026-09-11 11:08 · adaptador: [results/gpt-5.6-luna.adapter.ts](results/gpt-5.6-luna.adapter.ts)</sub>
+
+## Qwen3.8 Flash — 9.5
+
+> Solución muy sólida: diseño limpio basado en wall-clock con conversión a instante solo al final, maneja correctamente DST (huecos y ambigüedades), y una batería de tests exhaustiva con aserciones exactas que cubre con holgura los cuatro escenarios pedidos en el enunciado.
+
+- **Corrección** 3.79/4: suite oculta 18/19
+- **Autonomía** 1/1: 0 intervención(es) del usuario (empezó en modo plan; la aprobación del plan no cuenta)
+- **Tests propios** 1.95/2: pasan 0.5/0.5 (55/55) · cobertura 0.5/0.5 · cantidad 0.5/0.5 · calidad 0.45/0.5 (9/10)
+- **Código** 1.8/2 (9/10)
+- **Robustez** 1/1
+- Cobertura de lo pedido: ✅ dstOctubreMadrid · ✅ ultimoViernes · ✅ mesesSin31 · ✅ countConByday
+
+**Código**
+
+- + Separación clara en tres módulos (timezone.ts, rrule.ts, expand.ts) con responsabilidades bien delimitadas
+- + Todo el cálculo se hace sobre wall clock y solo se convierte a instante al final, lo que resuelve DST correctamente incluyendo huecos y ambigüedades (spring-forward/fall-back)
+- + Generador perezoso con 'skipTo' para saltar unidades sin iterar día a día, más límites de seguridad (maxIterations/maxOccurrences)
+- + Tipos precisos sin 'any', validación exhaustiva de entradas con errores descriptivos (RRuleError, InvalidTimeZoneError)
+- − Algunas funciones como generateRecurrences concentran bastante lógica (parseo de límites, walk, emisión) en un solo bloque
+- − El manejo de wall clocks nonexistent/ambiguous mediante búsqueda binaria y heurísticas de sondeo es algo denso de seguir sin los comentarios
+
+**Tests**
+
+- + Aserciones exactas sobre instantes UTC, hora local y offset en minutos, con valores calculados a mano (p. ej. 09:00 local = 07:00Z antes del cambio y 08:00Z después), no derivados de la propia implementación
+- + Cubre casos límite más allá de lo pedido: UNTIL inclusivo, INTERVAL con BYDAY, wall clock inexistente y ambiguo, zonas del hemisferio sur, zonas sin DST, ventanas parciales y COUNT relativo a dtstart aunque la ventana empiece después
+- + Nombres de test descriptivos que explican el escenario y el resultado esperado
+- + Incluye tests de la capa de parseo (parseRRule, parseByDayToken) y de la capa de timezone por separado, además de los de expansión end-to-end
+- − Un test de 'round-trips every hour of a DST year' es más una comprobación de invariante genérica que un caso de negocio concreto, aporta menos que los demás
+
+**Casos de la suite oculta que fallan**
+
+- ✗ [13] mensual primer y último lunes (1MO,-1MO) con COUNT
+
+**Adaptaciones del adaptador**
+
+- ⚙️ La API de la solución acepta [from, to] como ventana cerrada (inclusiva en ambos extremos), mientras que el contrato usa [from, to) semiabierta; no afecta a los resultados porque el contrato garantiza que ningún caso tiene ocurrencias justo en los bordes.
+
+<sub>Juez: claude:sonnet · 2026-09-11 14:45 · adaptador: [results/qwen3.8-flash.adapter.ts](results/qwen3.8-flash.adapter.ts)</sub>
 
 ## DeepSeek V4 Pro (New) — 9.4
 
@@ -482,6 +524,49 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 
 <sub>Juez: claude:sonnet · 2026-09-11 14:15 · adaptador: [results/qwen3.7-max.adapter.ts](results/qwen3.7-max.adapter.ts)</sub>
 
+## Qwen3.7 Plus — 8.5
+
+> La implementación resuelve bien FREQ/INTERVAL/BYDAY/COUNT con manejo correcto de DST y buena separación de responsabilidades, y los tests para los 4 escenarios pedidos son sólidos con aserciones concretas; sin embargo UNTIL —requisito explícito del enunciado— está completamente roto por un parseo de fecha incorrecto y no está cubierto por ningún test.
+
+- **Corrección** 3.58/4: suite oculta 17/19
+- **Autonomía** 1/1: 0 intervención(es) del usuario (empezó en modo plan; la aprobación del plan no cuenta)
+- **Tests propios** 1.7/2: pasan 0.5/0.5 (7/7) · cobertura 0.5/0.5 · cantidad 0.35/0.5 · calidad 0.35/0.5 (7/10)
+- **Código** 1.2/2 (6/10)
+- **Robustez** 1/1
+- Cobertura de lo pedido: ✅ dstOctubreMadrid · ✅ ultimoViernes · ✅ mesesSin31 · ✅ countConByday
+
+**Código**
+
+- + Buena separación en types/parse/tz/expand, sin `any`
+- + Conversión hora local↔UTC correcta y robusta ante DST (recalcula offset con Intl.DateTimeFormat)
+- + Generadores acotados por semana/mes/día que se detienen por COUNT, UNTIL o el rango, sin iterar sin límite
+- − UNTIL está roto: `new Date('20250403T170000Z')` (formato RFC5545 sin separadores) da 'Invalid Date' en Node/V8, por lo que la comparación con UNTIL nunca corta la serie
+- − Sin validación de entradas: BYDAY con código de día inválido o INTERVAL=0 no lanzan error, producen NaN o bucles sin avance
+- − Bastante duplicación entre generateMonthlyOrdinal/AllDays/DayOfMonth (mismo patrón de candidatos+sort repetido)
+
+**Tests**
+
+- + Aserciones exactas de instantes UTC y de hora local (no solo longitudes) en el test de DST
+- + Cobertura completa de 'último viernes' en los 12 meses del año con días esperados explícitos
+- + Test adicional de COUNT+BYDAY con ventana parcial que verifica que COUNT cuenta sobre toda la serie y no solo lo visible en el rango
+- − No hay ningún test de UNTIL pese a ser un componente de la regla pedido explícitamente en el enunciado (y que además está roto)
+- − No se testea la forma '2TU' (ordinal positivo) que el enunciado menciona explícitamente, solo '-1FR'
+- − No hay ningún test con INTERVAL>1 ni con más de una zona horaria
+
+**Bugs detectados por el juez**
+
+- 🐛 UNTIL no funciona: el parseo con `new Date(valorRFC5545)` produce Invalid Date, por lo que `rrule.until.getTime()` es NaN y la condición de corte nunca se cumple; la serie sigue generándose sin respetar UNTIL
+- 🐛 BYDAY con un código de día no reconocido no lanza error: se traduce a `undefined` en DAY_MAP y contamina los cálculos de día con NaN silenciosamente
+- 🐛 INTERVAL=0 (o negativo) no se valida y provocaría un generador que no avanza (bucle infinito en la práctica, solo cortado por rangeEnd si hay candidatos, o cuelgue si no los hay)
+- 🐛 No hay ningún test que ejercite UNTIL, así que el bug de UNTIL pasa inadvertido en la propia suite de la solución
+
+**Casos de la suite oculta que fallan**
+
+- ✗ [11] semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora
+- ✗ [12] diario con UNTIL (UTC)
+
+<sub>Juez: claude:sonnet · 2026-09-11 14:26 · adaptador: [results/qwen3.7-plus.adapter.ts](results/qwen3.7-plus.adapter.ts)</sub>
+
 ## MiMo V2.5 Pro — 8.2
 
 > Implementación sólida y bien acotada que cubre correctamente FREQ/INTERVAL/BYDAY/COUNT/UNTIL con manejo cuidadoso de DST vía Intl.DateTimeFormat, con tests exhaustivos y de aserciones exactas para los cuatro escenarios pedidos; los defectos son menores (código muerto, duplicación, un caso de UNTIL sin 'Z' dependiente de la zona horaria de la máquina).
@@ -671,3 +756,98 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 - ✗ [16] semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)
 
 <sub>Juez: claude:sonnet · 2026-09-11 14:17 · adaptador: [results/qwen3.6-plus.adapter.ts](results/qwen3.6-plus.adapter.ts)</sub>
+
+## Qwen3.8 Max — 6.3\*
+
+> ⏹ **\* No terminó (≈70 % hecho)**: detenido a mano por tardar demasiado (24 min, $0,84): código completo y tsc limpio, sin tests ni README. Se valora el código tal como estaba al detenerlo; autonomía 0.
+
+> La implementación en src/ es de muy buena calidad (tipado estricto, separación de responsabilidades, manejo correcto de DST y casos límite verificados manualmente), pero la entrega incumple el requisito central del enunciado: no se escribió ningún test, el directorio test/ está vacío y 'npm test' falla inmediatamente por ausencia de ficheros de test.
+
+- **Corrección** 4/4: suite oculta 19/19
+- **Autonomía** 0/1: 0 intervención(es) del usuario (empezó en modo plan; la aprobación del plan no cuenta), sesión sin terminar
+- **Tests propios** 0/2: pasan 0/0.5 (0/0) · cobertura 0/0.5 · cantidad 0/0.5 · calidad 0/0.5 (0/10)
+- **Código** 1.8/2 (9/10)
+- **Robustez** 0.5/1
+- Cobertura de lo pedido: ❌ dstOctubreMadrid · ❌ ultimoViernes · ❌ mesesSin31 · ❌ countConByday
+
+**Código**
+
+- + Separación clara en módulos (civil, tz, parse, expand, errors) con responsabilidades bien delimitadas
+- + Tipado estricto sin 'any', con tipos exportados precisos e interfaces bien documentadas
+- + Generación de candidatos acotada por periodo/interval con MAX_CANDIDATES como válvula de seguridad, sin iterar día a día indefinidamente
+- + Manejo cuidadoso de DST: distingue hora local inexistente (salto de primavera) y ambigua (retroceso de otoño), con política configurable 'shift'/'skip'
+- + Validación de entradas exhaustiva con errores tipados (RRuleError con código) para casos como FREQ no soportado, COMBINACIONES BYDAY inválidas, UNTIL+COUNT simultáneos, etc.
+- − Ninguna debilidad relevante detectada en el código de src/; el diseño es robusto y correcto en las pruebas manuales realizadas
+
+**Tests**
+
+- − No existe ningún fichero de test: el directorio test/ está vacío y 'npm test' falla con 'No test files found, exiting with code 1'
+- − No se cubre ninguno de los escenarios pedidos en el enunciado (DST en Europe/Madrid, último viernes de mes, meses sin día 31, COUNT combinado con BYDAY)
+- − El enunciado pedía explícitamente ejecutar los tests y no terminar hasta que pasaran todos; esto no se cumplió en absoluto
+
+**Bugs detectados por el juez**
+
+- 🐛 No hay bugs funcionales detectados en el código fuente mediante lectura y comprobaciones manuales (DST Madrid, último viernes, meses sin 31, COUNT+BYDAY se comportan correctamente)
+- 🐛 El incumplimiento más grave no es un bug de código sino de entrega: falta por completo la suite de tests exigida por el enunciado
+
+**Adaptaciones del adaptador**
+
+- ⚙️ El contrato usa ventana [from, to) semiabierta y la solución usa rangeStart/rangeEnd inclusivos en ambos extremos; se filtra defensivamente instant < to, sin efecto real porque el enunciado garantiza que no hay ocurrencias justo en los bordes.
+
+<sub>Juez: claude:sonnet · 2026-09-11 14:57 · adaptador: [results/qwen3.8-max.adapter.ts](results/qwen3.8-max.adapter.ts)</sub>
+
+## MiniMax-M2.7 — 5.5
+
+> La solución cubre correctamente los cuatro escenarios pedidos con tests de aserciones concretas y pasa todos sus tests, pero tiene una limitación real no detectada por su propia suite (BYDAY multi-día solo usa el primer valor) y varias decisiones de robustez (fallback silencioso de FREQ, aritmética de calendario ligada a new Date sin tz) que la dejan en un nivel intermedio de calidad.
+
+- **Corrección** 1.89/4: suite oculta 9/19
+- **Autonomía** 0/1: 2 intervención(es) del usuario (empezó en modo plan; la aprobación del plan no cuenta)
+- **Tests propios** 1.65/2: pasan 0.5/0.5 (7/7) · cobertura 0.5/0.5 · cantidad 0.35/0.5 · calidad 0.3/0.5 (6/10)
+- **Código** 1.2/2 (6/10)
+- **Robustez** 0.75/1
+- Cobertura de lo pedido: ✅ dstOctubreMadrid · ✅ ultimoViernes · ✅ mesesSin31 · ✅ countConByday
+
+**Código**
+
+- + Separación clara en módulos (types, parse, offset, expand) sin dependencias externas
+- + Conversión zona-horaria/UTC bien resuelta con Intl.DateTimeFormat, incluyendo doble ajuste de offset para DST
+- + Bucles acotados con límites explícitos (no iteración indefinida)
+- − BYDAY con varios días (p. ej. MO,WE,FR) solo usa byDay[0] tanto en WEEKLY como en MONTHLY, ignorando silenciosamente el resto
+- − FREQ desconocido o BYDAY malformado se descartan silenciosamente (fallback a WEEKLY, filter(Boolean)) en vez de fallar con un error claro
+- − La aritmética de calendario (getNthWeekdayOfMonth, addLocalDays) usa new Date(year,month,day) en la zona horaria del proceso Node en vez de ser independiente de la máquina, acoplando el resultado a un supuesto implícito
+- − Bastante duplicación entre las tres ramas de FREQ (DAILY/WEEKLY/MONTHLY) para acumular resultados y comprobar UNTIL/COUNT
+
+**Tests**
+
+- + Aserciones con fechas y horas concretas (no solo longitudes o toBeDefined) para los cuatro escenarios pedidos
+- + El test de DST verifica explícitamente que la hora local se mantiene en 09:00 tanto antes como después del cambio de hora
+- + Nombres de test descriptivos que explican el escenario cubierto
+- − No hay test con BYDAY de varios días a la vez, que habría detectado el bug de byDay[0]
+- − Falta cobertura de INTERVAL>1 combinado con BYDAY/DST, UNTIL inclusivo, o ventanas parciales que corten ocurrencias
+- − Los valores esperados no están contrastados con una fuente independiente (p. ej. otra librería o calendario de referencia), solo calculados a mano/mentalmente por quien escribió el test junto al código
+
+**Bugs detectados por el juez**
+
+- 🐛 BYDAY con múltiples días (FREQ=WEEKLY o MONTHLY;BYDAY=MO,WE,FR) solo genera ocurrencias para el primer día de la lista, ignorando los demás sin avisar
+- 🐛 FREQ=MONTHLY sin BYDAY en meses sin el día original (p.ej. día 31) desplaza la ocurrencia al último día del mes en vez de omitirla, que es el comportamiento habitual de RRULE
+- 🐛 parseRRule ignora un FREQ desconocido devolviendo WEEKLY por defecto en lugar de lanzar un error, ocultando entradas inválidas
+- 🐛 getNthWeekdayOfMonth y addLocalDays construyen Date con new Date(year,month,day) en la zona horaria del proceso en vez de ser agnósticos a la máquina, acoplando el cálculo de calendario a un supuesto no documentado
+
+**Casos de la suite oculta que fallan**
+
+- ✗ [02] semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)
+- ✗ [07] mensual día 31 salta los meses sin día 31 (COUNT)
+- ✗ [08] mensual día 31 sin fin, ventana de febrero a junio
+- ✗ [09] COUNT + BYDAY semanal (MO,WE,FR)
+- ✗ [10] COUNT se cuenta desde el inicio, no desde la ventana
+- ✗ [11] semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora
+- ✗ [13] mensual primer y último lunes (1MO,-1MO) con COUNT
+- ✗ [14] mensual BYDAY=FR sin ordinal = todos los viernes del mes
+- ✗ [16] semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)
+- ✗ [18] regla infinita consultada años después (eficiencia)
+
+**Adaptaciones del adaptador**
+
+- ⚙️ La solución trata el límite superior de la ventana como inclusivo (utcMs > to.getTime()) mientras el contrato usa [from, to) semiabierto; no se compensó porque el enunciado no especifica exclusividad y el contrato garantiza que ningún caso tiene ocurrencias justo en el borde.
+
+<sub>Juez: claude:sonnet · 2026-09-11 14:41 · adaptador: [results/minimax-m2.7.adapter.ts](results/minimax-m2.7.adapter.ts)</sub>

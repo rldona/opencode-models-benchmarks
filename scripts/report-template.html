@@ -388,7 +388,7 @@ function header() {
   const links = document.getElementById('links');
   links.replaceChildren(...(cur.links ?? []).map(([label, href]) => el('a', { href }, label)));
   links.hidden = !(cur.links ?? []).length;
-  document.getElementById('eyebrow').textContent = `Benchmark de modelos de programación · prueba ${cur.short ?? cur.test}`;
+  document.getElementById('eyebrow').textContent = `${DATA.eyebrow ?? 'Benchmark de modelos de programación'} · prueba ${cur.short ?? cur.test}`;
   document.getElementById('title').textContent = DATA.siteTitle ?? cur.title;
   const scored = cur.models.filter((m) => scoreOf(m) != null);
   const best = [...scored].sort((a, b) => scoreOf(b) - scoreOf(a))[0];
@@ -543,7 +543,7 @@ function drawBars(box, vals, h) {
       : sv('text', { x: cx, y: y - 6, 'text-anchor': 'middle', fill: 'var(--ink)', 'font-size': 10.5, 'font-family': 'var(--mono)', 'font-weight': 500 });
     val.textContent = h.f(x.v);
     const lab = sv('text', { x: cx + 3, y: base + 14, 'text-anchor': 'end', fill: 'var(--ink-2)', 'font-size': 11, transform: `rotate(-45 ${cx + 3} ${base + 14})` });
-    lab.textContent = x.m.name;
+    lab.textContent = x.m.name + (x.m.stopped ? ' *' : '');
     const show = () => { bar.classList.add('hot'); showHTip(x, h, hit); };
     const hide = () => { bar.classList.remove('hot'); hideHTip(); };
     hit.addEventListener('pointerenter', show);
@@ -689,7 +689,7 @@ function drawChart(xm, ym) {
   const byPriority = [...points].sort((a, b) => front.has(b.m.slug) - front.has(a.m.slug) || b.y - a.y);
   for (const p of byPriority) {
     const variant = (p.m.variant || 'default').toUpperCase();
-    const w = Math.max(textW(p.m.name, nameFont), textW(variant, varFont) * 1.06) + 2;
+    const w = Math.max(textW(p.m.name + (p.m.stopped ? ' *' : ''), nameFont), textW(variant, varFont) * 1.06) + 2;
     const h = 26;
     const tries = [
       { ax: 'start', x: p.px + 9, y: p.py - 11 },
@@ -720,7 +720,7 @@ function drawChart(xm, ym) {
         }));
       }
       const n = sv('text', { x: t.x, y: t.y + 11, 'text-anchor': t.ax, fill: 'var(--ink)', 'font-size': 12, 'font-weight': 500, 'font-family': 'var(--sans)' });
-      n.textContent = p.m.name;
+      n.textContent = p.m.name + (p.m.stopped ? ' *' : '');
       const v = sv('text', { x: t.x, y: t.y + 23, 'text-anchor': t.ax, fill: 'var(--muted)', 'font-size': 10, 'font-weight': 500, 'font-family': 'var(--mono)', 'letter-spacing': '0.06em' });
       v.textContent = variant;
       g.append(n, v);
@@ -767,6 +767,7 @@ function showTip(p, xm, ym) {
   row('Intervenciones', m.interventions ?? '—');
   tip.append(dl);
   if (m.categories) tip.append(el('div', { class: 't-cats' }, m.categories));
+  if (m.stopped) tip.append(el('div', { class: 't-cats' }, `* No terminó${m.progress != null ? ` (≈${m.progress} % hecho)` : ''}: ${m.stopped}`));
   if (front.has(m.slug)) {
     const f = el('div', { class: 't-front' });
     f.append(el('span', { class: 'dot front' }), 'En la frontera de eficiencia');
@@ -795,6 +796,7 @@ const STATUS = {
   zero: ['bad', 'Sin proyecto'],
   forbidden: ['bad', 'Motor prohibido'],
   unjudged: ['warn', 'Pendiente de juez'],
+  stopped: ['warn', 'No terminó (*)'],
   running: ['run', 'Ejecutando'],
   quota: ['warn', 'Cortado por cuota'],
   access: ['warn', 'Sin acceso al modelo'],
@@ -858,7 +860,7 @@ function drawTable() {
     n.append(el('span', { class: 'dot' + (front.has(m.slug) ? ' front' : ''), style: inChart ? '' : 'visibility:hidden', 'aria-hidden': 'true' }), ' ');
     n.append(el('span', { class: 'm-name' }, m.name), el('span', { class: 'm-var' }, (m.variant || 'default').toUpperCase()));
     tr.append(n);
-    tr.append(el('td', { class: 'num score' }, fmt.score(scoreOf(m))));
+    tr.append(el('td', { class: 'num score' }, fmt.score(scoreOf(m)) + (m.stopped && scoreOf(m) != null ? '*' : '')));
     tr.append(el('td', { class: 'num' }, m.hidden ? `${m.hidden.passed}/${m.hidden.total}` : '—'));
     tr.append(el('td', { class: 'num' }, m.code ?? '—'));
     tr.append(el('td', { class: 'num' }, m.tests ?? '—'));
@@ -866,7 +868,8 @@ function drawTable() {
     tr.append(el('td', { class: 'num' }, fmt.tokens(m.tokensOut)));
     tr.append(el('td', { class: 'num' }, fmt.steps(m.steps)));
     tr.append(el('td', { class: 'num' }, fmt.time(m.activeMs)));
-    const [cls, txt] = STATUS[m.status] ?? ['', m.status];
+    const [cls, txt0] = STATUS[m.status] ?? ['', m.status];
+    const txt = m.status === 'stopped' && m.progress != null ? `No terminó (≈${m.progress} %) *` : txt0;
     const st = el('td');
     st.append(el('span', { class: 'pill ' + cls }, txt));
     tr.append(st);
@@ -884,7 +887,10 @@ function notes() {
     'Frontera de eficiencia: modelos que ningún otro supera a la vez en el eje Y y en el eje X elegidos. Cambia al cambiar de eje.',
     'Coste: precio de lista que registra opencode por sesión (con la suscripción Go es orientativo). Tokens generados: salida + razonamiento. Pasos: llamadas al modelo. Tiempo: tiempo activo del agente.',
     'Cada modelo usa su variante de razonamiento más alta disponible (etiqueta bajo el nombre).',
+    ...(DATA.notes ?? []),
   ];
+  const stopped = cur.models.filter((m) => m.stopped);
+  if (stopped.length) lines.push(`* No terminó: ${stopped.map((m) => `${m.name}${m.progress != null ? ` (≈${m.progress} % hecho)` : ''} — ${m.stopped}`).join('; ')}. Se valora el código tal como estaba al detenerlo; autonomía 0.`);
   for (const l of lines) f.append(el('div', {}, l));
   if (DATA.repoUrl) {
     const r = el('div');
