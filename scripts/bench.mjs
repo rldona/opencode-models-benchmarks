@@ -1214,6 +1214,8 @@ function lastUpdate(tests) {
     if (!fs.existsSync(dir)) continue;
     for (const f of fs.readdirSync(dir)) if (f.endsWith('.json')) t = Math.max(t, fs.statSync(path.join(dir, f)).mtimeMs);
   }
+  // Prueba sin resultados todavía: la fecha de su configuración (estable entre ejecuciones).
+  if (!t) for (const test of tests) t = Math.max(t, fs.statSync(path.join(ROOT, 'benchmarks', test, 'PROMPT.md')).mtimeMs);
   return new Date(t || Date.now()).toISOString();
 }
 
