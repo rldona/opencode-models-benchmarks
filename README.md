@@ -1,8 +1,51 @@
-# opencode models benchmarks
+# OpenCode Go Models Benchmarks
 
-**Resultados:** https://rldona.github.io/opencode-models-benchmarks/ — informe gráfico por prueba (nota frente a coste, tokens, pasos y tiempo, con frontera de eficiencia) y clasificación.
+[![Tests de los scripts](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/tests.yml/badge.svg)](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/tests.yml)
+[![Informes al día](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/reports.yml/badge.svg)](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/reports.yml)
+[![GitHub Pages](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/pages/pages-build-deployment/badge.svg)](https://rldona.github.io/opencode-models-benchmarks/)
+[![RRULE](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Frldona%2Fopencode-models-benchmarks%2Fmain%2Fbadges%2Frrule.json)](https://rldona.github.io/opencode-models-benchmarks/#rrule)
+[![SQL](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Frldona%2Fopencode-models-benchmarks%2Fmain%2Fbadges%2Fsql.json)](https://rldona.github.io/opencode-models-benchmarks/#sql)
+![Modelos](https://img.shields.io/badge/modelos-20-2a78d6) ![Node](https://img.shields.io/badge/node-24-339933?logo=node.js&logoColor=white)
+
+<a href="https://rldona.github.io/opencode-models-benchmarks/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cover-dark.svg"><img alt="Nota frente a coste por tarea de cada modelo, con la frontera de eficiencia" src="assets/cover.svg"></picture></a>
+
+**[Web interactiva](https://rldona.github.io/opencode-models-benchmarks/)**: gráfico de nota frente a coste, tokens, pasos o tiempo, con la frontera de eficiencia, y la clasificación con los **pesos de la nota ajustables** (corrección, autonomía, tests, código y robustez).
 
 Cada modelo de opencode-go resuelve la misma tarea en autopiloto, aislado en su carpeta y con su variante de razonamiento más alta. La nota 0–10 combina una suite de tests oculta, la valoración de un juez (código y tests), la autonomía y la robustez. La suite oculta no se publica para que siga siendo válida en futuras tiradas.
+
+## Resultados
+
+### RRULE · 14 de 20 modelos con nota
+
+Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INTERVAL, BYDAY con 2TU/-1FR, COUNT, UNTIL) en TypeScript + Vitest, respetando la hora local con zonas IANA y cambios de hora.
+
+| # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |
+|---|---|---|---|---|---|---|---|---|
+| 1 | DeepSeek V4.1 Flash | `max` | **9,8** | 19/19 | 9 | 9 | $0,0300 | 3m 30s |
+| 2 | Hy4 preview | `high` | **9,8** | 19/19 | 9 | 9 | $0,24 | 12m 29s |
+| 3 | GLM-5.3 | `max` | **9,8** | 19/19 | 9 | 9 | $0,58 | 15m 20s |
+| 4 | GPT-5.6 Luna | `max` | **9,6** | 19/19 | 9 | 9 | $0,0677 | 6m 12s |
+| 5 | GLM-5.3-Flash | `max` | **9,6** | 19/19 | 8 | 9 | $0,0797 | 10m 32s |
+| 6 | DeepSeek V4 Pro (New) | `max` | **9,4** | 19/19 | 8 | 8 | $0,0813 | 6m 47s |
+| 7 | Grok 4.6 | `xhigh` | **9,2** | 19/19 | 8 | 7 | $0,44 | 7m 56s |
+| 8 | MiniMax-M3 | `thinking` | **9,1** | 17/19 | 8 | 8 | $0,15 | 6m 49s |
+| 9 | Kimi K2.7 Code | `default` | **8,9** | 18/19 | 7 | 8 | $0,19 | 8m 41s |
+| 10 | Kimi K3 | `max` | **8,9** | 16/19 | 8 | 9 | $0,48 | 11m 00s |
+| 11 | MiMo V2.5 | `default` | **8,7** | 16/19 | 7 | 8 | $0,0168 | 5m 11s |
+| 12 | MiMo V2.5 Pro | `default` | **8,2** | 13/19 | 8 | 8 | $0,0485 | 7m 33s |
+| 13 | Muse Spark 1.3 Contributor | `xhigh` | **8,1** | 14/19 | 7 | 8 | $0,0110 | 3m 41s |
+| 14 | LongCat-2.0 | `high` | **7,9** | 17/19 | 4 | 6 | $0,11 | 20m 53s |
+
+[Tabla completa](benchmarks/rrule/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/rrule/DETAILS.md) · [Enunciado](benchmarks/rrule/PROMPT.md) · [Cómo se calcula la nota](benchmarks/rrule/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#rrule)
+
+### SQL · 0 de 19 modelos con nota
+
+Motor SQL en memoria con semántica de SQLite: SELECT con JOIN/LEFT JOIN, GROUP BY/HAVING, ORDER BY, LIMIT/OFFSET, NULL con lógica de tres valores, enteros frente a reales y rendimiento con 100.000 filas.
+
+_Todavía no hay resultados._
+
+
+## Cómo funciona
 
 ```
 models.json                          # slug → nombre → id de opencode (opencode-go/<slug>)

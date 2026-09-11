@@ -20,5 +20,6 @@
   },
   "hiddenCaseTimeoutMs": {
     "main": 30000
-  }
+  },
+  "hiddenCases": 19
 }
