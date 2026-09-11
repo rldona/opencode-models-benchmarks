@@ -1,0 +1,100 @@
+{
+  "test": "regex",
+  "slug": "deepseek-v4.1-flash",
+  "name": "DeepSeek V4.1 Flash",
+  "expectedModel": "opencode-go/deepseek-v4.1-flash",
+  "collectedAt": "2026-09-11T19:24:01.274Z",
+  "session": {
+    "id": "ses_f6e859f54ffeaRMHboGxTfnSTq",
+    "childSessions": 0,
+    "title": "regex · DeepSeek V4.1 Flash",
+    "models": [
+      "opencode-go/deepseek-v4.1-flash (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 4045472,
+    "activeMs": 4039952,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 248,
+    "toolCalls": 249,
+    "toolErrors": 2,
+    "tools": {
+      "bash": 164,
+      "webfetch": 1,
+      "todowrite": 2,
+      "write": 28,
+      "edit": 52,
+      "read": 2
+    },
+    "errors": [],
+    "tokens": {
+      "input": 268432,
+      "output": 110539,
+      "reasoning": 282530,
+      "cacheRead": 75983104,
+      "cacheWrite": 0
+    },
+    "cost": 0.5040555120000004,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/deepseek-v4.1-flash/regex",
+    "hash": "c9bef985ebc4",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "builtinSyntax": [
+      "literal /…/ (src/parser.ts:336)",
+      "literal /…/ (src/parser.ts:371)",
+      "literal /…/ (src/parser.ts:390)",
+      "literal /…/ (src/parser.ts:426)",
+      "literal /…/ (src/parser.ts:456)"
+    ],
+    "tests": {
+      "ok": true,
+      "total": 349,
+      "passed": 349,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {},
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 3786,
+      "test": 725,
+      "srcFiles": 9,
+      "testFiles": 5
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": [
+    "usa el motor de expresiones del lenguaje en src/: literal /…/ (src/parser.ts:336), literal /…/ (src/parser.ts:371), literal /…/ (src/parser.ts:390), literal /…/ (src/parser.ts:426), literal /…/ (src/parser.ts:456) → el juez decide si es auxiliar (penalización) o sustancial (nota 0)"
+  ]
+}

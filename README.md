@@ -49,11 +49,17 @@ Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INT
 
 [Tabla completa](benchmarks/rrule/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/rrule/DETAILS.md) · [Enunciado](benchmarks/rrule/PROMPT.md) · [Cómo se calcula la nota](benchmarks/rrule/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#rrule)
 
-### Regex · 0 de 20 modelos con nota
+### Regex · 1 de 20 modelos con nota
 
 Motor de expresiones regulares compatible con JavaScript sin usar RegExp: semántica exacta de ECMAScript (capturas, perezosos, Unicode, i, lastIndex), tiempo lineal ante patrones patológicos, streaming que devuelve cada coincidencia en cuanto es definitiva y tipos de TypeScript deducidos del patrón.
 
-_Todavía no hay resultados._
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/highlights-regex-dark.svg"><img alt="Destacados de Regex: top 10 por nota, velocidad y coste por tarea" src="assets/highlights-regex.svg"></picture>
+
+| # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |
+|---|---|---|---|---|---|---|---|---|
+| 1 | DeepSeek V4.1 Flash | `max` | **8,7** | 554/561 | 9 | 8 | $0,50 | 67m 20s |
+
+[Tabla completa](benchmarks/regex/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/regex/DETAILS.md) · [Enunciado](benchmarks/regex/PROMPT.md) · [Cómo se calcula la nota](benchmarks/regex/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#regex)
 
 ### SQL · 4 de 19 modelos con nota
 

@@ -25,7 +25,12 @@ Lee el código fuente y los tests de la solución (ignora `node_modules/` y `__b
 
 Evalúa **respecto al enunciado**, no respecto a `__bench__/contract.ts`: el contrato es una convención interna de este benchmark que el modelo no conocía.
 
-**builtinEngine**: `true` si el código de `src/` delega de cualquier forma en el motor de expresiones regulares del lenguaje, aunque sea indirectamente: `String.prototype.match`, `matchAll`, `search`, `replace`/`replaceAll` o `split` con un patrón que construya un RegExp, `Symbol.match`, acceso a `RegExp` por nombre calculado (`globalThis['Reg' + 'Exp']`), etc. `replace`/`split` con un texto literal que no es un patrón no cuentan. Si es `true`, indica dónde en `builtinEngineWhere` (fichero y línea). Solo el código de `src/`: en los tests está permitido.
+**builtinEngine**: el enunciado prohíbe usar el motor de expresiones regulares del lenguaje en `src/`. Valora el **impacto** de cada uso, no su mera presencia (en los tests está permitido; aquí solo cuenta `src/`):
+- `"ninguno"`: no lo usa de ninguna forma.
+- `"auxiliar"`: lo usa solo en tareas auxiliares que no forman parte de la lógica evaluada ni afectan al resultado de las coincidencias. Por ejemplo, validar que un nombre de grupo es un identificador o que un escape `\x` tiene dígitos hexadecimales, o trocear o formatear un mensaje de error.
+- `"sustancial"`: resuelve con él una parte de lo que había que implementar. Por ejemplo, buscar coincidencias sobre el texto de entrada (con `RegExp`, `String.prototype.match`, `matchAll`, `search`, o `replace`/`split` con un patrón), el análisis del patrón en su conjunto, la pertenencia a clases, el plegado de mayúsculas o el streaming. También cuenta el acceso indirecto (`globalThis['Reg' + 'Exp']`, `Symbol.match`…). En la duda entre auxiliar y sustancial, pregúntate si quitar ese uso obligaría a escribir parte del motor: si es así, es sustancial.
+
+Si no es `"ninguno"`, indica en `builtinEngineWhere` dónde (fichero y línea) y para qué lo usa.
 
 **coverage**: para cada escenario que el enunciado pide testear, `true` solo si hay al menos un test con aserciones concretas (valores esperados) de ese escenario:
 - `capturasRepeticion`: capturas dentro de repeticiones.
@@ -58,7 +63,7 @@ Exactamente con esta forma (JSON válido, textos en español, frases cortas):
 ```json
 {
   "adapter": { "ok": true, "workarounds": [] },
-  "builtinEngine": false,
+  "builtinEngine": "ninguno",
   "builtinEngineWhere": "",
   "coverage": { "capturasRepeticion": true, "perezososCodiciosos": true, "mayusculas": true, "paresSustitutos": true, "lastIndex": true, "tiempoLineal": true, "streaming": true, "tipos": true },
   "codeQuality": { "score": 7, "strengths": ["..."], "weaknesses": ["..."] },

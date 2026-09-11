@@ -42,5 +42,6 @@
     "types": 60000
   },
   "typescript": "7.0.2",
-  "hiddenCases": 561
+  "hiddenCases": 561,
+  "builtinPenalty": 1
 }
