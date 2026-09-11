@@ -8,9 +8,12 @@
 <line x1="40" x2="528" y1="191.33333333333334" y2="191.33333333333334" stroke="#2c2c2a"/>
 <line x1="40" x2="528" y1="112" y2="112" stroke="#2c2c2a"/>
 <line x1="40" x2="528" y1="350" y2="350" stroke="#383835"/>
-<path d="M272,350 V116 Q272,112 276,112 H292 Q296,112 296,116 V350 Z" fill="#3987e5"/>
-<text x="284" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">8,7</text>
-<text x="287" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 287 364)">DeepSeek V4.1 Flash</text>
+<path d="M150,350 V116 Q150,112 154,112 H170 Q174,112 174,116 V350 Z" fill="#3987e5"/>
+<text x="162" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">8,7</text>
+<text x="165" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 165 364)">DeepSeek V4.1 Flash</text>
+<path d="M394,350 V116 Q394,112 398,112 H414 Q418,112 418,116 V350 Z" fill="#3987e5"/>
+<text x="406" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">8,7</text>
+<text x="409" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 409 364)">GPT-5.6 Luna</text>
 <rect x="564" y="16" width="520" height="438" rx="12" fill="#1a1a19" stroke="#2c2c2a"/>
 <rect x="584" y="42" width="14" height="14" rx="3" fill="#199e70"/>
 <text x="608" y="56" fill="#ffffff" font-size="22" font-weight="600">Velocidad</text>
@@ -19,9 +22,12 @@
 <line x1="580" x2="1068" y1="191.33333333333334" y2="191.33333333333334" stroke="#2c2c2a"/>
 <line x1="580" x2="1068" y1="112" y2="112" stroke="#2c2c2a"/>
 <line x1="580" x2="1068" y1="350" y2="350" stroke="#383835"/>
-<path d="M812,350 V116 Q812,112 816,112 H832 Q836,112 836,116 V350 Z" fill="#199e70"/>
-<text x="824" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">97</text>
-<text x="827" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 827 364)">DeepSeek V4.1 Flash</text>
+<path d="M690,350 V116 Q690,112 694,112 H710 Q714,112 714,116 V350 Z" fill="#199e70"/>
+<text x="702" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">97</text>
+<text x="705" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 705 364)">DeepSeek V4.1 Flash</text>
+<path d="M934,350 V176.72538312790155 Q934,172.72538312790155 938,172.72538312790155 H954 Q958,172.72538312790155 958,176.72538312790155 V350 Z" fill="#199e70"/>
+<text x="946" y="166.72538312790155" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">72</text>
+<text x="949" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 949 364)">GPT-5.6 Luna</text>
 <rect x="1104" y="16" width="520" height="438" rx="12" fill="#1a1a19" stroke="#2c2c2a"/>
 <rect x="1124" y="42" width="14" height="14" rx="3" fill="#d95926"/>
 <text x="1148" y="56" fill="#ffffff" font-size="22" font-weight="600">Coste por tarea</text>
@@ -30,7 +36,10 @@
 <line x1="1120" x2="1608" y1="191.33333333333334" y2="191.33333333333334" stroke="#2c2c2a"/>
 <line x1="1120" x2="1608" y1="112" y2="112" stroke="#2c2c2a"/>
 <line x1="1120" x2="1608" y1="350" y2="350" stroke="#383835"/>
-<path d="M1352,350 V116 Q1352,112 1356,112 H1372 Q1376,112 1376,116 V350 Z" fill="#d95926"/>
-<text x="1364" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">0,50</text>
-<text x="1367" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 1367 364)">DeepSeek V4.1 Flash</text>
+<path d="M1230,350 V149.09712103295234 Q1230,145.09712103295234 1234,145.09712103295234 H1250 Q1254,145.09712103295234 1254,149.09712103295234 V350 Z" fill="#d95926"/>
+<text x="1242" y="139.09712103295234" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">0,50</text>
+<text x="1245" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 1245 364)">DeepSeek V4.1 Flash</text>
+<path d="M1474,350 V116 Q1474,112 1478,112 H1494 Q1498,112 1498,116 V350 Z" fill="#d95926"/>
+<text x="1486" y="106" fill="#ffffff" font-size="11" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">0,59</text>
+<text x="1489" y="364" fill="#c3c2b7" font-size="11" text-anchor="end" transform="rotate(-45 1489 364)">GPT-5.6 Luna</text>
 </svg>

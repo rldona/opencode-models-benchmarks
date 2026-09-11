@@ -104,17 +104,22 @@
 <text x="834" y="122" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">10</text>
 <line x1="1390" x2="1390" y1="118" y2="588" stroke="#2c2c2a"/>
 <text x="1390" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0</text>
-<line x1="1208" x2="1208" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="1208" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,20</text>
-<line x1="1026" x2="1026" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="1026" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,40</text>
+<line x1="1253.5" x2="1253.5" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="1253.5" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,20</text>
+<line x1="1117" x2="1117" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="1117" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,40</text>
+<line x1="980.5" x2="980.5" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="980.5" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,60</text>
 <line x1="844" x2="844" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="844" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,60</text>
+<text x="844" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,80</text>
 <line x1="844" x2="1390" y1="588" y2="588" stroke="#383835"/>
 <text x="1117" y="630" fill="#c3c2b7" font-size="12" text-anchor="middle">Coste por tarea (USD, precio de lista según opencode) · menos es mejor →</text>
-<circle cx="931.3094840799997" cy="321.66666666666674" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<text x="940.3094840799997" y="321.66666666666674" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">DeepSeek V4.1 Flash</text>
-<text x="940.3094840799997" y="333.66666666666674" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<circle cx="990.4143157750002" cy="321.66666666666674" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="1045.9821130599998" cy="321.66666666666674" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="1054.9821130599998" y="321.66666666666674" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">DeepSeek V4.1 Flash</text>
+<text x="1054.9821130599998" y="333.66666666666674" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<text x="981.4143157750002" y="321.66666666666674" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">GPT-5.6 Luna</text>
+<text x="981.4143157750002" y="333.66666666666674" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">MAX</text>
 <text x="1624" y="102" fill="#ffffff" font-size="16" font-weight="600">SQL</text>
 <text x="2170" y="102" fill="#898781" font-size="12" font-style="italic" text-anchor="end">más eficiente ↗</text>
 <line x1="1624" x2="2170" y1="588" y2="588" stroke="#2c2c2a"/>
