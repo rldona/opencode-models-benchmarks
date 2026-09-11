@@ -1171,7 +1171,7 @@ function reportData(test, rows) {
   return {
     test,
     title: `Clasificación ${test.toUpperCase()}`,
-    generatedAt: new Date().toISOString(),
+    generatedAt: lastUpdate([test]),
     hiddenTotal: cases.length,
     judge: judges.join(', ') || DEFAULT_JUDGE,
     weights: testConfig(test).weights,
@@ -1203,6 +1203,18 @@ function reportData(test, rows) {
       };
     }),
   };
+}
+
+// Fecha del último resultado (no la de generación): así regenerar sin resultados nuevos no cambia los ficheros
+// y `publish` no crea commits vacíos.
+function lastUpdate(tests) {
+  let t = 0;
+  for (const test of tests) {
+    const dir = resultsDir(test);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) if (f.endsWith('.json')) t = Math.max(t, fs.statSync(path.join(dir, f)).mtimeMs);
+  }
+  return new Date(t || Date.now()).toISOString();
 }
 
 function writeChartReport(test, rows, fragmentPath) {
@@ -1363,7 +1375,7 @@ function indexData() {
     .sort((a, b) => (a === 'rrule' ? -1 : b === 'rrule' ? 1 : a.localeCompare(b)));
   const blob = (p) => `https://github.com/${PUBLIC_REPO}/blob/main/${p}`;
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: lastUpdate(tests),
     repoUrl: `https://github.com/${PUBLIC_REPO}`,
     tests: tests.map((t) => {
       const cfg = testConfig(t);
