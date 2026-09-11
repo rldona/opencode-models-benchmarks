@@ -17,9 +17,11 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 | 9 | Kimi K2.7 Code | **8.9** | 3.79 | 1 | 1.7 | 1.4 | 1 |  |
 | 10 | Kimi K3 | **8.9** | 3.37 | 1 | 1.9 | 1.6 | 1 |  |
 | 11 | MiMo V2.5 | **8.7** | 3.37 | 1 | 1.9 | 1.4 | 1 |  |
-| 12 | MiMo V2.5 Pro | **8.2** | 2.74 | 1 | 1.9 | 1.6 | 1 |  |
-| 13 | Muse Spark 1.3 Contributor | **8.1** | 2.95 | 1 | 1.8 | 1.4 | 1 |  |
-| 14 | LongCat-2.0 | **7.9** | 3.58 | 1 | 1.5 | 0.8 | 1 |  |
+| 12 | Qwen3.7 Max | **8.6** | 3.58 | 1 | 1.65 | 1.4 | 1 |  |
+| 13 | MiMo V2.5 Pro | **8.2** | 2.74 | 1 | 1.9 | 1.6 | 1 |  |
+| 14 | Muse Spark 1.3 Contributor | **8.1** | 2.95 | 1 | 1.8 | 1.4 | 1 |  |
+| 15 | LongCat-2.0 | **7.9** | 3.58 | 1 | 1.5 | 0.8 | 1 |  |
+| 16 | Qwen3.6 Plus | **7.3** | 2.74 | 1 | 1.85 | 1 | 0.75 |  |
 
 ## DeepSeek V4.1 Flash — 9.8
 
@@ -435,6 +437,51 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 
 <sub>Juez: claude:sonnet · 2026-09-11 11:18 · adaptador: [results/mimo-v2.5.adapter.ts](results/mimo-v2.5.adapter.ts)</sub>
 
+## Qwen3.7 Max — 8.6
+
+> Implementación con buen diseño y generadores eficientes que cubre correctamente los 4 escenarios pedidos (DST, último viernes, meses sin 31, COUNT+BYDAY con valores verificables), pero UNTIL —una característica explícitamente requerida— está roto para el formato estándar de RRULE y no tiene ningún test que lo detecte.
+
+- **Corrección** 3.58/4: suite oculta 17/19
+- **Autonomía** 1/1: 0 intervención(es) del usuario (empezó en modo plan; la aprobación del plan no cuenta)
+- **Tests propios** 1.65/2: pasan 0.5/0.5 (7/7) · cobertura 0.5/0.5 · cantidad 0.35/0.5 · calidad 0.3/0.5 (6/10)
+- **Código** 1.4/2 (7/10)
+- **Robustez** 1/1
+- Cobertura de lo pedido: ✅ dstOctubreMadrid · ✅ ultimoViernes · ✅ mesesSin31 · ✅ countConByday
+
+**Código**
+
+- + Buena separación entre parseo (rrule-parser), conversión de zona horaria (timezone) y generación (rrule-expander)
+- + Generadores perezosos acotados por rango/UNTIL/COUNT, sin iterar día a día sin límite
+- + Cálculos de fecha (dayOfWeek, daysInMonth) hechos siempre en UTC, independientes de la zona horaria de la máquina
+- + Tipos claros sin uso de `any`
+- − UNTIL con el formato RFC5545 estándar (sin separadores, p.ej. '20250403T170000Z') no se parsea: `new Date(value)` devuelve Invalid Date y la condición de corte queda silenciosamente inoperante
+- − No valida códigos BYDAY desconocidos ni INTERVAL <= 0, lo que puede producir NaN o comportamientos silenciosos
+- − localToUtc resuelve el offset de DST en una sola pasada (a diferencia del doble ajuste típico), lo que puede fallar exactamente en la hora ambigua/inexistente del cambio horario
+
+**Tests**
+
+- + Aserciones con instantes UTC exactos y hora local verificables a mano (no tautológicas), cubriendo los 4 escenarios pedidos
+- + El test de DST comprueba tanto la hora local constante como el instante UTC antes y después del cambio
+- + El test de 'meses sin 31' verifica explícitamente qué meses se excluyen y cuáles no
+- − No hay ningún test de UNTIL pese a ser una característica explícitamente pedida en el enunciado (y que además está rota)
+- − La forma ordinal positiva '2TU' mencionada explícitamente en el enunciado no está cubierta por ningún test (solo se prueba -1FR)
+- − No se testea INTERVAL > 1 ni casos con varias zonas horarias distintas de Europe/Madrid
+
+**Bugs detectados por el juez**
+
+- 🐛 UNTIL con formato RFC5545 estándar ('20250403T170000Z') no se parsea (new Date devuelve Invalid Date) y el límite se ignora silenciosamente en vez de detener la serie
+- 🐛 No hay tests para UNTIL a pesar de ser una característica explícitamente pedida en el enunciado
+- 🐛 La forma ordinal positiva '2TU' (segundo martes del mes) no está cubierta por ningún test
+- 🐛 No se valida BYDAY con códigos de día desconocidos ni INTERVAL <= 0
+- 🐛 localToUtc usa una resolución de offset de una sola pasada que puede fallar en la hora exacta ambigua/inexistente de un cambio de DST
+
+**Casos de la suite oculta que fallan**
+
+- ✗ [11] semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora
+- ✗ [12] diario con UNTIL (UTC)
+
+<sub>Juez: claude:sonnet · 2026-09-11 14:15 · adaptador: [results/qwen3.7-max.adapter.ts](results/qwen3.7-max.adapter.ts)</sub>
+
 ## MiMo V2.5 Pro — 8.2
 
 > Implementación sólida y bien acotada que cubre correctamente FREQ/INTERVAL/BYDAY/COUNT/UNTIL con manejo cuidadoso de DST vía Intl.DateTimeFormat, con tests exhaustivos y de aserciones exactas para los cuatro escenarios pedidos; los defectos son menores (código muerto, duplicación, un caso de UNTIL sin 'Z' dependiente de la zona horaria de la máquina).
@@ -573,3 +620,54 @@ Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBR
 - ✗ [12] diario con UNTIL (UTC)
 
 <sub>Juez: claude:sonnet · 2026-09-11 11:32 · adaptador: [results/longcat-2.0.adapter.ts](results/longcat-2.0.adapter.ts)</sub>
+
+## Qwen3.6 Plus — 7.3
+
+> La solución acierta en los cuatro escenarios pedidos con INTERVAL=1 (el único valor que prueban), con buena gestión de DST y BYDAY con ordinales, pero tiene bugs reales y verificados en el manejo de INTERVAL>1 para WEEKLY+BYDAY y para DAILY al cruzar meses de distinta longitud, precisamente el caso que los tests no cubren.
+
+- **Corrección** 2.74/4: suite oculta 13/19
+- **Autonomía** 1/1: 0 intervención(es) del usuario (empezó en modo plan; la aprobación del plan no cuenta)
+- **Tests propios** 1.85/2: pasan 0.5/0.5 (10/10) · cobertura 0.5/0.5 · cantidad 0.5/0.5 · calidad 0.35/0.5 (7/10)
+- **Código** 1/2 (5/10)
+- **Robustez** 0.75/1
+- Cobertura de lo pedido: ✅ dstOctubreMadrid · ✅ ultimoViernes · ✅ mesesSin31 · ✅ countConByday
+
+**Código**
+
+- + Buena separación entre parseo (parseRRule/parseByDay), resolución de días de BYDAY y conversión de zona horaria
+- + Conversión hora local <-> instante independiente de la zona del sistema, verificado ejecutando los tests con TZ=America/New_York
+- + Tipado sin 'any' con interfaces claras (ParsedRRule, ByDayRule, Occurrence)
+- + Bucles acotados con maxIterations, sin recorrido día a día ilimitado en WEEKLY/MONTHLY
+- − Bug confirmado: FREQ=DAILY con INTERVAL que no divide la duración del mes (p.ej. INTERVAL=31) reutiliza un 'maxDay' obsoleto en el rollover y no resincroniza tras normalizar fechas inválidas (día 31 en febrero), haciendo que el día del mes derive progresivamente mes a mes
+- − Bug confirmado: FREQ=WEEKLY con INTERVAL>1 combinado con BYDAY de varios días no repite un patrón consistente cada N semanas (probado con INTERVAL=2;BYDAY=MO,WE, produce una secuencia irregular en vez de pares Lunes/Miércoles cada dos semanas)
+- − Código muerto: en el bucle WEEKLY se calcula la variable 'diff' pero nunca se usa
+- − Lógica de condiciones de parada (winEnd/until/count) muy duplicada entre las tres ramas FREQ, y sin validar INTERVAL<=0 u otros valores fuera de rango
+
+**Tests**
+
+- + Aserciones concretas sobre instantes ISO UTC exactos en los tests de DST, no solo sobre hora local
+- + Cubre los cuatro escenarios pedidos con casos realistas (Europe/Madrid, meses sin 31, último viernes, COUNT+BYDAY)
+- + Valores esperados parecen calculados de forma independiente (fechas y offsets concretos), no derivados de la propia implementación
+- + Incluye también tests unitarios del parser (parseRRule/parseByDay)
+- − Nunca se prueba INTERVAL>1 combinado con BYDAY ni FREQ=DAILY con INTERVAL grande, que es justo donde están los bugs detectados
+- − Algunas aserciones usan 'toContain' sobre arrays en vez de comparar la secuencia completa y ordenada, lo que oculta duplicados o elementos extra
+- − No hay test de UNTIL ni de ventanas parciales/varias zonas horarias
+
+**Bugs detectados por el juez**
+
+- 🐛 FREQ=DAILY con INTERVAL que no divide la duración del mes (p.ej. INTERVAL=31) produce fechas incorrectas: el 'maxDay' del rollover de mes queda obsoleto y el día del mes deriva progresivamente en iteraciones sucesivas.
+- 🐛 FREQ=WEEKLY con INTERVAL>1 combinado con BYDAY de varios días no repite un patrón regular cada N semanas (verificado con INTERVAL=2;BYDAY=MO,WE).
+- 🐛 Variable 'diff' calculada en el bucle WEEKLY pero nunca utilizada (código muerto que sugiere lógica no depurada).
+- 🐛 No se valida INTERVAL<=0, lo que podría generar ocurrencias duplicadas hasta el límite de iteraciones sin ningún aviso.
+- 🐛 El día MONTHLY 'BYMONTHDAY' no forma parte del subconjunto RRULE pedido en el enunciado (solo BYDAY), aunque se usa para el test de meses sin día 31.
+
+**Casos de la suite oculta que fallan**
+
+- ✗ [07] mensual día 31 salta los meses sin día 31 (COUNT)
+- ✗ [08] mensual día 31 sin fin, ventana de febrero a junio
+- ✗ [10] COUNT se cuenta desde el inicio, no desde la ventana
+- ✗ [11] semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora
+- ✗ [12] diario con UNTIL (UTC)
+- ✗ [16] semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)
+
+<sub>Juez: claude:sonnet · 2026-09-11 14:17 · adaptador: [results/qwen3.6-plus.adapter.ts](results/qwen3.6-plus.adapter.ts)</sub>

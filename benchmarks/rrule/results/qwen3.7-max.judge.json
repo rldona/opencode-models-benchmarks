@@ -1,0 +1,263 @@
+{
+  "test": "rrule",
+  "slug": "qwen3.7-max",
+  "judgedAt": "2026-09-11T14:15:57.269Z",
+  "projectHash": "23823afa1894",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.6391526,
+    "turns": 33,
+    "isError": false,
+    "usage": {
+      "input_tokens": 52,
+      "cache_creation_input_tokens": 40039,
+      "cache_read_input_tokens": 1685713,
+      "output_tokens": 14175,
+      "output_tokens_details": {
+        "thinking_tokens": 8167
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 40039,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 372,
+          "cache_read_input_tokens": 78586,
+          "cache_creation_input_tokens": 1544,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1544
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "result": "He completado las tres partes:\n\n1. **`__bench__/adapter.ts`** — traduce directamente al contrato llamando a `expandRecurrences(dtstart, rrule, tz, from, to)` de la solución; no hizo falta ningún workaround.\n2. **Evaluación** — código bien separado (parser/timezone/expander) con generadores eficientes y acotados, pero encontré un bug real: `UNTIL` con el formato RFC5545 estándar (`20250403T170000Z`) no se parsea (`new Date()` devuelve `Invalid Date`), y esa condición queda silenciosamente inoperante. Los tests cubren bien los 4 escenarios pedidos con aserciones concretas y verificables a mano, pero no prueban `UNTIL` ni la forma ordinal positiva `2TU`, ambas mencionadas explícitamente en el enunciado.\n3. **`__bench__/judge.json`** — escrito con `codeQuality: 7`, `testQuality: 6`, cobertura de los 4 escenarios en `true`, y 5 bugs documentados.",
+    "permissionDenials": [
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01Xg2H4GLaVp9k9BYRHcDQQY",
+        "tool_input": {
+          "command": "find . -not -path './node_modules/*' -type f | sort"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01JAEBtEkew6cXwshJpAVEYN",
+        "tool_input": {
+          "command": "node -e \"console.log(new Date('20250403T170000Z')); console.log(new Date('20250403T170000Z').toString())\""
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_011Kp4iTJ8JWzguhwA9tmJYm",
+        "tool_input": {
+          "command": "node -e \"console.log(new Date('20250403T170000Z').toString())\"",
+          "description": "Check if JS Date parses RFC5545 UNTIL format"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01LXetQNBLuDCB4m2v7phgKc",
+        "tool_input": {
+          "command": "node <tmp>",
+          "description": "Check if JS Date parses RFC5545 UNTIL format without separators"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01A4ZBR8kyng5nxgzQaXH8QZ",
+        "tool_input": {
+          "command": "node __bench__/check_date.mjs",
+          "description": "Check if JS Date parses RFC5545 UNTIL format without separators"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_014xvzPjWid7E85bW6E83VjV",
+        "tool_input": {
+          "command": "node __bench__/check_date.mjs",
+          "description": "Check if JS Date parses RFC5545 UNTIL format without separators",
+          "dangerouslyDisableSandbox": true
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01DwPa4WRiMkRM6jiyybWNbp",
+        "tool_input": {
+          "command": "rm __bench__/check_date.mjs; npm test 2>&1 | tail -60",
+          "description": "Run the existing test suite for the solution"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01Sv6E9xaFCs4zsoyhqUR8TF",
+        "tool_input": {
+          "command": "npm test",
+          "description": "Run the existing test suite for the solution"
+        }
+      }
+    ],
+    "durationMs": 165427,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 7,
+      "strengths": [
+        "Buena separación entre parseo (rrule-parser), conversión de zona horaria (timezone) y generación (rrule-expander)",
+        "Generadores perezosos acotados por rango/UNTIL/COUNT, sin iterar día a día sin límite",
+        "Cálculos de fecha (dayOfWeek, daysInMonth) hechos siempre en UTC, independientes de la zona horaria de la máquina",
+        "Tipos claros sin uso de `any`"
+      ],
+      "weaknesses": [
+        "UNTIL con el formato RFC5545 estándar (sin separadores, p.ej. '20250403T170000Z') no se parsea: `new Date(value)` devuelve Invalid Date y la condición de corte queda silenciosamente inoperante",
+        "No valida códigos BYDAY desconocidos ni INTERVAL <= 0, lo que puede producir NaN o comportamientos silenciosos",
+        "localToUtc resuelve el offset de DST en una sola pasada (a diferencia del doble ajuste típico), lo que puede fallar exactamente en la hora ambigua/inexistente del cambio horario"
+      ]
+    },
+    "testQuality": {
+      "score": 6,
+      "strengths": [
+        "Aserciones con instantes UTC exactos y hora local verificables a mano (no tautológicas), cubriendo los 4 escenarios pedidos",
+        "El test de DST comprueba tanto la hora local constante como el instante UTC antes y después del cambio",
+        "El test de 'meses sin 31' verifica explícitamente qué meses se excluyen y cuáles no"
+      ],
+      "weaknesses": [
+        "No hay ningún test de UNTIL pese a ser una característica explícitamente pedida en el enunciado (y que además está rota)",
+        "La forma ordinal positiva '2TU' mencionada explícitamente en el enunciado no está cubierta por ningún test (solo se prueba -1FR)",
+        "No se testea INTERVAL > 1 ni casos con varias zonas horarias distintas de Europe/Madrid"
+      ]
+    },
+    "bugs": [
+      "UNTIL con formato RFC5545 estándar ('20250403T170000Z') no se parsea (new Date devuelve Invalid Date) y el límite se ignora silenciosamente en vez de detener la serie",
+      "No hay tests para UNTIL a pesar de ser una característica explícitamente pedida en el enunciado",
+      "La forma ordinal positiva '2TU' (segundo martes del mes) no está cubierta por ningún test",
+      "No se valida BYDAY con códigos de día desconocidos ni INTERVAL <= 0",
+      "localToUtc usa una resolución de offset de una sola pasada que puede fallar en la hora exacta ambigua/inexistente de un cambio de DST"
+    ],
+    "summary": "Implementación con buen diseño y generadores eficientes que cubre correctamente los 4 escenarios pedidos (DST, último viernes, meses sin 31, COUNT+BYDAY con valores verificables), pero UNTIL —una característica explícitamente requerida— está roto para el formato estándar de RRULE y no tiene ningún test que lo detecte."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 17,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": true
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": true
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": true
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": false
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": false
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": true
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": true
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expandRecurrences } from '../src/rrule-expander.js';\n\n// La solución expone expandRecurrences(dtstart, rruleStr, timeZone, rangeStart, rangeEnd): Date[]\n// que ya casa directamente con el contrato del benchmark (ventana [from, to)).\nexport const expand: Expand = (input) => {\n  const dtstart = new Date(input.dtstartUtc);\n  const rangeStart = new Date(input.from);\n  const rangeEnd = new Date(input.to);\n\n  return expandRecurrences(dtstart, input.rrule, input.tz, rangeStart, rangeEnd);\n};\n"
+}

@@ -1,0 +1,114 @@
+{
+  "test": "rrule",
+  "slug": "qwen3.6-plus",
+  "name": "Qwen3.6 Plus",
+  "expectedModel": "opencode-go/qwen3.6-plus",
+  "collectedAt": "2026-09-11T14:12:40.218Z",
+  "session": {
+    "id": "ses_f6f33c6a6ffeI1OHmYCxl7gIe0",
+    "childSessions": 0,
+    "title": "rrule · Qwen3.6 Plus",
+    "models": [
+      "opencode-go/qwen3.6-plus"
+    ],
+    "variant": "default",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 257031,
+    "activeMs": 255026,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 20,
+    "toolCalls": 18,
+    "toolErrors": 1,
+    "tools": {
+      "read": 1,
+      "todowrite": 3,
+      "write": 6,
+      "bash": 6,
+      "edit": 2
+    },
+    "errors": [],
+    "tokens": {
+      "input": 290998,
+      "output": 10952,
+      "reasoning": 833,
+      "cacheRead": 0,
+      "cacheWrite": 0
+    },
+    "cost": 0.18085400000000001,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/qwen3.6-plus/rrule",
+    "hash": "e672827385e3",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": false,
+      "errors": 1
+    },
+    "loc": {
+      "src": 373,
+      "test": 158,
+      "srcFiles": 1,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

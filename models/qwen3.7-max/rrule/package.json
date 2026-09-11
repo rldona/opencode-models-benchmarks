@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run"
+    "test": "vitest run"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "vitest": "^3.0.0"
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
   }
 }

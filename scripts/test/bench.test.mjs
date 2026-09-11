@@ -183,3 +183,15 @@ test('diffRows: tipos estrictos, reales con tolerancia y orden solo con ORDER BY
   assert.notEqual(diffRows([[2], [1]], [[1], [2]], true), null);
   assert.notEqual(diffRows([[1]], [[1], [2]], false), null);
 });
+
+// ---------- imágenes del README ----------
+test('SVG de portada y destacados: bien formados y sin valores NaN', async () => {
+  const { highlightsSvg, coverSvg } = await import('../bench.mjs');
+  for (const svg of [coverSvg('light'), coverSvg('dark'), highlightsSvg('rrule', 'light'), highlightsSvg('rrule', 'dark')]) {
+    assert.match(svg, /^<svg [^>]*xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
+    assert.match(svg, /<\/svg>\n$/);
+    assert.ok(!/NaN|undefined|Infinity/.test(svg), 'valores no numéricos en el SVG');
+  }
+  const hl = highlightsSvg('rrule', 'light');
+  for (const t of ['Nota', 'Velocidad', 'Coste por tarea']) assert.ok(hl.includes(`>${t}<`), `falta el panel ${t}`);
+});

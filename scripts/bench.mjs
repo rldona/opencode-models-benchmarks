@@ -1191,6 +1191,7 @@ function reportData(test, rows) {
       return {
         slug: m.slug,
         name: m.name,
+        provider: m.provider ?? null,
         variant: s?.variant ?? m.variant ?? 'default',
         status,
         score: sc?.total ?? null,
@@ -1376,7 +1377,8 @@ function publicFiles() {
   // Los .run.log son la salida cruda de las herramientas que ejecutan los modelos (pueden mostrar cualquier cosa
   // de la máquina): no se publican; las métricas están en los .json.
   walk('benchmarks', (rp) => !HIDDEN_PRIVATE.test(rp) && !rp.endsWith('.run.log'));
-  walk('models');
+  // Las carpetas de modelos que siguen trabajando no se publican a medias.
+  walk('models', (rp) => { const [, slug, test] = rp.split(path.sep); return !isRunning(slug, test); });
   return out;
 }
 
@@ -1509,6 +1511,56 @@ function coverSvg(theme) {
   return out.join('\n') + '\n';
 }
 
+// "Destacados" estáticos para el README: top 10 por nota, velocidad (tokens/s) y coste por tarea, un color por
+// panel (la identidad de cada barra la da su etiqueta). Misma lógica que la sección de la web.
+const HL_COLORS = { light: { score: '#2a78d6', speed: '#1baf7a', cost: '#eb6834' }, dark: { score: '#3987e5', speed: '#199e70', cost: '#d95926' } };
+
+function highlightsSvg(t, theme) {
+  const C = THEMES[theme], K = HL_COLORS[theme];
+  const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+  const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  const rows = scoredRows(t);
+  const tps = (r) => (r.session.activeMs ? (r.session.tokens.output + r.session.tokens.reasoning) / (r.session.activeMs / 1000) : null);
+  const panels = [
+    { key: 'score', title: 'Nota', sub: 'Nota 0–10 · más es mejor', get: (x) => x.sc.total, f: (v) => esNum(v, 1), asc: false },
+    { key: 'speed', title: 'Velocidad', sub: 'Tokens generados por segundo · más es mejor', get: (x) => tps(x.r), f: (v) => String(Math.round(v)), asc: false },
+    { key: 'cost', title: 'Coste por tarea', sub: 'USD por tarea (precio de lista) · menos es mejor', get: (x) => x.r.session.cost, f: (v) => esNum(v, v < 0.1 ? 3 : 2), asc: true },
+  ];
+  const PW = 520, GAP = 20, H = 470, W = PW * 3 + GAP * 2 + 48;
+  const out = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="${SANS}">`, `<rect width="${W}" height="${H}" fill="${C.bg}"/>`];
+  panels.forEach((h, pi) => {
+    const ox = 24 + pi * (PW + GAP);
+    out.push(`<rect x="${ox}" y="16" width="${PW}" height="${H - 32}" rx="12" fill="${C.bg}" stroke="${C.grid}"/>`);
+    out.push(`<rect x="${ox + 20}" y="42" width="14" height="14" rx="3" fill="${K[h.key]}"/>`);
+    out.push(`<text x="${ox + 44}" y="56" fill="${C.ink}" font-size="22" font-weight="600">${xml(h.title)}</text>`);
+    out.push(`<text x="${ox + 20}" y="80" fill="${C.ink2}" font-size="12">${xml(h.sub)}</text>`);
+    const vals = rows.map((x) => ({ x, v: h.get(x) })).filter((y) => y.v != null && Number.isFinite(y.v))
+      .sort((a, b) => (h.asc ? a.v - b.v : b.v - a.v)).slice(0, 10);
+    if (!vals.length) return;
+    const lw = vals.map((y) => y.x.m.name.length * 6.1 * Math.SQRT1_2);
+    const bottom = Math.max(60, Math.ceil(Math.max(...lw)) + 22);
+    const n = vals.length, left0 = ox + 16, pw0 = PW - 32;
+    const slot0 = pw0 / n;
+    const padL = Math.max(0, Math.ceil(Math.max(...lw.map((w, i) => w - slot0 * (i + 0.5) + 2))));
+    const x0 = left0 + padL, pw = pw0 - padL, slot = pw / n, bw = Math.min(24, slot * 0.64), r = Math.min(4, bw / 2);
+    const valW = Math.max(...vals.map((y) => h.f(y.v).length * 6.4));
+    const rot = valW > slot - 3;
+    const top = 112 + (rot ? Math.ceil(valW) - 8 : 0), base = H - 16 - bottom, ph = base - top, max = Math.max(...vals.map((y) => y.v)) || 1;
+    for (const f of [1 / 3, 2 / 3, 1]) out.push(`<line x1="${x0}" x2="${x0 + pw}" y1="${base - ph * f}" y2="${base - ph * f}" stroke="${C.grid}"/>`);
+    out.push(`<line x1="${x0}" x2="${x0 + pw}" y1="${base}" y2="${base}" stroke="${C.axis}"/>`);
+    vals.forEach((y, i) => {
+      const cx = x0 + slot * (i + 0.5), bh = Math.max(2, (y.v / max) * ph), ty = base - bh, a = cx - bw / 2, b = cx + bw / 2;
+      out.push(`<path d="M${a},${base} V${ty + r} Q${a},${ty} ${a + r},${ty} H${b - r} Q${b},${ty} ${b},${ty + r} V${base} Z" fill="${K[h.key]}"/>`);
+      out.push(rot
+        ? `<text x="${cx + 3.5}" y="${ty - 5}" fill="${C.ink}" font-size="10.5" font-weight="500" font-family="${MONO}" transform="rotate(-90 ${cx + 3.5} ${ty - 5})">${xml(h.f(y.v))}</text>`
+        : `<text x="${cx}" y="${ty - 6}" fill="${C.ink}" font-size="11" font-weight="500" font-family="${MONO}" text-anchor="middle">${xml(h.f(y.v))}</text>`);
+      out.push(`<text x="${cx + 3}" y="${base + 14}" fill="${C.ink2}" font-size="11" text-anchor="end" transform="rotate(-45 ${cx + 3} ${base + 14})">${xml(y.x.m.name)}</text>`);
+    });
+  });
+  out.push('</svg>');
+  return out.join('\n') + '\n';
+}
+
 // Datos para los badges de shields.io (endpoint JSON en el propio repo).
 function badgeData(t) {
   const rows = testRows(t);
@@ -1553,6 +1605,10 @@ function publicReadme() {
       L.push('_Todavía no hay resultados._', '');
       continue;
     }
+    L.push(
+      `<picture><source media="(prefers-color-scheme: dark)" srcset="assets/highlights-${t}-dark.svg"><img alt="Destacados de ${xml(cfg.title ?? t)}: top 10 por nota, velocidad y coste por tarea" src="assets/highlights-${t}.svg"></picture>`,
+      '',
+    );
     L.push('| # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |', '|---|---|---|---|---|---|---|---|---|');
     scored.forEach(({ m, r, j, sc }, i) => {
       L.push(`| ${i + 1} | ${m.name} | \`${r.session.variant ?? 'default'}\` | **${esNum(sc.total, 1)}** | ${j.hidden.passed}/${j.hidden.total} | ${j.verdict.codeQuality.score} | ${j.verdict.testQuality.score} | ${fmtCostEs(r.session.cost)} | ${fmtDur(r.session.activeMs)} |`);
@@ -1577,11 +1633,22 @@ function publish(opts) {
     fs.mkdirSync(path.dirname(dst), { recursive: true });
     fs.writeFileSync(dst, publishContent(rp));
   }
+  // Informes regenerados dentro de la copia, a partir de sus propios resultados (igual que el CI "Informes al día"):
+  // si un modelo termina mientras se publica, resultados e informes siguen coincidiendo.
+  for (const t of PUBLIC_TESTS()) {
+    const r = sh(process.execPath, [path.join(PUBLISH_DIR, 'scripts', 'bench.mjs'), 'report', '--test', t], { cwd: PUBLISH_DIR });
+    if (r.status !== 0) throw new Error(`no se pudieron regenerar los informes de ${t} en la copia: ${r.stderr || r.stdout}`);
+  }
   fs.writeFileSync(path.join(PUBLISH_DIR, 'index.html'), fullDocument(renderReport(SITE_TITLE, siteData())));
   fs.writeFileSync(path.join(PUBLISH_DIR, 'README.md'), publicReadme());
   fs.mkdirSync(path.join(PUBLISH_DIR, 'assets'), { recursive: true });
   fs.writeFileSync(path.join(PUBLISH_DIR, 'assets', 'cover.svg'), coverSvg('light'));
   fs.writeFileSync(path.join(PUBLISH_DIR, 'assets', 'cover-dark.svg'), coverSvg('dark'));
+  for (const t of PUBLIC_TESTS()) {
+    if (!scoredRows(t).length) continue;
+    fs.writeFileSync(path.join(PUBLISH_DIR, 'assets', `highlights-${t}.svg`), highlightsSvg(t, 'light'));
+    fs.writeFileSync(path.join(PUBLISH_DIR, 'assets', `highlights-${t}-dark.svg`), highlightsSvg(t, 'dark'));
+  }
   fs.mkdirSync(path.join(PUBLISH_DIR, 'badges'), { recursive: true });
   for (const t of PUBLIC_TESTS()) fs.writeFileSync(path.join(PUBLISH_DIR, 'badges', `${t}.json`), JSON.stringify(badgeData(t), null, 2) + '\n');
   fs.writeFileSync(path.join(PUBLISH_DIR, '.nojekyll'), '');
@@ -1685,4 +1752,4 @@ if (isMain) {
   });
 }
 
-export { ROOT, MODELS, testConfig, computeScore, sanitize, isolationReport, reportData, renderReport, testRows, lastUpdate, byCategory };
+export { ROOT, MODELS, testConfig, computeScore, sanitize, isolationReport, reportData, renderReport, testRows, lastUpdate, byCategory, highlightsSvg, coverSvg };
