@@ -4,6 +4,7 @@
 [![Informes al día](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/reports.yml/badge.svg)](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/reports.yml)
 [![GitHub Pages](https://github.com/rldona/opencode-models-benchmarks/actions/workflows/pages/pages-build-deployment/badge.svg)](https://rldona.github.io/opencode-models-benchmarks/)
 [![RRULE](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Frldona%2Fopencode-models-benchmarks%2Fmain%2Fbadges%2Frrule.json)](https://rldona.github.io/opencode-models-benchmarks/#rrule)
+[![Regex](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Frldona%2Fopencode-models-benchmarks%2Fmain%2Fbadges%2Fregex.json)](https://rldona.github.io/opencode-models-benchmarks/#regex)
 [![SQL](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Frldona%2Fopencode-models-benchmarks%2Fmain%2Fbadges%2Fsql.json)](https://rldona.github.io/opencode-models-benchmarks/#sql)
 ![Modelos](https://img.shields.io/badge/modelos-20-2a78d6) ![Node](https://img.shields.io/badge/node-24-339933?logo=node.js&logoColor=white)
 
@@ -48,11 +49,28 @@ Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INT
 
 [Tabla completa](benchmarks/rrule/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/rrule/DETAILS.md) · [Enunciado](benchmarks/rrule/PROMPT.md) · [Cómo se calcula la nota](benchmarks/rrule/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#rrule)
 
-### SQL · 0 de 19 modelos con nota
+### Regex · 0 de 20 modelos con nota
+
+Motor de expresiones regulares compatible con JavaScript sin usar RegExp: semántica exacta de ECMAScript (capturas, perezosos, Unicode, i, lastIndex), tiempo lineal ante patrones patológicos, streaming que devuelve cada coincidencia en cuanto es definitiva y tipos de TypeScript deducidos del patrón.
+
+_Todavía no hay resultados._
+
+### SQL · 4 de 19 modelos con nota
 
 Motor SQL en memoria con semántica de SQLite: SELECT con JOIN/LEFT JOIN, GROUP BY/HAVING, ORDER BY, LIMIT/OFFSET, NULL con lógica de tres valores, enteros frente a reales y rendimiento con 100.000 filas.
 
-_Todavía no hay resultados._
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/highlights-sql-dark.svg"><img alt="Destacados de SQL: top 10 por nota, velocidad y coste por tarea" src="assets/highlights-sql.svg"></picture>
+
+| # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |
+|---|---|---|---|---|---|---|---|---|
+| 1 | DeepSeek V4.1 Flash | `max` | **9,8** | 173/173 | 9 | 9 | $0,0809 | 8m 47s |
+| 2 | GPT-5.6 Luna | `max` | **9,6** | 172/173 | 9 | 9 | $0,19 | 15m 44s |
+| 3 | Muse Spark 1.3 Contributor | `xhigh` | **9,5** | 173/173 | 8 | 8 | $0,0486 | 10m 41s |
+| 4 | Hy4 preview\* | `high` | **8,5**\* | 172/173 | 9 | 9 | $0,69 | 36m 49s |
+
+\* Hy4 preview: no terminó (≈95 % hecho) — detenido a mano por tardar demasiado (≈35 min): código y 81 tests en verde, le faltaba corregir 1 error de tsc; se valora lo que había hecho.
+
+[Tabla completa](benchmarks/sql/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/sql/DETAILS.md) · [Enunciado](benchmarks/sql/PROMPT.md) · [Cómo se calcula la nota](benchmarks/sql/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#sql)
 
 
 ## Cómo funciona
@@ -125,8 +143,9 @@ Si hay varias sesiones en la misma carpeta usa la más reciente (`--session <id>
 |---|---|---|---|---|
 | 1 | [rrule](benchmarks/rrule/PROMPT.md) | Expansor RRULE en TypeScript + Vitest (DAILY/WEEKLY/MONTHLY, BYDAY, COUNT, UNTIL, zonas IANA y DST) | 19 casos | `run --all` |
 | 2 | [sql](benchmarks/sql/PROMPT.md) | Motor SQL en memoria con semántica de SQLite (SELECT, JOIN/LEFT JOIN, GROUP BY/HAVING, ORDER BY, NULL, rendimiento con 100k filas). ~1,5–2× más difícil | 173 casos generados con SQLite | `run --all --test sql` |
+| 3 | [regex](benchmarks/regex/PROMPT.md) | Motor de expresiones regulares compatible con JavaScript sin `RegExp`: semántica exacta de ECMAScript, tiempo lineal, streaming que devuelve cada coincidencia en cuanto es definitiva y tipos deducidos del patrón. Diferenciadora | 561 casos (V8 + JavaScriptCore), ponderados por bloques | `run --all --test regex` |
 
-Cada prueba tiene su `benchmarks/<prueba>/bench.json` (pesos de la nota, timeout, TZ extra, imports prohibidos) y su `RUBRIC.md`.
+Cada prueba tiene su `benchmarks/<prueba>/bench.json` (pesos de la nota, timeout, TZ extra, imports y sintaxis prohibidos, peso de cada bloque de la suite oculta) y su `RUBRIC.md`.
 
 ## Modelos (20)
 

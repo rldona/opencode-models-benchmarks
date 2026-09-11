@@ -113,7 +113,10 @@ test('casos especiales: sin proyecto = 0, motor prohibido = 0, cuota o sin acces
   assert.equal(computeScore(result('rrule', { project: { found: false } }), null).total, 0);
   const forbidden = computeScore(result('sql', { project: { forbiddenImports: ['node:sqlite (src/db.ts)'] } }), verdict(173, 173));
   assert.equal(forbidden.total, 0);
-  assert.match(forbidden.reason, /prohibidos/);
+  assert.match(forbidden.reason, /prohibido/);
+  const builtin = computeScore(result('rrule'), verdict(19, 19, { builtinEngine: true, builtinEngineWhere: 'src/a.ts:3' }));
+  assert.equal(builtin.total, 0);
+  assert.match(builtin.reason, /motor del lenguaje: src\/a\.ts:3/);
   assert.equal(computeScore(result('rrule', { flags: { quotaBlocked: true } }), verdict(19, 19)), null);
   assert.equal(computeScore(result('rrule', { flags: { accessBlocked: true } }), verdict(19, 19)), null);
 });
@@ -143,6 +146,10 @@ test('sanitize: rutas locales, usuario, ids de cuenta y registro npm interno', (
   assert.match(out, / user +staff/);
   assert.match(out, /wrk_…/);
   assert.match(out, /https:\/\/registry\.npmjs\.org\/vitest\/-\/vitest-3\.2\.4\.tgz/);
+  // Una ruta temporal seguida de \" dentro de un JSON (comando escapado) no debe romper el JSON.
+  const json = JSON.stringify({ command: 'SCRATCH="<eval>/sql/x"\nTMP="<tmp>"\ncat "$SCRATCH"' });
+  const clean = JSON.parse(sanitize(json));
+  assert.equal(clean.command, 'SCRATCH="<eval>/sql/x"\nTMP="<tmp>"\ncat "$SCRATCH"');
 });
 
 // ---------- aislamiento ----------
@@ -167,6 +174,62 @@ test('aislamiento: distingue acceso al repo, exploración fuera y rutas inexiste
   assert.equal(r.explored, true);
   assert.ok(r.externalAccess.some((a) => a.kind === 'repo' && a.blocked));
   assert.ok(!r.externalAccess.some((a) => a.target.includes('src/index')), 'una ruta que no existe no es un acceso');
+});
+
+test('reglas bash: solo la carpeta de trabajo dentro del repo, sin ~ ni subir a models/', async () => {
+  const { bashRules } = await import('../bench.mjs');
+  const dir = path.join(ROOT, 'models', 'demo-model', 'sql');
+  const rules = Object.entries(bashRules(dir));
+  // Como opencode: comodín * y gana la última regla que coincide.
+  const match = (cmd, pat) => new RegExp('^' + pat.split('*').map((s) => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$', 's').test(cmd);
+  const action = (cmd) => rules.filter(([p]) => match(cmd, p)).pop()[1];
+  assert.equal(action('npx vitest run'), 'allow');
+  assert.equal(action(`ls -la ${dir}`), 'allow');
+  assert.equal(action(`cd ${dir} && npm test`), 'allow');
+  assert.equal(action(`ls ${ROOT}`), 'deny');
+  assert.equal(action(`find ${path.join(ROOT, 'models', 'demo-model', 'rrule')} -type f`), 'deny');
+  assert.equal(action(`ls ${dir}/../../otro-modelo`), 'deny');
+  assert.equal(action('ls ~/workspace'), 'deny');
+  assert.equal(action('cat $HOME/.npmrc'), 'deny');
+});
+
+test('código prohibido: RegExp como valor, literales /…/, eval y Function; no tipos, cadenas ni divisiones', async () => {
+  const { forbiddenSyntax } = await import('../bench.mjs');
+  const rules = ['RegExp', 'regex-literal', 'eval', 'Function'];
+  const found = (code) => forbiddenSyntax(code, rules).map((h) => `${h.rule}@${h.line}`);
+  assert.deepEqual(found('const r = new RegExp("a");'), ['RegExp@1']);
+  assert.deepEqual(found('const ok = x.test("a") && /ab+c/i.test(s);'), ['literal /…/@1']);
+  assert.deepEqual(found('if (a)\n  return /x/;'), ['literal /…/@2']);
+  assert.deepEqual(found('const f = globalThis.RegExp;\neval("1");\nnew Function("return 1");'), ['RegExp@1', 'eval@2', 'Function@3']);
+  // Nada de esto es un uso prohibido:
+  const clean = [
+    'const half = total / 2 / count;',
+    'const s = "no es /un literal/ ni RegExp";',
+    '// new RegExp(x) en un comentario\n/* y /otro/ aquí */',
+    'const t = `plantilla ${a / b} con /barras/ y ${ {x: 1}.x }`;',
+    'function f(r: RegExp): RegExpExecArray | null { return null; }',
+    'type T = `\\\\${infer R}`; const n = arr[i] / 2;',
+    'const cb: Function = () => {};',
+    'const x = obj.eval;',
+    'const cache = new Map<string, RegExp>();',
+  ];
+  for (const code of clean) assert.deepEqual(found(code), [], code);
+});
+
+test('corrección ponderada por bloques (correctnessGroups)', async () => {
+  const { hiddenFraction } = await import('../bench.mjs');
+  // regex: semantica 40, rendimiento 20, streaming 15, tipos 15, retro 10.
+  const cases = [
+    ...Array.from({ length: 10 }, (_, i) => ({ group: 'semantica', passed: i < 5 })), // 0,5 × 40
+    { group: 'rendimiento', passed: true }, // 1 × 20
+    { group: 'streaming', passed: false }, // 0 × 15
+    { group: 'tipos', passed: true }, // 1 × 15
+    { group: 'retro', passed: true }, // 1 × 10
+  ];
+  const f = hiddenFraction('regex', { passed: 8, total: 14, cases });
+  assert.ok(Math.abs(f - (20 + 20 + 15 + 10) / 100) < 1e-9, String(f));
+  // Sin correctnessGroups (sql): proporción simple.
+  assert.equal(hiddenFraction('sql', { passed: 8, total: 14, cases }), 8 / 14);
 });
 
 // ---------- informe ----------

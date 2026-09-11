@@ -1,89 +1,130 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 662" width="1200" height="662" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
-<rect width="1200" height="662" fill="#1a1a19"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 662" width="1560" height="662" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect width="1560" height="662" fill="#1a1a19"/>
 <text x="32" y="44" fill="#ffffff" font-size="26" font-weight="600">OpenCode Go Models Benchmarks</text>
 <text x="32" y="66" fill="#c3c2b7" font-size="14">Nota (0–10) frente a coste por tarea · azul: frontera de eficiencia · 2026-09-11</text>
 <text x="64" y="102" fill="#ffffff" font-size="16" font-weight="600">RRULE</text>
-<text x="1030" y="102" fill="#898781" font-size="12" font-style="italic" text-anchor="end">más eficiente ↗</text>
-<line x1="64" x2="1030" y1="588" y2="588" stroke="#2c2c2a"/>
+<text x="610" y="102" fill="#898781" font-size="12" font-style="italic" text-anchor="end">más eficiente ↗</text>
+<line x1="64" x2="610" y1="588" y2="588" stroke="#2c2c2a"/>
 <text x="54" y="592" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">4</text>
-<line x1="64" x2="1030" y1="509.6666666666667" y2="509.6666666666667" stroke="#2c2c2a"/>
+<line x1="64" x2="610" y1="509.6666666666667" y2="509.6666666666667" stroke="#2c2c2a"/>
 <text x="54" y="513.6666666666667" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">5</text>
-<line x1="64" x2="1030" y1="431.33333333333337" y2="431.33333333333337" stroke="#2c2c2a"/>
+<line x1="64" x2="610" y1="431.33333333333337" y2="431.33333333333337" stroke="#2c2c2a"/>
 <text x="54" y="435.33333333333337" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">6</text>
-<line x1="64" x2="1030" y1="353" y2="353" stroke="#2c2c2a"/>
+<line x1="64" x2="610" y1="353" y2="353" stroke="#2c2c2a"/>
 <text x="54" y="357" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">7</text>
-<line x1="64" x2="1030" y1="274.6666666666667" y2="274.6666666666667" stroke="#2c2c2a"/>
+<line x1="64" x2="610" y1="274.6666666666667" y2="274.6666666666667" stroke="#2c2c2a"/>
 <text x="54" y="278.6666666666667" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">8</text>
-<line x1="64" x2="1030" y1="196.33333333333331" y2="196.33333333333331" stroke="#2c2c2a"/>
+<line x1="64" x2="610" y1="196.33333333333331" y2="196.33333333333331" stroke="#2c2c2a"/>
 <text x="54" y="200.33333333333331" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">9</text>
-<line x1="64" x2="1030" y1="118" y2="118" stroke="#2c2c2a"/>
+<line x1="64" x2="610" y1="118" y2="118" stroke="#2c2c2a"/>
 <text x="54" y="122" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">10</text>
-<line x1="1030" x2="1030" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="1030" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0</text>
-<line x1="836.8000000000001" x2="836.8000000000001" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="836.8000000000001" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,20</text>
-<line x1="643.6" x2="643.6" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="643.6" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,40</text>
-<line x1="450.3999999999999" x2="450.3999999999999" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="450.3999999999999" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,60</text>
-<line x1="257.19999999999993" x2="257.19999999999993" y1="118" y2="588" stroke="#2c2c2a"/>
-<text x="257.19999999999993" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,80</text>
+<line x1="610" x2="610" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="610" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0</text>
+<line x1="500.8" x2="500.8" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="500.8" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,20</text>
+<line x1="391.59999999999997" x2="391.59999999999997" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="391.59999999999997" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,40</text>
+<line x1="282.4" x2="282.4" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="282.4" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,60</text>
+<line x1="173.2" x2="173.2" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="173.2" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,80</text>
 <line x1="64" x2="64" y1="118" y2="588" stroke="#2c2c2a"/>
 <text x="64" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$1,00</text>
-<line x1="64" x2="1030" y1="588" y2="588" stroke="#383835"/>
-<text x="547" y="630" fill="#c3c2b7" font-size="12" text-anchor="middle">Coste por tarea (USD, precio de lista según opencode) · menos es mejor →</text>
-<polyline points="1019.380101256,266.83333333333337 1013.7993136912,219.83333333333337 1001.053866028,133.6666666666666" fill="none" stroke="#3987e5" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="795.056508616" cy="133.6666666666666" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="466.1301314800001" cy="133.6666666666666" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="964.6370879799999" cy="149.33333333333337" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="953.02735222" cy="149.33333333333337" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="893.118255952" cy="157.16666666666669" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="951.493539352" cy="165" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="607.695712" cy="180.6666666666667" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="885.09611668" cy="188.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="843.26279116" cy="204.16666666666663" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="568.0217055999999" cy="204.16666666666663" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="585.1357479999999" cy="227.66666666666669" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="893.0473206400001" cy="235.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="983.189502448" cy="259.0000000000001" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="919.754028976" cy="282.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="855.295036" cy="329.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="216.15079600000004" cy="407.83333333333337" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="833.9247975999999" cy="470.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="1001.053866028" cy="133.6666666666666" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="1013.7993136912" cy="219.83333333333337" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="1019.380101256" cy="266.83333333333337" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<text x="1010.053866028" y="133.6666666666666" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">DeepSeek V4.1 Flash</text>
-<text x="1010.053866028" y="145.6666666666666" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
-<text x="1022.7993136912" y="219.83333333333337" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiMo V2.5</text>
-<text x="1022.7993136912" y="231.83333333333337" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
-<text x="804.056508616" y="133.6666666666666" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Hy4 preview</text>
-<text x="804.056508616" y="145.6666666666666" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">HIGH</text>
-<text x="475.1301314800001" y="133.6666666666666" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">GLM-5.3</text>
-<text x="475.1301314800001" y="145.6666666666666" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
-<text x="973.6370879799999" y="162.33333333333337" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">GPT-5.6 Luna</text>
-<text x="973.6370879799999" y="174.33333333333337" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
-<text x="616.695712" y="180.6666666666667" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Grok 4.6</text>
-<text x="616.695712" y="192.6666666666667" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">XHIGH</text>
-<text x="894.09611668" y="188.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiniMax-M3</text>
-<text x="894.09611668" y="200.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">THINKING</text>
-<text x="834.26279116" y="204.16666666666663" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Kimi K2.7 Code</text>
-<text x="834.26279116" y="216.16666666666663" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">DEFAULT</text>
-<text x="559.0217055999999" y="204.16666666666663" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Kimi K3</text>
-<text x="559.0217055999999" y="216.16666666666663" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">MAX</text>
-<text x="594.1357479999999" y="227.66666666666669" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Qwen3.7 Max</text>
-<text x="594.1357479999999" y="239.66666666666669" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
-<text x="902.0473206400001" y="235.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Qwen3.7 Plus</text>
-<text x="902.0473206400001" y="247.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
-<line x1="988.5774224174696" y1="264.9135706981985" x2="1024.189502448" y2="304.0000000000001" stroke="#383835"/>
-<text x="1027.189502448" y="308.0000000000001" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiMo V2.5 Pro</text>
-<text x="1027.189502448" y="320.0000000000001" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
-<text x="928.754028976" y="282.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">LongCat-2.0</text>
-<text x="928.754028976" y="294.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">HIGH</text>
-<text x="864.295036" y="329.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Qwen3.6 Plus</text>
-<text x="864.295036" y="341.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
-<text x="225.15079600000004" y="407.83333333333337" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Qwen3.8 Max *</text>
-<text x="225.15079600000004" y="419.83333333333337" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">XHIGH</text>
-<text x="842.9247975999999" y="470.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiniMax-M2.7</text>
-<text x="842.9247975999999" y="482.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
+<line x1="64" x2="610" y1="588" y2="588" stroke="#383835"/>
+<text x="337" y="630" fill="#c3c2b7" font-size="12" text-anchor="middle">Coste por tarea (USD, precio de lista según opencode) · menos es mejor →</text>
+<polyline points="603.997448536,266.83333333333337 600.8430903472,219.83333333333337 593.639141668,133.6666666666666" fill="none" stroke="#3987e5" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="477.20585269599997" cy="133.6666666666666" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="291.29094388000004" cy="133.6666666666666" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="573.05574538" cy="149.33333333333337" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="566.49372082" cy="149.33333333333337" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="532.632057712" cy="157.16666666666669" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="565.626783112" cy="165" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="371.306272" cy="180.6666666666667" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="528.09780508" cy="188.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="504.45288196" cy="204.16666666666663" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="348.8818336" cy="204.16666666666663" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="358.5549879999999" cy="227.66666666666669" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="532.5919638400001" cy="235.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="583.5418926880001" cy="259.0000000000001" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="547.6870598559999" cy="282.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="511.25371599999994" cy="329.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="149.99827600000003" cy="407.83333333333337" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="499.1748856" cy="470.5" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="593.639141668" cy="133.6666666666666" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="600.8430903472" cy="219.83333333333337" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="603.997448536" cy="266.83333333333337" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="602.639141668" y="133.6666666666666" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">DeepSeek V4.1 Flash</text>
+<text x="602.639141668" y="145.6666666666666" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<text x="609.8430903472" y="219.83333333333337" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiMo V2.5</text>
+<text x="609.8430903472" y="231.83333333333337" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
+<text x="468.20585269599997" y="133.6666666666666" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Hy4 preview</text>
+<text x="468.20585269599997" y="145.6666666666666" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">HIGH</text>
+<text x="300.29094388000004" y="133.6666666666666" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">GLM-5.3</text>
+<text x="300.29094388000004" y="145.6666666666666" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<text x="582.05574538" y="162.33333333333337" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">GPT-5.6 Luna</text>
+<text x="582.05574538" y="174.33333333333337" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<line x1="527.2441377425304" y1="163.08023736486507" x2="491.632057712" y2="202.16666666666669" stroke="#383835"/>
+<text x="488.632057712" y="206.16666666666669" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Qwen3.8 Flash</text>
+<text x="488.632057712" y="218.16666666666669" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">XHIGH</text>
+<text x="362.306272" y="180.6666666666667" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Grok 4.6</text>
+<text x="362.306272" y="192.6666666666667" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">XHIGH</text>
+<text x="519.09780508" y="173.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">MiniMax-M3</text>
+<text x="519.09780508" y="185.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">THINKING</text>
+<line x1="499.0649619905304" y1="210.080237364865" x2="463.45288196" y2="249.16666666666663" stroke="#383835"/>
+<text x="460.45288196" y="253.16666666666663" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Kimi K2.7 Code</text>
+<text x="460.45288196" y="265.16666666666663" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">DEFAULT</text>
+<text x="339.8818336" y="217.16666666666663" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Kimi K3</text>
+<text x="339.8818336" y="229.16666666666663" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">MAX</text>
+<line x1="352.2401702609893" y1="232.57819157478605" x2="331.5549879999999" y2="248.66666666666669" stroke="#383835"/>
+<text x="328.5549879999999" y="252.66666666666669" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Qwen3.7 Max</text>
+<text x="328.5549879999999" y="264.6666666666667" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">DEFAULT</text>
+<line x1="527.2040438705304" y1="241.41357069819838" x2="491.59196384000006" y2="280.5" stroke="#383835"/>
+<text x="488.59196384000006" y="284.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Qwen3.7 Plus</text>
+<text x="488.59196384000006" y="296.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">DEFAULT</text>
+<line x1="589.8567104270107" y1="263.9115249081195" x2="610.5418926880001" y2="280.0000000000001" stroke="#383835"/>
+<text x="613.5418926880001" y="284.0000000000001" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiMo V2.5 Pro</text>
+<text x="613.5418926880001" y="296.0000000000001" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
+<text x="547.6870598559999" y="303.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="middle">LongCat-2.0</text>
+<text x="547.6870598559999" y="315.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="middle">HIGH</text>
+<text x="502.25371599999994" y="329.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">Qwen3.6 Plus</text>
+<text x="502.25371599999994" y="341.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">DEFAULT</text>
+<text x="158.99827600000003" y="407.83333333333337" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Qwen3.8 Max *</text>
+<text x="158.99827600000003" y="419.83333333333337" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">XHIGH</text>
+<text x="508.1748856" y="470.5" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">MiniMax-M2.7</text>
+<text x="508.1748856" y="482.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
+<text x="844" y="102" fill="#ffffff" font-size="16" font-weight="600">SQL</text>
+<text x="1390" y="102" fill="#898781" font-size="12" font-style="italic" text-anchor="end">más eficiente ↗</text>
+<line x1="844" x2="1390" y1="588" y2="588" stroke="#2c2c2a"/>
+<text x="834" y="592" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">7</text>
+<line x1="844" x2="1390" y1="431.33333333333337" y2="431.33333333333337" stroke="#2c2c2a"/>
+<text x="834" y="435.33333333333337" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">8</text>
+<line x1="844" x2="1390" y1="274.6666666666667" y2="274.6666666666667" stroke="#2c2c2a"/>
+<text x="834" y="278.6666666666667" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">9</text>
+<line x1="844" x2="1390" y1="118" y2="118" stroke="#2c2c2a"/>
+<text x="834" y="122" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="end">10</text>
+<line x1="1390" x2="1390" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="1390" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0</text>
+<line x1="1253.5" x2="1253.5" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="1253.5" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,20</text>
+<line x1="1117" x2="1117" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="1117" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,40</text>
+<line x1="980.5" x2="980.5" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="980.5" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,60</text>
+<line x1="844" x2="844" y1="118" y2="588" stroke="#2c2c2a"/>
+<text x="844" y="608" fill="#898781" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">$0,80</text>
+<line x1="844" x2="1390" y1="588" y2="588" stroke="#383835"/>
+<text x="1117" y="630" fill="#c3c2b7" font-size="12" text-anchor="middle">Coste por tarea (USD, precio de lista según opencode) · menos es mejor →</text>
+<polyline points="1356.8101997200001,196.33333333333331 1334.81757361,149.33333333333323" fill="none" stroke="#3987e5" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1259.1794101" cy="180.6666666666667" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="916.5268882974997" cy="353" r="5" fill="#898781" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="1334.81757361" cy="149.33333333333323" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<circle cx="1356.8101997200001" cy="196.33333333333331" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="1343.81757361" y="149.33333333333323" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">DeepSeek V4.1 Flash</text>
+<text x="1343.81757361" y="161.33333333333323" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<text x="1365.8101997200001" y="196.33333333333331" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Muse Spark 1.3 Contributor</text>
+<text x="1365.8101997200001" y="208.33333333333331" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">XHIGH</text>
+<text x="1250.1794101" y="180.6666666666667" fill="#ffffff" font-size="12" font-weight="500" text-anchor="end">GPT-5.6 Luna</text>
+<text x="1250.1794101" y="192.6666666666667" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">MAX</text>
+<text x="925.5268882974997" y="353" fill="#ffffff" font-size="12" font-weight="500" text-anchor="start">Hy4 preview *</text>
+<text x="925.5268882974997" y="365" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">HIGH</text>
 </svg>

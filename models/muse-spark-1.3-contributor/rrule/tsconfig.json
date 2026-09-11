@@ -9,5 +9,8 @@
     "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*", "vitest.config.ts"]
+  "include": [
+    "src/**/*",
+    "vitest.config.ts"
+  ]
 }

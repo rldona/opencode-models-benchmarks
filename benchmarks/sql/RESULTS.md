@@ -7,11 +7,11 @@ La tabla la regenera `node scripts/bench.mjs collect|judge|report --test sql`. L
 | Modelo | Nota | Estado | Suite oculta | Cód. | Cal. tests | Cobertura | Aislamiento | Tests | Otras TZ | tsc | Deps extra | LOC src/test | T. activo | T. total | Intervenciones | Pasos | Tools (err) | Tok. in | Tok. out | Tok. razon. | Tok. caché | Coste | Variante | Notas |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | DeepSeek V4 Pro (New) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| DeepSeek V4.1 Flash |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| DeepSeek V4.1 Flash | **9.8** | ✅ | 173/173 | 9 | 9 | 6/6 | 🔒 intentó | 64/64 | — | ✅ | ninguna | 1878/405 | 8m 47s | 8m 50s | 0 (plan) | 35 | 53 (1) | 38.7k | 31.6k | 77.4k | 3.22M | $0.0809 | max |  |
 | GLM-5.3-Flash |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| GPT-5.6 Luna |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| GPT-5.6 Luna | **9.6** | ✅ | 172/173 | 9 | 9 | 6/6 | 🔒 intentó | 12/12 | — | — | ninguna | 1725/294 | 15m 44s | 15m 47s | 0 (plan) | 46 | 54 (2) | 138 | 28.6k | 52.1k | 3.21M | $0.1917 | max |  |
 | Grok 4.6 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Hy4 preview |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Hy4 preview | **8.5**\* | ⏹ no terminó (≈95 %)\* | 172/173 | 9 | 9 | 6/6 | ⚠️ accedió | 81/81 | — | ❌ 1 | ninguna | 2310/637 | 36m 49s | 36m 53s | 0 (plan) | 88 | 94 (9) | 189.5k | 48.3k | 46.5k | 7.11M | $0.6937 | high |  |
 | Kimi K2.7 Code |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Kimi K3 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | LongCat-2.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -19,7 +19,7 @@ La tabla la regenera `node scripts/bench.mjs collect|judge|report --test sql`. L
 | MiMo V2.5 Pro |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | MiniMax-M2.7 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | MiniMax-M3 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Muse Spark 1.3 Contributor |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Muse Spark 1.3 Contributor | **9.5** | ✅ | 173/173 | 8 | 8 | 6/6 | ✅ | 33/33 | — | ✅ | ninguna | 2745/342 | 10m 41s | 10m 45s | 0 (plan) | 53 | 52 (1) | 231.2k | 45.8k | 46.5k | 3.52M | $0.0486 | xhigh |  |
 | Qwen3.6 Plus |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Qwen3.7 Max |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Qwen3.7 Plus |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

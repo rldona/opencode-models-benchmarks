@@ -5,3 +5,4 @@ node_modules/
 scripts/.bench.next.mjs
 benchmarks/*/results/*.running
 .publish-private.json
+.bench-tools/

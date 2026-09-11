@@ -1,0 +1,105 @@
+{
+  "test": "sql",
+  "slug": "deepseek-v4.1-flash",
+  "name": "DeepSeek V4.1 Flash",
+  "expectedModel": "opencode-go/deepseek-v4.1-flash",
+  "collectedAt": "2026-09-11T15:52:58.786Z",
+  "session": {
+    "id": "ses_f6edc1262ffe5Wi4YlKan3h590",
+    "childSessions": 0,
+    "title": "sql · DeepSeek V4.1 Flash",
+    "models": [
+      "opencode-go/deepseek-v4.1-flash (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 530160,
+    "activeMs": 526596,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 35,
+    "toolCalls": 53,
+    "toolErrors": 1,
+    "tools": {
+      "bash": 15,
+      "glob": 1,
+      "todowrite": 2,
+      "write": 12,
+      "edit": 22,
+      "read": 1
+    },
+    "errors": [],
+    "tokens": {
+      "input": 38682,
+      "output": 31572,
+      "reasoning": 77428,
+      "cacheRead": 3217024,
+      "cacheWrite": 0
+    },
+    "cost": 0.080853372,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": "models",
+          "kind": "repo",
+          "status": "error",
+          "blocked": true
+        },
+        {
+          "tool": "bash",
+          "target": ".",
+          "kind": "repo",
+          "status": "error",
+          "blocked": true
+        }
+      ],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/deepseek-v4.1-flash/sql",
+    "hash": "2f242bca4676",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 64,
+      "passed": 64,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {},
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 1878,
+      "test": 405,
+      "srcFiles": 8,
+      "testFiles": 2
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}
