@@ -677,6 +677,12 @@ const COLS = [
   { k: 'status', label: 'Estado', get: (m) => m.status },
 ];
 
+// Orden de la clasificación: nota (con los pesos elegidos); en empate, nota oficial, menor coste y nombre.
+function byRank(a, b) {
+  return (scoreOf(b) ?? -1) - (scoreOf(a) ?? -1) || (b.score ?? -1) - (a.score ?? -1) ||
+    (a.cost ?? Infinity) - (b.cost ?? Infinity) || a.name.localeCompare(b.name);
+}
+
 function drawTable() {
   const head = document.getElementById('thead');
   head.replaceChildren();
@@ -702,11 +708,11 @@ function drawTable() {
     if (va == null && vb == null) return a.name.localeCompare(b.name);
     if (va == null) return 1;
     if (vb == null) return -1;
-    return (va < vb ? -1 : va > vb ? 1 : 0) * state.dir || (b.score ?? -1) - (a.score ?? -1);
+    return (va < vb ? -1 : va > vb ? 1 : 0) * state.dir || byRank(a, b);
   });
   const body = document.getElementById('tbody');
   body.replaceChildren();
-  const rankOf = new Map([...cur.models].filter((m) => scoreOf(m) != null).sort((a, b) => scoreOf(b) - scoreOf(a)).map((m, i) => [m.slug, i + 1]));
+  const rankOf = new Map([...cur.models].filter((m) => scoreOf(m) != null).sort(byRank).map((m, i) => [m.slug, i + 1]));
   for (const m of rows) {
     const tr = el('tr');
     tr.append(el('td', { class: 'rank' }, rankOf.get(m.slug) ?? ''));
