@@ -1,0 +1,113 @@
+{
+  "test": "rrule",
+  "slug": "deepseek-v4-pro",
+  "name": "DeepSeek V4 Pro (New)",
+  "expectedModel": "opencode-go/deepseek-v4-pro",
+  "collectedAt": "2026-09-11T13:06:27.784Z",
+  "session": {
+    "id": "ses_f706c206affenUq5wYy5ZYnuvg",
+    "childSessions": 0,
+    "title": "Expansor RRULE con DST y tests Vitest",
+    "models": [
+      "opencode-go/deepseek-v4-pro (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 417430,
+    "activeMs": 406799,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 14,
+    "toolCalls": 16,
+    "toolErrors": 0,
+    "tools": {
+      "bash": 6,
+      "todowrite": 3,
+      "write": 6,
+      "edit": 1
+    },
+    "errors": [],
+    "tokens": {
+      "input": 23411,
+      "output": 8782,
+      "reasoning": 21042,
+      "cacheRead": 307584,
+      "cacheWrite": 0
+    },
+    "cost": 0.08126962799999998,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/deepseek-v4-pro/rrule",
+    "hash": "8f814a20794f",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 332,
+      "test": 118,
+      "srcFiles": 3,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

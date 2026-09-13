@@ -1,0 +1,113 @@
+{
+  "test": "rrule",
+  "slug": "longcat-2.0",
+  "name": "LongCat-2.0",
+  "expectedModel": "opencode-go/longcat-2.0",
+  "collectedAt": "2026-09-11T13:07:01.661Z",
+  "session": {
+    "id": "ses_f6fd767ccffe0iEU0bgjR84gJP",
+    "childSessions": 0,
+    "title": "rrule · LongCat-2.0",
+    "models": [
+      "opencode-go/longcat-2.0 (high)"
+    ],
+    "variant": "high",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 1254630,
+    "activeMs": 1252791,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 30,
+    "toolCalls": 33,
+    "toolErrors": 0,
+    "tools": {
+      "bash": 19,
+      "write": 10,
+      "edit": 3,
+      "read": 1
+    },
+    "errors": [],
+    "tokens": {
+      "input": 100962,
+      "output": 11649,
+      "reasoning": 51065,
+      "cacheRead": 1430144,
+      "cacheWrite": 0
+    },
+    "cost": 0.114126264,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/longcat-2.0/rrule",
+    "hash": "4cb2c5a4d25d",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 298,
+      "test": 98,
+      "srcFiles": 5,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

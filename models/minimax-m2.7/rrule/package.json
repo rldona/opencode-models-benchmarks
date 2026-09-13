@@ -1,0 +1,13 @@
+{
+  "name": "rrule-expander",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^3.0.0"
+  }
+}

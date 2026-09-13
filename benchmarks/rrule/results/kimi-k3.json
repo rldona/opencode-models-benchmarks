@@ -1,0 +1,122 @@
+{
+  "test": "rrule",
+  "slug": "kimi-k3",
+  "name": "Kimi K3",
+  "expectedModel": "opencode-go/kimi-k3",
+  "collectedAt": "2026-09-11T13:06:57.499Z",
+  "session": {
+    "id": "ses_f6fddafa7ffeW02XP7Kp0iU4M0",
+    "childSessions": 0,
+    "title": "rrule · Kimi K3",
+    "models": [
+      "opencode-go/kimi-k3 (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 661537,
+    "activeMs": 659566,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 18,
+    "toolCalls": 22,
+    "toolErrors": 0,
+    "tools": {
+      "bash": 6,
+      "glob": 1,
+      "todowrite": 6,
+      "write": 5,
+      "edit": 4
+    },
+    "errors": [],
+    "tokens": {
+      "input": 28769,
+      "output": 10417,
+      "reasoning": 9450,
+      "cacheRead": 313088,
+      "cacheWrite": 0
+    },
+    "cost": 0.47823840000000006,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": "../..",
+          "kind": "ancestro",
+          "status": "completed",
+          "blocked": false
+        }
+      ],
+      "leaked": false,
+      "explored": true
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/kimi-k3/rrule",
+    "hash": "38ca1f9b84ef",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 358,
+      "test": 160,
+      "srcFiles": 2,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

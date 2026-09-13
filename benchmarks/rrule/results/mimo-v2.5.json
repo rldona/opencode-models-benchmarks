@@ -1,0 +1,114 @@
+{
+  "test": "rrule",
+  "slug": "mimo-v2.5",
+  "name": "MiMo V2.5",
+  "expectedModel": "opencode-go/mimo-v2.5",
+  "collectedAt": "2026-09-11T13:07:06.173Z",
+  "session": {
+    "id": "ses_f6fd6b4c5ffeUrGhUaO52s74rm",
+    "childSessions": 0,
+    "title": "rrule · MiMo V2.5",
+    "models": [
+      "opencode-go/mimo-v2.5"
+    ],
+    "variant": "default",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 312493,
+    "activeMs": 310630,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 26,
+    "toolCalls": 27,
+    "toolErrors": 0,
+    "tools": {
+      "read": 3,
+      "todowrite": 8,
+      "bash": 5,
+      "write": 9,
+      "edit": 2
+    },
+    "errors": [],
+    "tokens": {
+      "input": 50005,
+      "output": 29755,
+      "reasoning": 0,
+      "cacheRead": 513856,
+      "cacheWrite": 0
+    },
+    "cost": 0.0167708968,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/mimo-v2.5/rrule",
+    "hash": "324415a7ac35",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 13,
+      "passed": 13,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 13,
+        "passed": 13,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 13,
+        "passed": 13,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 13,
+        "passed": 13,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 446,
+      "test": 355,
+      "srcFiles": 5,
+      "testFiles": 1
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

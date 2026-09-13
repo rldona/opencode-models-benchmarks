@@ -1,0 +1,206 @@
+{
+  "test": "rrule",
+  "slug": "minimax-m3",
+  "judgedAt": "2026-09-11T11:54:53.845Z",
+  "projectHash": "3f6d84ed18ec",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.3495548,
+    "turns": 20,
+    "isError": false,
+    "usage": {
+      "input_tokens": 22,
+      "cache_creation_input_tokens": 34819,
+      "cache_read_input_tokens": 657874,
+      "output_tokens": 7866,
+      "output_tokens_details": {
+        "thinking_tokens": 3742
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 34819,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 318,
+          "cache_read_input_tokens": 73376,
+          "cache_creation_input_tokens": 1534,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1534
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "result": "He completado la evaluación:\n\n1. **Adaptador** (`__bench__/adapter.ts`): conecta con `expand()` de `src/index.ts`, traduciendo la hora local (`dtstartLocal`) al formato interno que espera la solución (un `Date` cuyos campos UTC representan la hora de pared, no un instante real) y las ventanas a instantes reales. El smoke test pasa.\n\n2. **Evaluación**: la solución cubre los cuatro escenarios pedidos con tests de valores concretos calculados a mano (no derivados del propio código), tipado estricto sin `any`, y algoritmo acotado (avanza por semana/mes, no día a día). Detecté un bug menor: UNTIL sin sufijo `Z` usa la zona horaria del sistema en vez de la del evento. codeQuality 8, testQuality 8.\n\n3. Escrito `__bench__/judge.json` con el veredicto completo.",
+    "permissionDenials": [
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01CxQkEgWWHooebGxpunXVDk",
+        "tool_input": {
+          "command": "find . -not -path './node_modules/*' -not -path './.git/*' -type f | sort"
+        }
+      }
+    ],
+    "durationMs": 92849,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": [
+        "La solución espera `dtstart` como un Date cuyos campos UTC codifican la hora de pared local (no un instante real); el adaptador lo construye a partir de dtstartLocal en vez de usar dtstartUtc directamente, siguiendo la convención interna de src/expander.ts."
+      ]
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 8,
+      "strengths": [
+        "Separación clara en types/parser/tz/expander/index, sin `any` y con tipos precisos (ByDayEntry, Frequency, Weekday)",
+        "Cálculo de zona horaria correcto con Intl.DateTimeFormat y resolución de ambigüedad DST por punto fijo (zonedWallToUtc)",
+        "Generación acotada: WEEKLY/MONTHLY avanzan por semana/mes (no día a día) y cada rama para en count/until/rangeEnd",
+        "Parser valida entradas (FREQ, INTERVAL, BYDAY, COUNT) y lanza errores claros ante valores inválidos"
+      ],
+      "weaknesses": [
+        "UNTIL sin sufijo 'Z' (floating) se interpreta con la hora local de la máquina en vez de la tz del evento, inconsistente con el resto del diseño",
+        "Salvaguarda 'y > 2200' como límite mágico para evitar bucles infinitos en MONTHLY, poco elegante",
+        "Duplicación entre las dos ramas de MONTHLY (con y sin BYDAY) que podría unificarse",
+        "expand() no valida que dtstart/rangeStart/rangeEnd sean Date válidos antes de operar con ellos"
+      ]
+    },
+    "testQuality": {
+      "score": 8,
+      "strengths": [
+        "Aserciones exactas de instantes UTC con valores razonados a mano en comentarios (no derivados de la propia implementación)",
+        "Cubre los cuatro escenarios pedidos por el enunciado con casos concretos y realistas",
+        "Añade casos límite más allá de lo pedido: UNTIL inclusivo, INTERVAL, rangeStart/rangeEnd (ventana semiabierta), parser de BYDAY y errores"
+      ],
+      "weaknesses": [
+        "Solo se prueba una zona horaria no-UTC (Europe/Madrid); no hay otras zonas ni casos de hora inexistente/ambigua por salto de primavera",
+        "No hay test de MONTHLY con BYDAY combinado con INTERVAL>1",
+        "El caso DST solo cubre el cambio de octubre (retraso de reloj), no el de marzo (adelanto)"
+      ]
+    },
+    "bugs": [
+      "parseUntil interpreta un UNTIL sin 'Z' con la zona horaria del sistema en lugar de la tz del evento, lo que puede producir instantes incorrectos en máquinas con otra zona horaria"
+    ],
+    "summary": "Implementación sólida y bien tipada que resuelve correctamente DST, BYDAY posicional y meses sin día 31, con tests concretos que cubren los cuatro escenarios pedidos; solo lastrada por un bug menor en UNTIL floating y cobertura de zonas horarias algo limitada."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 17,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": true
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": true
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": false
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": true
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": true
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": true
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": false
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "// Adaptador: traduce el contrato del benchmark a la API pública de la solución.\nimport type { Expand } from './contract';\nimport { parseLocal } from './helpers';\nimport { expand as solutionExpand } from '../src/index.js';\n\nexport const expand: Expand = (input) => {\n  // La solución espera `dtstart` como un Date cuyos campos UTC representan\n  // la hora de pared local en `tz` (ver src/expander.ts: ymdOfWallClock usa\n  // getUTCFullYear/getUTCMonth/... sobre dtstart). No es un instante real.\n  const p = parseLocal(input.dtstartLocal);\n  const dtstart = new Date(Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second));\n\n  // rangeStart/rangeEnd sí son instantes UTC reales (se comparan con el\n  // instante real calculado internamente vía zonedWallToUtc).\n  const rangeStart = new Date(input.from);\n  const rangeEnd = new Date(input.to);\n\n  const result = solutionExpand(input.rrule, dtstart, rangeStart, rangeEnd, input.tz);\n  return result.map((d) => d.toISOString());\n};\n"
+}

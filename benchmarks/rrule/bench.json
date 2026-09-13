@@ -1,0 +1,24 @@
+{
+  "title": "RRULE",
+  "description": "Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INTERVAL, BYDAY con 2TU/-1FR, COUNT, UNTIL) en TypeScript + Vitest, respetando la hora local con zonas IANA y cambios de hora.",
+  "weights": {
+    "correctness": 4,
+    "autonomy": 1,
+    "ownTests": 2,
+    "codeQuality": 2,
+    "robustness": 1
+  },
+  "timeout": 45,
+  "extraTzs": [
+    "UTC",
+    "America/New_York",
+    "Asia/Kolkata"
+  ],
+  "forbiddenImports": [],
+  "hiddenTimeoutMs": {
+    "main": 120000
+  },
+  "hiddenCaseTimeoutMs": {
+    "main": 30000
+  }
+}

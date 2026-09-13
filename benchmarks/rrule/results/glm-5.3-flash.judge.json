@@ -1,0 +1,194 @@
+{
+  "test": "rrule",
+  "slug": "glm-5.3-flash",
+  "judgedAt": "2026-09-11T11:06:37.820Z",
+  "projectHash": "62a02ccfabb8",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.40818940000000004,
+    "turns": 18,
+    "isError": false,
+    "usage": {
+      "input_tokens": 22,
+      "cache_creation_input_tokens": 37918,
+      "cache_read_input_tokens": 670667,
+      "output_tokens": 12234,
+      "output_tokens_details": {
+        "thinking_tokens": 9233
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 37918,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 455,
+          "cache_read_input_tokens": 75099,
+          "cache_creation_input_tokens": 2910,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 2910
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "durationMs": 133381,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 8,
+      "strengths": [
+        "Separación clara entre cálculo de zona horaria (timezone.ts) y parseo/generación de ocurrencias (rrule.ts)",
+        "Tipos precisos sin `any`, compila con tsconfig estricto (strict, noUnusedLocals, etc.)",
+        "Algoritmo acotado y eficiente: avanza por semanas/meses (no día a día) con corte temprano al superar la ventana `to`, más un tope duro de iteraciones",
+        "Valida entradas (FREQ, INTERVAL, BYDAY con ordinal fuera de MONTHLY, zona horaria IANA) con mensajes de error claros"
+      ],
+      "weaknesses": [
+        "La resolución de horas ambiguas/inexistentes en `wallToUtc` usa una heurística de deltas fijos (30/60/.../240 min) en vez de un cálculo general del cambio de offset",
+        "Duplicación de estructura entre los bucles WEEKLY y MONTHLY (emisión, corte por `remaining`/`stopped`) que podría factorizarse",
+        "DTSTART se emite siempre como primera ocurrencia aunque su día no coincida con BYDAY, sin documentar ni testear ese caso"
+      ]
+    },
+    "testQuality": {
+      "score": 9,
+      "strengths": [
+        "Aserciones exactas de instantes UTC y hora local, con valores calculados independientemente de la implementación (verificados a mano: DST de Madrid, días de la semana, días por mes)",
+        "Cubre casos límite más allá de lo pedido: hora inexistente y ambigua en el cambio de hora, UNTIL inclusivo, INTERVAL, COUNT contado desde DTSTART aunque la ventana empiece después",
+        "Nombres de test descriptivos en español que explican el escenario y el resultado esperado",
+        "Incluye tests de validación de errores (FREQ no soportada, BYDAY con DAILY, ordinal en WEEKLY, zona inválida, INTERVAL inválido)"
+      ],
+      "weaknesses": [
+        "Todos los tests de zona horaria usan Europe/Madrid; no se prueba con otra zona IANA (p. ej. hemisferio sur o sin DST)",
+        "No se testea el caso de DTSTART cuyo día no coincide con BYDAY"
+      ]
+    },
+    "bugs": [
+      "DTSTART se incluye siempre como primera ocurrencia en WEEKLY/MONTHLY con BYDAY aunque su día no esté en la lista BYDAY, lo que puede ser sorprendente y no está cubierto por tests",
+      "La heurística de `wallToUtc` para resolver horas ambiguas/inexistentes usa deltas fijos en minutos, lo que podría no generalizar a zonas con transiciones de DST distintas de 30/60 minutos"
+    ],
+    "summary": "Solución sólida y bien estructurada que soporta correctamente el subconjunto de RRULE pedido, con manejo cuidadoso de DST (horas ambiguas e inexistentes) verificado con cálculos independientes; los tests cubren con precisión los cuatro escenarios requeridos y varios casos límite adicionales."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 19,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": true
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": true
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": true
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": true
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": true
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": true
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": true
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expandEvents } from '../src/index.js';\n\nexport const expand: Expand = (input) => {\n  const occurrences = expandEvents({\n    start: input.dtstartLocal,\n    rule: input.rrule,\n    timeZone: input.tz,\n    from: input.from,\n    to: input.to,\n  });\n  return occurrences.map((o) => o.utc);\n};\n"
+}

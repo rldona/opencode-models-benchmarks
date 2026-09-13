@@ -1,0 +1,194 @@
+{
+  "test": "rrule",
+  "slug": "muse-spark-1.3-contributor",
+  "judgedAt": "2026-09-11T11:43:56.841Z",
+  "projectHash": "2b890bdacef6",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.8501160000000001,
+    "turns": 44,
+    "isError": false,
+    "usage": {
+      "input_tokens": 70,
+      "cache_creation_input_tokens": 49957,
+      "cache_read_input_tokens": 2596740,
+      "output_tokens": 13080,
+      "output_tokens_details": {
+        "thinking_tokens": 3988
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 49957,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 461,
+          "cache_read_input_tokens": 89816,
+          "cache_creation_input_tokens": 232,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 232
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "durationMs": 161255,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": [
+        "expandRecurrence solo acepta rangeStart/rangeEnd, start, rrule y timeZone: el mapeo con BenchInput es directo (dtstartUtc -> start, from -> rangeStart, to -> rangeEnd), sin necesidad de adaptación real más allá de convertir las Date resultantes a ISO string."
+      ]
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 7,
+      "strengths": [
+        "Buena separación en tres módulos: parseo de RRULE (rrule.ts), aritmética de zona horaria con Intl (timezone.ts) y generación de ocurrencias (expand.ts)",
+        "Tipado estricto sin `any`, con `noUncheckedIndexedAccess` activado y validación de entradas (FREQ, INTERVAL, BYDAY, COUNT, UNTIL) con errores claros",
+        "Algoritmo acotado (MAX_PERIODS/MAX_CANDIDATES) que itera por periodos civiles en vez de día a día sin límite, y resuelve correctamente huecos/ambigüedades de DST muestreando offsets antes/después de la transición"
+      ],
+      "weaknesses": [
+        "Bug real: `validateTimeZone` rechaza 'UTC' y 'Etc/UTC' como zonas inválidas porque `Intl.supportedValuesOf('timeZone')` no las incluye, pese a que `Intl.DateTimeFormat` las soporta perfectamente; esto rompe un caso de uso común",
+        "Duplicación notable: la lógica de `consider` (comprobar UNTIL/COUNT/rango) está extraída como helper para DAILY pero reimplementada inline con ligeras variaciones en WEEKLY y MONTHLY",
+        "Comentarios que documentan dudas o razonamientos a medio resolver del propio autor ('Pero cuidado...', 'Heurística de parada...', 'Seguridad adicional...') en vez de explicar invariantes, lo que resta claridad al código de producción"
+      ]
+    },
+    "testQuality": {
+      "score": 8,
+      "strengths": [
+        "Aserciones exactas sobre instantes ISO UTC y sobre hora/día local derivados independientemente (con comentarios que muestran el cálculo manual de la transición DST de 2025), no solo longitudes o booleanos",
+        "Cubre casos límite más allá de lo pedido: UNTIL inclusivo, INTERVAL>1, COUNT contado desde DTSTART con ventana que empieza después, y la forma ordinal '2TU'",
+        "Nombres de test descriptivos en español que documentan el escenario y el resultado esperado"
+      ],
+      "weaknesses": [
+        "Todos los tests usan una única zona horaria (Europe/Madrid); no se prueba ninguna otra zona (p. ej. hemisferio sur o con offset no entero) ni UTC",
+        "No hay ningún test que ejercite `validateTimeZone` con una zona inválida ni que detecte el bug de rechazo de 'UTC'"
+      ]
+    },
+    "bugs": [
+      "`validateTimeZone` (src/timezone.ts) rechaza las zonas 'UTC' y 'Etc/UTC' con 'Invalid IANA time zone' porque no aparecen en `Intl.supportedValuesOf('timeZone')`, aunque son zonas IANA válidas y usables con Intl.DateTimeFormat; esto impide expandir cualquier regla en UTC.",
+      "La comprobación de `validateTimeZone` genera falsos negativos en general para cualquier alias de zona horaria que Intl acepte pero que `supportedValuesOf` no liste explícitamente."
+    ],
+    "summary": "Implementación sólida y bien estructurada que cubre correctamente el subconjunto de RRULE pedido y preserva la hora local en DST, con tests propios de buena calidad y valores esperados calculados de forma independiente; el defecto más grave es que rechaza la zona horaria 'UTC' por una validación excesivamente estricta, lo que rompe un caso de uso básico no cubierto por sus propios tests."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 14,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": false
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": true
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": true
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": true
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": true
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": false
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": false
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": false
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": false
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expandRecurrence } from '../src/expand';\n\nexport const expand: Expand = (input) => {\n  const occurrences = expandRecurrence({\n    start: input.dtstartUtc,\n    rrule: input.rrule,\n    timeZone: input.tz,\n    rangeStart: input.from,\n    rangeEnd: input.to,\n  });\n  return occurrences.map((d) => d.toISOString());\n};\n"
+}
