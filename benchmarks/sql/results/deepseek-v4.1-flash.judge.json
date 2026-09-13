@@ -1,0 +1,1137 @@
+{
+  "test": "sql",
+  "slug": "deepseek-v4.1-flash",
+  "judgedAt": "2026-09-11T15:54:05.903Z",
+  "projectHash": "2f242bca4676",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.5023190000000001,
+    "turns": 20,
+    "isError": false,
+    "usage": {
+      "input_tokens": 24,
+      "cache_creation_input_tokens": 81215,
+      "cache_read_input_tokens": 617555,
+      "output_tokens": 5050,
+      "output_tokens_details": {
+        "thinking_tokens": 1811
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 81215,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 413,
+          "cache_read_input_tokens": 79945,
+          "cache_creation_input_tokens": 1270,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1270
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "result": "He completado las tres partes:\n\n1. **`__bench__/adapter.ts`**: la solución ya usa exactamente el mismo formato que el contrato (`Database`/`TableData` con `columns`/`rows` como arrays), así que el adaptador es una llamada directa a `query` de `src/index.ts`, sin workarounds. El smoke test pasa.\n\n2. **Evaluación**: código de muy buena calidad — lexer → parser recursivo-descendente → AST tipado → binder/resolución → evaluador, con semántica de NULL y enteros/reales centralizada en `values.ts`, JOIN por igualdad con hash map (cumple el requisito de rendimiento), TypeScript estricto sin `any`. Los 66 tests (incluyendo los 2 de rendimiento) pasan y `tsc --noEmit` no da errores. Los tests tienen aserciones exactas y cubren todos los escenarios pedidos más varios extra (precedencia, columnas duplicadas, aridad de funciones, errores).\n\n3. **`__bench__/judge.json`** escrito con codeQuality 9, testQuality 9, cobertura completa en los 6 escenarios pedidos, y sin bugs detectados.",
+    "durationMs": 65912,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "nullNotInAgregados": true,
+      "leftJoin": true,
+      "groupByHaving": true,
+      "orderByNullsLimit": true,
+      "divisionEnteraReal": true,
+      "rendimiento": true
+    },
+    "codeQuality": {
+      "score": 9,
+      "strengths": [
+        "Fases claras: lexer, parser recursivo-descendente a AST tipado, paso de binding/resolución separado y evaluador",
+        "Semántica de NULL, enteros/reales y comparación de tres valores centralizada en values.ts, sin duplicación por operador",
+        "JOIN por igualdad implementado con hash map (extractEquality + hashKey) en vez de bucle anidado, cumpliendo el requisito de rendimiento",
+        "TypeScript estricto sin 'any', tipos precisos para el AST y los valores (boxeo mínimo de reales enteros para distinguir INTEGER/REAL)"
+      ],
+      "weaknesses": [
+        "El AST usa una interfaz Expr única con muchos campos opcionales en vez de una unión discriminada, lo que reduce algo la seguridad de tipos",
+        "El binder muta el AST in-place (bound, index, hasAgg) mezclando resolución y estructura, dificultando reutilizar el AST parseado",
+        "Alguna duplicación entre bindInner/substituteAliases/containsAggregate/collectIndexes, cuatro recorridos recursivos similares del árbol"
+      ]
+    },
+    "testQuality": {
+      "score": 9,
+      "strengths": [
+        "Aserciones exactas sobre filas y columnas en todos los casos, sin depender de toBeDefined ni conteos",
+        "Cobertura amplia más allá de lo pedido: precedencia exacta de operadores, columnas duplicadas, identificadores entre comillas, DISTINCT multicolumna, GROUP BY por posición, aridad de funciones",
+        "Casos de error bien probados (tabla/columna inexistente, ambigüedad, función desconocida, agregado mal usado, ORDER/GROUP BY fuera de rango)",
+        "Test de rendimiento realista con límite de tiempo y verificación del tamaño del resultado"
+      ],
+      "weaknesses": [
+        "No hay test de LEFT JOIN con múltiples tablas encadenadas ni de subconsultas/UNION (aunque no eran obligatorias)",
+        "Falta algún caso de ROUND con negativos de dígitos o números muy grandes cerca del límite de precisión"
+      ]
+    },
+    "bugs": [],
+    "summary": "Implementación muy sólida y fiel a la semántica de SQLite: arquitectura en fases claras, manejo centralizado de NULL/tipos numéricos, joins por hash para cumplir el rendimiento exigido, y una suite de tests exhaustiva con aserciones exactas que cubre todos los escenarios pedidos y varios adicionales."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 173,
+    "passed": 173,
+    "cases": [
+      {
+        "id": "001",
+        "name": "precedencia * sobre +",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "002",
+        "name": "división y módulo enteros con signo",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "003",
+        "name": "división real",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "004",
+        "name": "división y módulo por cero dan NULL",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "005",
+        "name": "menos unario",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "006",
+        "name": "asociatividad izquierda",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "007",
+        "name": "comparaciones devuelven 1/0",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "008",
+        "name": "comparación de texto binaria",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "009",
+        "name": "concatenación",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "010",
+        "name": "concatenación de real con parte entera",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "011",
+        "name": "comilla escapada",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "012",
+        "name": "precedencia < sobre =",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "013",
+        "name": "NOT tiene menor precedencia que =",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "014",
+        "name": "AND antes que OR",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "015",
+        "name": "BETWEEN inclusivo",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "016",
+        "name": "IN con lista",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "017",
+        "name": "CASE buscado",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "018",
+        "name": "CASE simple",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "019",
+        "name": "ABS",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "020",
+        "name": "ROUND alejándose de cero",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "021",
+        "name": "LOWER/UPPER solo ASCII",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "022",
+        "name": "LENGTH en caracteres y de números",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "023",
+        "name": "COALESCE, IFNULL, NULLIF",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "024",
+        "name": "suma de reales",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "025",
+        "name": "LIKE básico",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "026",
+        "name": "LIKE sobre número",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "027",
+        "name": "aritmética por fila con NULL",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "028",
+        "name": "reales por fila",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "029",
+        "name": "concatenación por fila con NULL",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "030",
+        "name": "CASE por fila con NULL",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "031",
+        "name": "funciones de texto por fila",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "032",
+        "name": "palabras clave e identificadores sin mayúsculas",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "033",
+        "name": "identificadores entre comillas dobles",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "034",
+        "name": "alias con espacios",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "035",
+        "name": "punto y coma final y saltos de línea",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "036",
+        "name": "SELECT sin FROM con varias columnas",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "037",
+        "name": "expresión anidada",
+        "category": "expr",
+        "passed": true
+      },
+      {
+        "id": "038",
+        "name": "lógica de tres valores",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "039",
+        "name": "NULL se propaga",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "040",
+        "name": "IN y NOT IN con NULL en la lista",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "041",
+        "name": "BETWEEN con NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "042",
+        "name": "LIKE con NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "043",
+        "name": "CASE con NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "044",
+        "name": "WHERE excluye NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "045",
+        "name": "NOT de una comparación con NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "046",
+        "name": "IS NULL en WHERE",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "047",
+        "name": "NOT IN excluye NULL de la columna",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "048",
+        "name": "NOT IN con NULL en la lista no devuelve nada",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "049",
+        "name": "IN con NULL en la lista",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "050",
+        "name": "COUNT(*) frente a COUNT(col)",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "051",
+        "name": "agregados ignoran NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "052",
+        "name": "SUM y AVG de solo NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "053",
+        "name": "agregados sobre conjunto vacío",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "054",
+        "name": "COALESCE por fila",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "055",
+        "name": "GROUP BY agrupa los NULL juntos",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "056",
+        "name": "DISTINCT con NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "057",
+        "name": "NULL primero en ORDER BY ASC",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "058",
+        "name": "NULL al final en ORDER BY DESC",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "059",
+        "name": "NULLIF por fila",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "060",
+        "name": "MIN/MAX ignoran NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "061",
+        "name": "SUM por grupo con grupos todo NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "062",
+        "name": "LIKE excluye NULL y no distingue mayúsculas",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "063",
+        "name": "NOT LIKE excluye NULL",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "064",
+        "name": "comparación con columna NULL en CASE",
+        "category": "null",
+        "passed": true
+      },
+      {
+        "id": "065",
+        "name": "AND/OR sin paréntesis",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "066",
+        "name": "OR entre paréntesis",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "067",
+        "name": "BETWEEN numérico",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "068",
+        "name": "BETWEEN de fechas en texto",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "069",
+        "name": "LIKE sufijo",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "070",
+        "name": "LIKE prefijo sin mayúsculas",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "071",
+        "name": "LIKE con _ y caracteres no ASCII",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "072",
+        "name": "LIKE con comillas dobles en el texto",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "073",
+        "name": "LIKE sobre columna numérica",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "074",
+        "name": "IN con lista",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "075",
+        "name": "NOT sobre igualdad con NULL",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "076",
+        "name": "expresión aritmética en WHERE",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "077",
+        "name": "comparación con real",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "078",
+        "name": "texto con comilla",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "079",
+        "name": "rango de texto binario",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "080",
+        "name": "valor numérico como booleano",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "081",
+        "name": "mezcla AND/OR con IS NULL",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "082",
+        "name": "IS NOT NULL y comparación",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "083",
+        "name": "SELECT * con WHERE",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "084",
+        "name": "BETWEEN y NOT",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "085",
+        "name": "WHERE siempre falso",
+        "category": "where",
+        "passed": true
+      },
+      {
+        "id": "086",
+        "name": "INNER JOIN",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "087",
+        "name": "INNER JOIN con WHERE y orden de texto",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "088",
+        "name": "LEFT JOIN conserva filas sin pareja",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "089",
+        "name": "anti-join con LEFT JOIN",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "090",
+        "name": "condición extra en ON de LEFT JOIN",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "091",
+        "name": "la misma condición en WHERE filtra",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "092",
+        "name": "self join",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "093",
+        "name": "self LEFT JOIN",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "094",
+        "name": "tres tablas",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "095",
+        "name": "dos LEFT JOIN encadenados",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "096",
+        "name": "SELECT * con JOIN",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "097",
+        "name": "tabla.* y columna",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "098",
+        "name": "join con comas",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "099",
+        "name": "producto cartesiano",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "100",
+        "name": "join por desigualdad",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "101",
+        "name": "columnas con el mismo nombre en la salida",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "102",
+        "name": "LEFT JOIN con agregado",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "103",
+        "name": "filas huérfanas",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "104",
+        "name": "ON con dos condiciones",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "105",
+        "name": "nombres de tabla sin alias",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "106",
+        "name": "LEFT JOIN con filtro de texto en ON",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "107",
+        "name": "cuatro tablas con agrupación",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "108",
+        "name": "LEFT JOIN encadenado con NULL intermedio",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "109",
+        "name": "JOIN ON 1 es producto cartesiano",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "110",
+        "name": "LEFT OUTER JOIN",
+        "category": "join",
+        "passed": true
+      },
+      {
+        "id": "111",
+        "name": "agregados por grupo",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "112",
+        "name": "HAVING con COUNT",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "113",
+        "name": "ROUND de AVG por grupo",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "114",
+        "name": "COUNT DISTINCT",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "115",
+        "name": "GROUP BY expresión con división entera",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "116",
+        "name": "GROUP BY de un booleano",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "117",
+        "name": "SUM entero / COUNT frente a AVG",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "118",
+        "name": "HAVING con agregado que no está en el SELECT",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "119",
+        "name": "HAVING con SUM NULL",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "120",
+        "name": "MAX sobre grupo vacío",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "121",
+        "name": "GROUP BY dos columnas con NULL",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "122",
+        "name": "COUNT(*), COUNT(col) y SUM por grupo",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "123",
+        "name": "expresión con agregados",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "124",
+        "name": "HAVING igualdad sin ORDER BY",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "125",
+        "name": "SUM de reales",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "126",
+        "name": "agregados por categoría con NULL",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "127",
+        "name": "MIN/MAX de texto",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "128",
+        "name": "agregados con CASE",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "129",
+        "name": "ORDER BY alias de agregado",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "130",
+        "name": "AVG con NULL en el grupo",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "131",
+        "name": "MIN/MAX de fechas en texto",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "132",
+        "name": "ORDER BY agregado que no está en el SELECT y LIMIT",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "133",
+        "name": "GROUP BY con función",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "134",
+        "name": "COUNT DISTINCT por grupo",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "135",
+        "name": "agregado sin GROUP BY con WHERE",
+        "category": "group",
+        "passed": true
+      },
+      {
+        "id": "136",
+        "name": "ORDER BY texto binario",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "137",
+        "name": "ORDER BY DESC con LIMIT",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "138",
+        "name": "varias claves con empates",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "139",
+        "name": "NULL primero en la primera clave",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "140",
+        "name": "LIMIT y OFFSET",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "141",
+        "name": "LIMIT 0",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "142",
+        "name": "OFFSET más allá del final",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "143",
+        "name": "ORDER BY alias",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "144",
+        "name": "ORDER BY alias de expresión",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "145",
+        "name": "ORDER BY posición",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "146",
+        "name": "ORDER BY expresión fuera del SELECT",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "147",
+        "name": "ORDER BY CASE",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "148",
+        "name": "DISTINCT con ORDER BY DESC",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "149",
+        "name": "DISTINCT de texto con NULL",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "150",
+        "name": "DISTINCT de dos columnas",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "151",
+        "name": "NULL al final en DESC con LIMIT",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "152",
+        "name": "NULL en la primera clave, reales en la segunda",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "153",
+        "name": "ASC y DESC mezclados",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "154",
+        "name": "ORDER BY reales con NULL",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "155",
+        "name": "SELECT * ordenado con NULL",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "156",
+        "name": "DESC con LIMIT y OFFSET",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "157",
+        "name": "LIMIT sin ORDER BY sobre resultado de un grupo",
+        "category": "order",
+        "passed": true
+      },
+      {
+        "id": "158",
+        "name": "tabla inexistente",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "159",
+        "name": "columna inexistente",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "160",
+        "name": "columna ambigua",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "161",
+        "name": "palabra clave mal escrita",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "162",
+        "name": "agregado en WHERE",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "163",
+        "name": "alias de tabla inexistente",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "164",
+        "name": "ORDER BY posición fuera de rango",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "165",
+        "name": "paréntesis sin cerrar",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "166",
+        "name": "texto sin cerrar",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "167",
+        "name": "función desconocida",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "168",
+        "name": "nombre original oculto por el alias",
+        "category": "error",
+        "passed": true
+      },
+      {
+        "id": "169",
+        "name": "JOIN por igualdad 100k × 5k con filtro",
+        "category": "perf",
+        "passed": true
+      },
+      {
+        "id": "170",
+        "name": "GROUP BY de 100k filas en 5 grupos",
+        "category": "perf",
+        "passed": true
+      },
+      {
+        "id": "171",
+        "name": "GROUP BY de 100k filas en ~5.000 grupos con ORDER BY y LIMIT",
+        "category": "perf",
+        "passed": true
+      },
+      {
+        "id": "172",
+        "name": "JOIN invertido + COUNT DISTINCT por grupo",
+        "category": "perf",
+        "passed": true
+      },
+      {
+        "id": "173",
+        "name": "anti-join LEFT JOIN 5k × 100k",
+        "category": "perf",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Query } from './contract';\nimport { query as solutionQuery } from '../src/index';\n\nexport const query: Query = (tables, sql) => {\n  return solutionQuery(tables, sql);\n};\n\nexport const workarounds: string[] = [];\n"
+}

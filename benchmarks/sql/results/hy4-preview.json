@@ -1,0 +1,110 @@
+{
+  "test": "sql",
+  "slug": "hy4-preview",
+  "name": "Hy4 preview",
+  "expectedModel": "opencode-go/hy4-preview",
+  "collectedAt": "2026-09-11T16:21:01.164Z",
+  "session": {
+    "id": "ses_f6edc1243ffee0xWEoeNN2Nbni",
+    "childSessions": 0,
+    "title": "sql · Hy4 preview",
+    "models": [
+      "opencode-go/hy4-preview (high)"
+    ],
+    "variant": "high",
+    "inProgress": true,
+    "lastFinish": null,
+    "wallMs": 2213215,
+    "activeMs": 2209474,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 88,
+    "toolCalls": 94,
+    "toolErrors": 9,
+    "tools": {
+      "bash": 32,
+      "read": 4,
+      "todowrite": 1,
+      "write": 23,
+      "edit": 34
+    },
+    "errors": [],
+    "tokens": {
+      "input": 189489,
+      "output": 48304,
+      "reasoning": 46523,
+      "cacheRead": 7108032,
+      "cacheWrite": 0
+    },
+    "cost": 0.6937334970000004,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": ".",
+          "kind": "repo",
+          "status": "completed",
+          "blocked": false
+        },
+        {
+          "tool": "bash",
+          "target": "README.md",
+          "kind": "repo",
+          "status": "error",
+          "blocked": true
+        }
+      ],
+      "leaked": true,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/hy4-preview/sql",
+    "hash": "70ce04858f68",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 81,
+      "passed": 81,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {},
+    "tsc": {
+      "ok": false,
+      "errors": 1
+    },
+    "loc": {
+      "src": 2310,
+      "test": 637,
+      "srcFiles": 8,
+      "testFiles": 9
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "stopped": "detenido a mano por tardar demasiado (≈35 min): código y 81 tests en verde, le faltaba corregir 1 error de tsc",
+  "progress": 95,
+  "warnings": [
+    "CONTAMINADO: accedió a rutas del repo fuera de su carpeta (bash .)",
+    "no terminó (≈95 % hecho): detenido a mano por tardar demasiado (≈35 min): código y 81 tests en verde, le faltaba corregir 1 error de tsc"
+  ]
+}

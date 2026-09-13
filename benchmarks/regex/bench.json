@@ -1,0 +1,46 @@
+{
+  "title": "Regex",
+  "description": "Motor de expresiones regulares compatible con JavaScript sin usar RegExp: semántica exacta de ECMAScript (capturas, perezosos, Unicode, i, lastIndex), tiempo lineal ante patrones patológicos, streaming que devuelve cada coincidencia en cuanto es definitiva y tipos de TypeScript deducidos del patrón.",
+  "weights": {
+    "correctness": 6,
+    "autonomy": 1,
+    "ownTests": 1,
+    "codeQuality": 1.5,
+    "robustness": 0.5
+  },
+  "correctnessGroups": {
+    "semantica": 40,
+    "rendimiento": 20,
+    "streaming": 15,
+    "tipos": 15,
+    "retro": 10
+  },
+  "timeout": 90,
+  "extraTzs": [],
+  "forbiddenImports": [
+    "child_process",
+    "node:child_process",
+    "worker_threads",
+    "node:worker_threads",
+    "vm",
+    "node:vm"
+  ],
+  "forbiddenSyntax": [
+    "RegExp",
+    "regex-literal",
+    "eval",
+    "Function"
+  ],
+  "hiddenTimeoutMs": {
+    "main": 240000,
+    "perf": 180000,
+    "types": 120000
+  },
+  "hiddenCaseTimeoutMs": {
+    "main": 30000,
+    "perf": 20000,
+    "types": 60000
+  },
+  "typescript": "7.0.2",
+  "hiddenCases": 561
+}

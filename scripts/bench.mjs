@@ -79,7 +79,7 @@ function setTuiVariant(model) {
   writeAtomic(TUI_STATE, JSON.stringify(state));
 }
 
-function benchEnv() {
+function benchEnv(dir) {
   const env = { ...process.env };
   for (const k of ['CLAUDE_CODE_SSE_PORT', 'ZED_TERM']) delete env[k];
   if (env.TERM_PROGRAM?.toLowerCase() === 'zed') delete env.TERM_PROGRAM;
@@ -92,16 +92,26 @@ function benchEnv() {
   // alto; cada modelo usa min(su límite, este valor).
   env.OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX = '131072';
   // question denegada también en la TUI: el modelo decide solo en vez de preguntar (en `opencode run` ya lo está).
-  // external_directory no reconoce `~` ni `$HOME` en comandos bash (Kimi K3 listó ~/workspace así): se deniegan
-  // aparte. En opencode gana la última regla que coincide, por eso "*" va primero.
   env.OPENCODE_CONFIG_CONTENT = JSON.stringify({
-    permission: {
-      external_directory: 'deny',
-      question: 'deny',
-      bash: { '*': 'allow', '*~*': 'deny', '*$HOME*': 'deny', '*${HOME}*': 'deny' },
-    },
+    permission: { external_directory: 'deny', question: 'deny', bash: bashRules(dir) },
   });
   return env;
+}
+
+// external_directory solo frena algunos comandos bash (cat sí; ls y find no: Hy4 listó la raíz del repo y su carpeta
+// de otra prueba), ni reconoce `~` ni `$HOME` (Kimi K3 listó ~/workspace así). Reglas por texto del comando: nada que
+// nombre el repo salvo la carpeta de trabajo, ni `~`/`$HOME`, ni subir dos niveles (models/ con el resto de modelos).
+// En opencode gana la última regla que coincide: "*" va primero y la carpeta propia antes de las que deniegan siempre.
+function bashRules(dir) {
+  return {
+    '*': 'allow',
+    [`*${ROOT}*`]: 'deny',
+    ...(dir ? { [`*${dir}*`]: 'allow' } : {}),
+    '*~*': 'deny',
+    '*$HOME*': 'deny',
+    '*${HOME}*': 'deny',
+    '*../..*': 'deny',
+  };
 }
 
 const readPrompt = (test) => fs.readFileSync(path.join(ROOT, 'benchmarks', test, 'PROMPT.md'), 'utf8').trim();
@@ -476,6 +486,95 @@ function runVitest(proj, tz) {
   };
 }
 
+// Busca en código TypeScript usos prohibidos: 'RegExp' (como valor, no como tipo), 'regex-literal' (/…/), 'eval' y
+// 'Function' (como constructor o llamada). Tokenizador mínimo: salta comentarios, cadenas y plantillas, y decide si
+// una `/` abre un literal por el token anterior (como hace el propio lenguaje).
+const REGEX_BEFORE = new Set(['(', ',', '=', ':', '[', '!', '&', '|', '?', '{', '}', ';', '+', '-', '*', '%', '<', '>', '~', '^',
+  'return', 'typeof', 'case', 'do', 'else', 'in', 'of', 'new', 'delete', 'void', 'throw', 'instanceof', 'yield', 'await', '=>', '&&', '||', '??', '']);
+function forbiddenSyntax(code, rules) {
+  const hits = [];
+  const toks = []; // { t, line }
+  let line = 1;
+  let i = 0;
+  const templateDepth = []; // profundidad de llaves en cada ${ … } abierto
+  let braces = 0;
+  const skipString = (q) => {
+    for (i++; i < code.length && code[i] !== q; i++) {
+      if (code[i] === '\\') i++;
+      else if (code[i] === '\n') line++;
+    }
+    i++;
+  };
+  const skipTemplate = () => {
+    // desde justo después de ` o de }, hasta ` o ${
+    for (; i < code.length; i++) {
+      const c = code[i];
+      if (c === '\\') { i++; continue; }
+      if (c === '\n') line++;
+      if (c === '`') { i++; return; }
+      if (c === '$' && code[i + 1] === '{') { templateDepth.push(braces); braces++; i += 2; return; }
+    }
+  };
+  while (i < code.length) {
+    const c = code[i];
+    if (c === '\n') { line++; i++; continue; }
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '/' && code[i + 1] === '/') { while (i < code.length && code[i] !== '\n') i++; continue; }
+    if (c === '/' && code[i + 1] === '*') {
+      const end = code.indexOf('*/', i + 2);
+      const stop = end < 0 ? code.length : end + 2;
+      line += (code.slice(i, stop).match(/\n/g) ?? []).length;
+      i = stop;
+      continue;
+    }
+    if (c === '"' || c === "'") { skipString(c); toks.push({ t: 'str', line }); continue; }
+    if (c === '`') { i++; skipTemplate(); toks.push({ t: 'str', line }); continue; }
+    if (c === '}' && templateDepth.length && templateDepth.at(-1) === braces - 1) {
+      templateDepth.pop(); braces--; i++; skipTemplate(); toks.push({ t: 'str', line }); continue;
+    }
+    if (c === '/') {
+      const prev = toks.at(-1)?.t ?? '';
+      if (REGEX_BEFORE.has(prev)) {
+        if (rules.includes('regex-literal')) hits.push({ rule: 'literal /…/', line });
+        let inClass = false;
+        for (i++; i < code.length && code[i] !== '\n'; i++) {
+          if (code[i] === '\\') i++;
+          else if (code[i] === '[') inClass = true;
+          else if (code[i] === ']') inClass = false;
+          else if (code[i] === '/' && !inClass) break;
+        }
+        i++;
+        while (/[a-z]/i.test(code[i] ?? '')) i++;
+        toks.push({ t: 'regex', line });
+        continue;
+      }
+    }
+    const id = /^[A-Za-z_$][\w$]*/.exec(code.slice(i, i + 64));
+    if (id) { toks.push({ t: id[0], line }); i += id[0].length; continue; }
+    const num = /^\d[\w.]*/.exec(code.slice(i, i + 64));
+    if (num) { toks.push({ t: 'num', line }); i += num[0].length; continue; }
+    const op = ['=>', '&&', '||', '??', '?.'].find((o) => code.startsWith(o, i)) ?? c;
+    if (op === '{') braces++;
+    if (op === '}') braces--;
+    toks.push({ t: op, line });
+    i += op.length;
+  }
+  toks.forEach((tk, k) => {
+    const prev = toks[k - 1]?.t;
+    const next = toks[k + 1]?.t;
+    const called = next === '(' || next === '.' || next === '?.' || next === '[';
+    // Como valor: llamado, construido, heredado o asignado/pasado (no dentro de <…> ni en uniones de tipos).
+    const asValue = ['new', 'extends', '.'].includes(prev) ||
+      (['=', ',', '(', 'return', '??', '||', '&&'].includes(prev) && !['>', ',', '|', '&'].includes(next));
+    if (tk.t === 'RegExp' && rules.includes('RegExp') && (called || asValue)) {
+      hits.push({ rule: 'RegExp', line: tk.line });
+    }
+    if (tk.t === 'eval' && rules.includes('eval') && next === '(' && prev !== '.') hits.push({ rule: 'eval', line: tk.line });
+    if (tk.t === 'Function' && rules.includes('Function') && (prev === 'new' || next === '(')) hits.push({ rule: 'Function', line: tk.line });
+  });
+  return hits;
+}
+
 function checkProject(dir, test) {
   const proj = findProjectDir(dir);
   if (!proj) return { found: false };
@@ -521,6 +620,10 @@ function checkProject(dir, test) {
       if (spec.startsWith('.') || spec.startsWith('/') || spec.startsWith('node:')) continue;
       const pkg = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
       if (!ALLOWED_IMPORTS.has(pkg)) externalImports.add(pkg);
+    }
+    // Construcciones prohibidas por la prueba (p. ej. RegExp y literales /…/ en el motor de expresiones regulares).
+    if (cfg.forbiddenSyntax?.length) {
+      for (const hit of forbiddenSyntax(code, cfg.forbiddenSyntax)) forbiddenImports.add(`${hit.rule} (${path.relative(proj, f)}:${hit.line})`);
     }
   }
 
@@ -582,7 +685,7 @@ function collect(slug, opts) {
 
   log(`… ${slug}: verificando proyecto (vitest ×${1 + testConfig(opts.test).extraTzs.length}, tsc)`);
   const project = checkProject(dir, opts.test);
-  if (project.forbiddenImports?.length) warnings.push(`usa módulos prohibidos por el enunciado: ${project.forbiddenImports.join(', ')} → nota 0`);
+  if (project.forbiddenImports?.length) warnings.push(`usa código prohibido por el enunciado: ${project.forbiddenImports.join(', ')} → nota 0`);
 
   // Cortado por cuota del proveedor y sin una solución que funcione: resultado no válido, hay que repetirlo.
   const quotaBlocked = !!session.quotaError && !(project.found && project.tests.ok);
@@ -658,7 +761,7 @@ function run(slug, opts) {
     log(`\n━━━ ${model.name} · ${label} ━━━`);
     const r = spawnSync('opencode', [...base, ...args], {
       cwd: dir,
-      env: benchEnv(),
+      env: benchEnv(dir),
       stdio: ['ignore', 'inherit', 'inherit'],
       timeout: left,
       killSignal: 'SIGINT',
@@ -785,7 +888,7 @@ function open(slug, opts) {
   try {
     const r = spawnSync('opencode', [dir, '-m', model.id, '--agent', agent, '--prompt', readPrompt(opts.test)], {
       cwd: dir,
-      env: benchEnv(),
+      env: benchEnv(dir),
       stdio: 'inherit',
     });
     if (r.error) throw r.error;
@@ -883,12 +986,25 @@ function validateVerdict(v) {
   return problems;
 }
 
+// TypeScript fijado por el benchmark para las suites de tipos (el mismo para todos los modelos, sea cual sea el que
+// instaló cada uno): se instala en .bench-tools/ (fuera de lo que se publica) la primera vez que hace falta.
+const BENCH_TOOLS = path.join(ROOT, '.bench-tools');
+const BENCH_TSC = path.join(BENCH_TOOLS, 'node_modules', '.bin', 'tsc');
+function ensureBenchTypescript(version) {
+  const pkg = readJson(path.join(BENCH_TOOLS, 'node_modules', 'typescript', 'package.json'));
+  if (pkg?.version === version) return;
+  log(`… instalando typescript@${version} en ${rel(BENCH_TOOLS)} para la suite de tipos`);
+  fs.mkdirSync(BENCH_TOOLS, { recursive: true });
+  const r = sh('npm', ['install', '--no-audit', '--no-fund', '--silent', `typescript@${version}`], { cwd: BENCH_TOOLS, timeout: 5 * 60_000 });
+  if (r.status !== 0) throw new Error(`no se pudo instalar typescript@${version}: ${r.stderr}`);
+}
+
 function vitestCases(evalDir, testFile, pattern, timeoutMs) {
   const out = path.join(os.tmpdir(), `bench-hidden-${process.pid}-${Date.now()}.json`);
   const args = ['run', '--config', '__bench__/vitest.config.mjs', '--root', evalDir, '--reporter=json', `--outputFile=${out}`,
     `__bench__/${testFile}`];
   if (pattern) args.push('-t', pattern);
-  sh(path.join(evalDir, 'node_modules', '.bin', 'vitest'), args, { cwd: evalDir, env: { ...process.env, CI: '1' }, timeout: timeoutMs });
+  sh(path.join(evalDir, 'node_modules', '.bin', 'vitest'), args, { cwd: evalDir, env: { ...process.env, CI: '1', BENCH_TSC }, timeout: timeoutMs });
   const j = readJson(out);
   fs.rmSync(out, { force: true });
   if (!j) return null;
@@ -905,6 +1021,7 @@ function vitestCases(evalDir, testFile, pattern, timeoutMs) {
 // (campo `suite` de cases.json) y su timeout: una implementación lenta en rendimiento no bloquea la funcional.
 function runHidden(evalDir, test) {
   const cfg = testConfig(test);
+  if (cfg.typescript) ensureBenchTypescript(cfg.typescript);
   const hiddenDir = path.join(judgeDir(test), 'hidden');
   fs.cpSync(hiddenDir, path.join(evalDir, '__bench__'), { recursive: true });
   const cases = readJson(path.join(hiddenDir, 'cases.json'));
@@ -927,7 +1044,7 @@ function runHidden(evalDir, test) {
     }
     for (const id of ids) results.set(id, run.byId.get(id) ?? { passed: false, message: run.suiteMessage || 'no se ejecutó' });
   }
-  const out = cases.map((c) => ({ id: c.id, name: c.name, category: c.category, ...results.get(c.id) }));
+  const out = cases.map((c) => ({ id: c.id, name: c.name, category: c.category, ...(c.group ? { group: c.group } : {}), ...results.get(c.id) }));
   return { mode: modes.join('; ') || 'completa', total: cases.length, passed: out.filter((x) => x.passed).length, cases: out };
 }
 
@@ -1002,6 +1119,22 @@ function judge(slug, opts) {
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
+// Fracción de la suite oculta superada. Con correctnessGroups (bench.json) cada bloque de casos pesa lo indicado sea
+// cual sea su número de casos (regex: 14 de rendimiento pesan lo mismo que 71 de semántica); si no, todos igual.
+function hiddenFraction(test, hidden) {
+  const groups = testConfig(test).correctnessGroups;
+  if (!groups || !hidden.cases?.some((c) => c.group)) return hidden.passed / hidden.total;
+  let acc = 0;
+  let sum = 0;
+  for (const [g, w] of Object.entries(groups)) {
+    const cs = hidden.cases.filter((c) => c.group === g);
+    if (!cs.length) continue;
+    sum += w;
+    acc += (w * cs.filter((c) => c.passed).length) / cs.length;
+  }
+  return sum ? acc / sum : 0;
+}
+
 const ZERO_PARTS = { correctness: 0, autonomy: 0, ownTests: 0, ownTestsDetail: { pass: 0, coverage: 0, quantity: 0, quality: 0 }, codeQuality: 0, robustness: 0, penalty: 0 };
 
 // Pesos por prueba (bench.json). Dentro de cada bloque las proporciones son fijas:
@@ -1012,16 +1145,20 @@ function computeScore(r, j) {
   // Sesión terminada sin proyecto (se bloqueó, se cortó…): 0, no "sin nota".
   if (r && !r.session.inProgress && !r.project?.found) return { total: 0, reason: 'no generó un proyecto', parts: ZERO_PARTS };
   if (r?.project?.forbiddenImports?.length) {
-    return { total: 0, reason: `usa módulos prohibidos por el enunciado (${r.project.forbiddenImports.join(', ')})`, parts: ZERO_PARTS };
+    return { total: 0, reason: `usa código prohibido por el enunciado (${r.project.forbiddenImports.join(', ')})`, parts: ZERO_PARTS };
   }
   if (!r?.project?.found || !j?.verdict) return null;
+  // El juez comprueba lo que el análisis estático no ve (p. ej. delegar en String.prototype.match con un texto).
+  if (j.verdict.builtinEngine === true) {
+    return { total: 0, reason: `usa código prohibido por el enunciado (el juez vio que delega en el motor del lenguaje${j.verdict.builtinEngineWhere ? `: ${j.verdict.builtinEngineWhere}` : ''})`, parts: ZERO_PARTS };
+  }
   const W = testConfig(r.test).weights;
   const p = r.project;
   const s = r.session;
   const v = j.verdict;
   const t = p.tests;
 
-  const correctness = v.adapter.ok && j.hidden.total ? (W.correctness * j.hidden.passed) / j.hidden.total : 0;
+  const correctness = v.adapter.ok && j.hidden.total ? W.correctness * hiddenFraction(r.test, j.hidden) : 0;
 
   const blocked = s.inProgress || !!r.stopped || r.warnings.some((w) => w.startsWith('timeout'));
   const interventions = s.interventions ?? s.userMessages - 1;
@@ -1221,7 +1358,7 @@ function reportData(test, rows) {
         : r.quotaBlocked ? 'quota'
         : r.accessBlocked ? 'access'
         : r.stopped && sc ? 'stopped'
-        : sc?.reason?.startsWith('usa módulos') ? 'forbidden'
+        : sc?.reason?.startsWith('usa código prohibido') ? 'forbidden'
         : sc?.reason ? 'zero'
         : sc ? 'scored'
         : 'unjudged';
@@ -1317,6 +1454,20 @@ function byCategory(cases) {
   return [...cats].map(([k, x]) => `${x.passed === x.total ? '' : '**'}${k} ${x.passed}/${x.total}${x.passed === x.total ? '' : '**'}`).join(' · ');
 }
 
+// Aciertos por bloque con su peso (solo en pruebas con correctnessGroups): semantica 300/355 (40) · …
+function byGroup(test, cases) {
+  const groups = testConfig(test).correctnessGroups;
+  if (!groups || !cases?.some((c) => c.group)) return '';
+  return Object.entries(groups)
+    .map(([g, w]) => {
+      const cs = cases.filter((c) => c.group === g);
+      const ok = cs.filter((c) => c.passed).length;
+      return cs.length ? `${ok === cs.length ? '' : '**'}${g} ${ok}/${cs.length}${ok === cs.length ? '' : '**'} (${w})` : '';
+    })
+    .filter(Boolean)
+    .join(' · ');
+}
+
 function writeDetails(test, rows) {
   const W = testConfig(test).weights;
   const judged = rows.filter((x) => x.sc).sort((a, b) => b.sc.total - a.sc.total);
@@ -1359,7 +1510,7 @@ function writeDetails(test, rows) {
       `> ${v.summary ?? ''}`,
       '',
       `- **Corrección** ${p.correctness}/${W.correctness}: suite oculta ${j.hidden.passed}/${j.hidden.total}` +
-        (j.hidden.mode !== 'completa' ? ` (${j.hidden.mode})` : '') + (cats ? ` — ${cats}` : ''),
+        (j.hidden.mode !== 'completa' ? ` (${j.hidden.mode})` : '') + (byGroup(test, j.hidden.cases) ? ` · por bloque (ponderados): ${byGroup(test, j.hidden.cases)}` : '') + (cats ? ` — ${cats}` : ''),
       `- **Autonomía** ${p.autonomy}/${W.autonomy}: ${r.session.interventions ?? r.session.userMessages - 1} intervención(es) del usuario` +
         `${r.session.startedInPlan ? ' (empezó en modo plan; la aprobación del plan no cuenta)' : ''}${r.session.inProgress ? ', sesión sin terminar' : ''}`,
       `- **Tests propios** ${p.ownTests}/${W.ownTests}: pasan ${d.pass}/${q} (${r.project.tests.passed}/${r.project.tests.total}) · cobertura ${d.coverage}/${q} · cantidad ${d.quantity}/${q} · calidad ${d.quality}/${q} (${v.testQuality.score}/10)`,
@@ -1391,13 +1542,16 @@ const PUBLISH_DIR = path.join(ROOT, '.publish');
 const PUBLIC_REPO = 'rldona/opencode-models-benchmarks';
 const PAGES_URL = 'https://rldona.github.io/opencode-models-benchmarks/';
 const SKIP = new Set(['node_modules', '.git', '.DS_Store', 'archive', '.publish']);
-const HIDDEN_PRIVATE = /judge\/(hidden\/(cases\.json|datasets\.mjs)|oracle\/queries\.mjs)$/;
+// Suite oculta y lo que permitiría reconstruirla o resolverla: casos, consultas y datos del oráculo, semillas y la
+// solución de referencia.
+const HIDDEN_PRIVATE = /judge\/(hidden\/(cases\.json|datasets\.mjs)$|oracle\/(queries|curated|types)\.mjs$|reference\/)/;
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const SANITIZE = [
   [new RegExp(escapeRe(ROOT), 'g'), '.'],
-  [/\/(?:private\/)?var\/folders\/[^\s"'`)]*?\/T\/opencode-bench/g, '<eval>'],
-  [/\/(?:private\/)?(?:var\/folders\/[^\s"'`)]*?\/T|tmp)\/[^\s"'`)]*/g, '<tmp>'],
+  // Sin \\ en las rutas: dentro de un JSON una ruta puede ir seguida de \" (comando escapado) y no hay que comérsela.
+  [/\/(?:private\/)?var\/folders\/[^\s"'`)\\]*?\/T\/opencode-bench/g, '<eval>'],
+  [/\/(?:private\/)?(?:var\/folders\/[^\s"'`)\\]*?\/T|tmp)\/[^\s"'`)\\]*/g, '<tmp>'],
   [new RegExp(escapeRe(os.homedir()), 'g'), '~'],
   [/wrk_[A-Z0-9]{16,}/g, 'wrk_…'],
   // package-lock.json: registro npm interno (Artifactory corporativo) → registro público; misma ruta e integridad.
@@ -1437,11 +1591,19 @@ function publicFiles() {
 function publishContent(rp) {
   const buf = fs.readFileSync(path.join(ROOT, rp));
   if (!/\.(md|json|mjs|js|ts|html|log|txt|jsonc|yaml|yml)$|^\.gitignore$/.test(path.basename(rp)) && !rp.endsWith('.gitignore')) return buf;
-  let text = buf.toString('utf8');
-  if (/results\/[^/]+\.judge\.json$/.test(rp)) {
-    const j = JSON.parse(text);
-    for (const c of j.hidden?.cases ?? []) delete c.message; // revelan respuestas esperadas de la suite oculta
-    text = JSON.stringify(j, null, 2) + '\n';
+  const text = buf.toString('utf8');
+  // JSON: se anonimiza cada texto por separado y se vuelve a serializar, así el resultado siempre es JSON válido.
+  // Los que no se pueden leer como JSON (tsconfig con comentarios…) se tratan como texto.
+  if (rp.endsWith('.json')) {
+    let j;
+    try {
+      j = JSON.parse(text);
+    } catch {
+      return sanitize(text);
+    }
+    if (/results\/[^/]+\.judge\.json$/.test(rp)) for (const c of j.hidden?.cases ?? []) delete c.message; // revelan respuestas esperadas
+    const deep = (v) => (typeof v === 'string' ? sanitize(v) : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [sanitize(k), deep(x)])) : v);
+    return JSON.stringify(deep(j), null, 2) + '\n';
   }
   return sanitize(text);
 }
@@ -1835,4 +1997,4 @@ if (isMain) {
   });
 }
 
-export { ROOT, MODELS, testConfig, computeScore, sanitize, isolationReport, reportData, renderReport, testRows, lastUpdate, byCategory, highlightsSvg, coverSvg };
+export { ROOT, MODELS, bashRules, forbiddenSyntax, hiddenFraction, testConfig, computeScore, sanitize, publishContent, isolationReport, reportData, renderReport, testRows, lastUpdate, byCategory, highlightsSvg, coverSvg };
