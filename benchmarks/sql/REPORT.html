@@ -143,12 +143,33 @@
   .w-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
   .w-label output { font: 500 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
   .w-item input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
-  .table-card { overflow-x: auto; }
+  .table-card { min-width: 0; }
+  .table-scroll { overflow-x: auto; }
+  .sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 12px 12px 10px; border-bottom: 1px solid var(--grid); }
+  .sort-chips { display: contents; list-style: none; counter-reset: crit; }
+  .sort-chip { counter-increment: crit; display: inline-flex; align-items: center; border: 1px solid var(--hair); border-radius: 999px; background: var(--surface); }
+  .sort-chip::before {
+    content: counter(crit); display: grid; place-items: center; width: 18px; height: 18px; margin-left: 4px; border-radius: 50%;
+    background: var(--accent-wash); color: var(--accent); font: 600 10px/1 var(--mono); font-variant-numeric: tabular-nums;
+  }
+  .sort-chip button { font: 500 13px/1 var(--sans); color: var(--ink); background: none; border: 0; cursor: pointer; padding: 6px 8px 6px 6px; border-radius: 999px; }
+  .sort-chip button .arr { color: var(--accent); margin-left: 4px; }
+  .sort-chip button.x { color: var(--muted); padding: 6px 9px 6px 2px; }
+  .sort-chip button.x:hover, .sort-chip button:hover { color: var(--accent); }
+  .sortbar select {
+    font: 500 13px/1 var(--sans); color: var(--ink-2); background: var(--surface); border: 1px dashed var(--hair);
+    border-radius: 999px; padding: 6px 10px; cursor: pointer;
+  }
+  .sortbar select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sortbar .reset { font: 500 12px/1 var(--sans); color: var(--ink-2); background: none; border: 0; cursor: pointer; padding: 6px 4px; text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 3px; }
+  .sortbar .reset:hover { color: var(--accent); }
+  .sort-hint { margin-left: auto; color: var(--muted); font-size: 12px; }
+  @media (max-width: 640px) { .sort-hint { display: none; } }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { padding: 9px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--grid); }
   th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
   thead th { position: sticky; top: 0; background: var(--surface); font-weight: 500; color: var(--ink-2); }
-  th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; user-select: none; }
   th button[data-dir]::after { content: attr(data-dir); margin-left: 4px; color: var(--accent); }
   tbody tr:last-child td { border-bottom: 0; }
   tbody tr:hover td { background: var(--accent-wash); }
@@ -220,10 +241,13 @@
   </section>
 
   <section class="card table-card" aria-label="Clasificación">
-    <table>
-      <thead><tr id="thead"></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <div class="sortbar" id="sortbar" role="group" aria-label="Orden de la tabla"></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </section>
 
   <footer id="notes"></footer>
@@ -265,7 +289,8 @@ const store = {
   get(k, d) { try { return localStorage.getItem('rep:' + k) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem('rep:' + k, v); } catch {} },
 };
-const state = { x: store.get('x', 'cost'), y: store.get('y', 'score'), log: store.get('log', '0') === '1', sort: 'score', dir: -1 };
+// sort: criterios de la tabla en orden de prioridad [{ k, dir }] (se carga al dibujarla por primera vez).
+const state = { x: store.get('x', 'cost'), y: store.get('y', 'score'), log: store.get('log', '0') === '1', sort: null };
 if (!X[state.x]) state.x = 'cost';
 if (!Y[state.y]) state.y = 'score';
 
@@ -827,33 +852,99 @@ function byRank(a, b) {
     (a.cost ?? Infinity) - (b.cost ?? Infinity) || a.name.localeCompare(b.name);
 }
 
+// Orden por varios criterios: clic en una cabecera = solo esa columna (otro clic invierte); Mayús+clic = la añade
+// como desempate (o invierte la suya). La barra de encima muestra los criterios numerados y permite lo mismo sin
+// teclado. Coste, tokens, pasos, tiempo y nombre empiezan de menor a mayor; el resto, de mayor a menor.
+const ASC_FIRST = new Set(['name', 'cost', 'tokens', 'steps', 'time']);
+const SORTABLE = COLS.filter((c) => c.sort !== false);
+const DEFAULT_SORT = [{ k: 'score', dir: -1 }];
+const defaultDir = (k) => (ASC_FIRST.has(k) ? 1 : -1);
+const colOf = (k) => COLS.find((c) => c.k === k);
+
+function loadSort() {
+  try {
+    const s = JSON.parse(store.get('sort', 'null'));
+    if (Array.isArray(s) && s.length && s.every((x) => SORTABLE.some((c) => c.k === x.k) && (x.dir === 1 || x.dir === -1))) return s;
+  } catch {}
+  return DEFAULT_SORT.map((x) => ({ ...x }));
+}
+function applySort(next) {
+  state.sort = next;
+  store.set('sort', JSON.stringify(next));
+  drawTable();
+}
+function sortBy(k, additive) {
+  const s = state.sort, i = s.findIndex((x) => x.k === k);
+  if (additive) applySort(i < 0 ? [...s, { k, dir: defaultDir(k) }] : s.map((x, j) => (j === i ? { k, dir: -x.dir } : x)));
+  else applySort([{ k, dir: s.length === 1 && i === 0 ? -s[0].dir : defaultDir(k) }]);
+}
+
+// Sin valor (sin nota, sin coste…) siempre al final, sea cual sea el sentido; tras los criterios, el de la clasificación.
+function compareRows(a, b) {
+  for (const { k, dir } of state.sort) {
+    const get = colOf(k).get, va = get(a), vb = get(b);
+    if (va == null && vb == null) continue;
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    if (va !== vb) return (va < vb ? -1 : 1) * dir;
+  }
+  return byRank(a, b);
+}
+
+function drawSortBar() {
+  const bar = document.getElementById('sortbar');
+  bar.replaceChildren(el('span', { class: 'control-label' }, 'Ordenar por'));
+  const list = el('ol', { class: 'sort-chips' });
+  state.sort.forEach((s, i) => {
+    const c = colOf(s.k);
+    const li = el('li', { class: 'sort-chip' });
+    const flip = el('button', { type: 'button', title: 'Invertir el sentido',
+      'aria-label': `Criterio ${i + 1}: ${c.label}, ${s.dir < 0 ? 'de mayor a menor' : 'de menor a mayor'}. Invertir` }, c.label);
+    flip.append(el('span', { class: 'arr', 'aria-hidden': 'true' }, s.dir < 0 ? '↓' : '↑'));
+    flip.addEventListener('click', () => sortBy(s.k, true));
+    li.append(flip);
+    if (state.sort.length > 1) {
+      const x = el('button', { type: 'button', class: 'x', title: 'Quitar criterio', 'aria-label': `Quitar ${c.label}` }, '×');
+      x.addEventListener('click', () => applySort(state.sort.filter((_, j) => j !== i)));
+      li.append(x);
+    }
+    list.append(li);
+  });
+  bar.append(list);
+  const rest = SORTABLE.filter((c) => !state.sort.some((s) => s.k === c.k));
+  if (rest.length) {
+    const sel = el('select', { 'aria-label': 'Añadir un criterio de desempate' });
+    sel.append(el('option', { value: '' }, '+ Desempatar por…'), ...rest.map((c) => el('option', { value: c.k }, c.label)));
+    sel.addEventListener('change', () => sel.value && sortBy(sel.value, true));
+    bar.append(sel);
+  }
+  if (JSON.stringify(state.sort) !== JSON.stringify(DEFAULT_SORT)) {
+    const r = el('button', { type: 'button', class: 'reset' }, 'Restablecer');
+    r.addEventListener('click', () => applySort(DEFAULT_SORT.map((x) => ({ ...x }))));
+    bar.append(r);
+  }
+  bar.append(el('span', { class: 'sort-hint' }, 'Mayús + clic en una columna añade un criterio'));
+}
+
 function drawTable() {
+  state.sort ??= loadSort();
+  drawSortBar();
   const head = document.getElementById('thead');
   head.replaceChildren();
   for (const c of COLS) {
     const th = el('th', { scope: 'col' });
     if (c.sort === false) th.textContent = c.label;
     else {
-      const b = el('button', { type: 'button' }, c.label);
-      if (state.sort === c.k) b.setAttribute('data-dir', state.dir < 0 ? '↓' : '↑');
-      b.addEventListener('click', () => {
-        state.dir = state.sort === c.k ? -state.dir : c.k === 'name' || c.k === 'cost' || c.k === 'tokens' || c.k === 'steps' || c.k === 'time' ? 1 : -1;
-        state.sort = c.k;
-        drawTable();
-      });
+      const b = el('button', { type: 'button', title: 'Clic: ordenar por esta columna · Mayús + clic: añadirla como desempate' }, c.label);
+      const i = state.sort.findIndex((s) => s.k === c.k);
+      if (i >= 0) b.setAttribute('data-dir', (state.sort[i].dir < 0 ? '↓' : '↑') + (state.sort.length > 1 ? i + 1 : ''));
+      b.addEventListener('click', (e) => sortBy(c.k, e.shiftKey));
       th.append(b);
-      th.setAttribute('aria-sort', state.sort === c.k ? (state.dir < 0 ? 'descending' : 'ascending') : 'none');
+      th.setAttribute('aria-sort', i === 0 ? (state.sort[0].dir < 0 ? 'descending' : 'ascending') : 'none');
     }
     head.append(th);
   }
-  const col = COLS.find((c) => c.k === state.sort);
-  const rows = [...cur.models].sort((a, b) => {
-    const va = col.get(a), vb = col.get(b);
-    if (va == null && vb == null) return a.name.localeCompare(b.name);
-    if (va == null) return 1;
-    if (vb == null) return -1;
-    return (va < vb ? -1 : va > vb ? 1 : 0) * state.dir || byRank(a, b);
-  });
+  const rows = [...cur.models].sort(compareRows);
   const body = document.getElementById('tbody');
   body.replaceChildren();
   const rankOf = new Map([...cur.models].filter((m) => scoreOf(m) != null).sort(byRank).map((m, i) => [m.slug, i + 1]));
