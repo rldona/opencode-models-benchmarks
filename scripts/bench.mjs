@@ -1175,7 +1175,7 @@ function reportData(test, rows) {
     title: `Clasificación ${cfg.title ?? test.toUpperCase()}`,
     description: cfg.description ?? '',
     generatedAt: lastUpdate([test]),
-    hiddenTotal: cases.length,
+    hiddenTotal: cases.length || cfg.hiddenCases || Math.max(0, ...rows.map((x) => x.j?.hidden?.total ?? 0)),
     judge: judges.join(', ') || DEFAULT_JUDGE,
     weights: testConfig(test).weights,
     models: rows.map(({ m, r, j, sc }) => {
@@ -1203,27 +1203,38 @@ function reportData(test, rows) {
         steps: s?.steps ?? null,
         activeMs: s?.activeMs ?? null,
         interventions: s ? (s.interventions ?? s.userMessages - 1) : null,
+        // Proporción conseguida en cada bloque (0-1): la web recalcula la nota con los pesos que elija el lector.
+        fractions: sc && !sc.reason
+          ? Object.fromEntries(Object.entries(cfg.weights).map(([k, w]) => [k, w ? round2(sc.parts[k] / w) : 0]))
+          : null,
+        penalty: sc?.parts?.penalty ?? 0,
       };
     }),
   };
 }
 
-// Fecha del último resultado (no la de generación): así regenerar sin resultados nuevos no cambia los ficheros
-// y `publish` no crea commits vacíos.
+// Fecha del último resultado (collectedAt / judgedAt dentro de los JSON, no la de los ficheros): regenerar sin
+// resultados nuevos no cambia nada, `publish` no crea commits vacíos y el CI puede comprobar que los informes
+// publicados coinciden con los resultados. null si la prueba aún no tiene resultados.
 function lastUpdate(tests) {
-  let t = 0;
+  let t = '';
   for (const test of tests) {
     const dir = resultsDir(test);
     if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir)) if (f.endsWith('.json')) t = Math.max(t, fs.statSync(path.join(dir, f)).mtimeMs);
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.json')) continue;
+      const d = readJson(path.join(dir, f));
+      for (const v of [d?.collectedAt, d?.judgedAt]) if (typeof v === 'string' && v > t) t = v;
+    }
   }
-  // Prueba sin resultados todavía: la fecha de su configuración (estable entre ejecuciones).
-  if (!t) for (const test of tests) t = Math.max(t, fs.statSync(path.join(ROOT, 'benchmarks', test, 'PROMPT.md')).mtimeMs);
-  return new Date(t || Date.now()).toISOString();
+  return t || null;
 }
 
 // La plantilla admite una o varias pruebas ({ tests: [...] }); con varias muestra un selector (y #prueba en la URL).
+const SITE_TITLE = 'OpenCode Go Models Benchmarks';
+
 function renderReport(title, data) {
+  data = { siteTitle: SITE_TITLE, ...data };
   return fs
     .readFileSync(path.join(ROOT, 'scripts', 'report-template.html'), 'utf8')
     .replace('__TITLE__', title)
@@ -1359,7 +1370,8 @@ function publicFiles() {
       else if (keep(rp)) out.push(rp);
     }
   };
-  for (const f of ['README.md', 'models.json', '.gitignore']) if (fs.existsSync(path.join(ROOT, f))) out.push(f);
+  for (const f of ['models.json', '.gitignore']) if (fs.existsSync(path.join(ROOT, f))) out.push(f);
+  walk('.github');
   walk('scripts');
   // Los .run.log son la salida cruda de las herramientas que ejecutan los modelos (pueden mostrar cualquier cosa
   // de la máquina): no se publican; las métricas están en los .json.
@@ -1400,6 +1412,158 @@ function siteData() {
   };
 }
 
+// ---------- portada del repo: imagen del gráfico, badges y README ----------
+const PUBLIC_TESTS = () =>
+  fs
+    .readdirSync(path.join(ROOT, 'benchmarks'))
+    .filter((t) => fs.existsSync(path.join(ROOT, 'benchmarks', t, 'PROMPT.md')))
+    .sort((a, b) => (a === 'rrule' ? -1 : b === 'rrule' ? 1 : a.localeCompare(b)));
+
+const scoredRows = (t) =>
+  testRows(t)
+    .filter((x) => x.sc && !x.sc.reason)
+    .sort((a, b) => b.sc.total - a.sc.total || (a.r.session.cost ?? 0) - (b.r.session.cost ?? 0));
+
+const xml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const esNum = (v, d) => v.toFixed(d).replace('.', ',');
+const fmtCostEs = (c) => (c == null ? '—' : c === 0 ? '$0' : `$${esNum(c, c < 0.1 ? 4 : 2)}`);
+
+const THEMES = {
+  light: { bg: '#fcfcfb', ink: '#0b0b0b', ink2: '#52514e', muted: '#898781', grid: '#e1e0d9', axis: '#c3c2b7', accent: '#2a78d6', rest: '#898781' },
+  dark: { bg: '#1a1a19', ink: '#ffffff', ink2: '#c3c2b7', muted: '#898781', grid: '#2c2c2a', axis: '#383835', accent: '#3987e5', rest: '#898781' },
+};
+
+// Instantánea estática del gráfico (nota frente a coste, eje invertido, frontera de eficiencia) para la portada del
+// README. Mismo algoritmo que el informe interactivo; anchos de texto estimados (no hay canvas en Node).
+function coverSvg(theme) {
+  const C = THEMES[theme];
+  const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+  const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  const panels = PUBLIC_TESTS().map((t) => ({ t, rows: scoredRows(t) })).filter((p) => p.rows.length);
+  const PW = panels.length > 1 ? 780 : 1200, PH = 560, HEAD = 78;
+  const W = PW * Math.max(1, panels.length), H = HEAD + PH + 24;
+  const out = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="${SANS}">`];
+  out.push(`<rect width="${W}" height="${H}" fill="${C.bg}"/>`);
+  out.push(`<text x="32" y="44" fill="${C.ink}" font-size="26" font-weight="600">${xml(SITE_TITLE)}</text>`);
+  const upd = lastUpdate(PUBLIC_TESTS());
+  out.push(`<text x="32" y="66" fill="${C.ink2}" font-size="14">Nota (0–10) frente a coste por tarea · azul: frontera de eficiencia${upd ? ` · ${xml(new Date(upd).toISOString().slice(0, 10))}` : ''}</text>`);
+  if (!panels.length) out.push(`<text x="32" y="${HEAD + 40}" fill="${C.ink2}" font-size="16">Todavía no hay resultados.</text>`);
+
+  panels.forEach(({ t, rows }, pi) => {
+    const ox = pi * PW;
+    const M = { top: HEAD + 40, right: 170, bottom: 50, left: 64 };
+    const pw = PW - M.left - M.right, ph = PH - 40 - M.bottom;
+    const pts = rows.map(({ m, r, sc }) => ({ name: m.name, variant: (r.session.variant ?? m.variant ?? 'default').toUpperCase(), x: r.session.cost ?? 0, y: sc.total }));
+    // Frontera: nadie tiene a la vez más nota y menos coste.
+    const front = new Set();
+    let best = -Infinity;
+    for (const p of [...pts].sort((a, b) => a.x - b.x || b.y - a.y)) if (p.y > best) { front.add(p); best = p.y; }
+    let x1 = Math.max(...pts.map((p) => p.x)) * 1.1 || 1;
+    const st = 10 ** Math.floor(Math.log10(x1 / 5)) * ([1, 2, 5, 10].find((k) => x1 / 5 / 10 ** Math.floor(Math.log10(x1 / 5)) <= k) ?? 10);
+    x1 = Math.ceil(x1 / st) * st;
+    const y0 = Math.max(0, Math.floor(Math.min(...pts.map((p) => p.y)) - 1)), y1 = 10;
+    const sx = (v) => ox + M.left + (1 - v / x1) * pw;
+    const sy = (v) => M.top + (1 - (v - y0) / (y1 - y0)) * ph;
+    out.push(`<text x="${ox + M.left}" y="${M.top - 16}" fill="${C.ink}" font-size="16" font-weight="600">${xml(testConfig(t).title ?? t.toUpperCase())}</text>`);
+    out.push(`<text x="${ox + M.left + pw}" y="${M.top - 16}" fill="${C.muted}" font-size="12" font-style="italic" text-anchor="end">más eficiente ↗</text>`);
+    for (let v = y0; v <= y1; v++) {
+      out.push(`<line x1="${ox + M.left}" x2="${ox + M.left + pw}" y1="${sy(v)}" y2="${sy(v)}" stroke="${C.grid}"/>`);
+      out.push(`<text x="${ox + M.left - 10}" y="${sy(v) + 4}" fill="${C.muted}" font-size="11" font-family="${MONO}" text-anchor="end">${v}</text>`);
+    }
+    for (let v = 0; v <= x1 + 1e-9; v += st) {
+      out.push(`<line x1="${sx(v)}" x2="${sx(v)}" y1="${M.top}" y2="${M.top + ph}" stroke="${C.grid}"/>`);
+      out.push(`<text x="${sx(v)}" y="${M.top + ph + 20}" fill="${C.muted}" font-size="11" font-family="${MONO}" text-anchor="middle">${xml(fmtCostEs(+v.toPrecision(6)))}</text>`);
+    }
+    out.push(`<line x1="${ox + M.left}" x2="${ox + M.left + pw}" y1="${M.top + ph}" y2="${M.top + ph}" stroke="${C.axis}"/>`);
+    out.push(`<text x="${ox + M.left + pw / 2}" y="${M.top + ph + 42}" fill="${C.ink2}" font-size="12" text-anchor="middle">Coste por tarea (USD, precio de lista según opencode) · menos es mejor →</text>`);
+    const fp = pts.filter((p) => front.has(p)).sort((a, b) => a.x - b.x);
+    if (fp.length > 1) out.push(`<polyline points="${fp.map((p) => `${sx(p.x)},${sy(p.y)}`).join(' ')}" fill="none" stroke="${C.accent}" stroke-width="2" stroke-linejoin="round"/>`);
+    for (const p of [...pts].sort((a, b) => front.has(a) - front.has(b))) {
+      p.px = sx(p.x); p.py = sy(p.y);
+      out.push(`<circle cx="${p.px}" cy="${p.py}" r="5" fill="${front.has(p) ? C.accent : C.rest}" stroke="${C.bg}" stroke-width="2"/>`);
+    }
+    // Etiquetas con evitación de choques (anchos estimados).
+    const taken = pts.map((p) => ({ x0: p.px - 7, x1: p.px + 7, y0: p.py - 7, y1: p.py + 7 }));
+    const free = (b) => b.x0 >= ox + M.left && b.x1 <= ox + PW - 4 && b.y0 >= M.top - 4 && b.y1 <= M.top + ph && !taken.some((o) => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0);
+    for (const p of [...pts].sort((a, b) => front.has(b) - front.has(a) || b.y - a.y)) {
+      const w = Math.max(p.name.length * 6.9, p.variant.length * 6.6) + 2, h = 26;
+      const tries = [[9, -11, 'start'], [-9, -11, 'end'], [0, -36, 'middle'], [0, 10, 'middle'], [9, -26, 'start'], [-9, -26, 'end'], [9, 2, 'start'], [-9, 2, 'end'],
+        [30, -38, 'start', 1], [30, 14, 'start', 1], [-30, -38, 'end', 1], [-30, 14, 'end', 1], [44, -62, 'start', 1], [44, 38, 'start', 1], [-44, -62, 'end', 1], [-44, 38, 'end', 1]];
+      for (const [dx, dy, ax, lead] of tries) {
+        const tx = p.px + dx, ty = p.py + dy;
+        const bx0 = ax === 'start' ? tx : ax === 'end' ? tx - w : tx - w / 2;
+        const b = { x0: bx0 - 2, x1: bx0 + w + 2, y0: ty - 1, y1: ty + h + 1 };
+        if (!free(b)) continue;
+        taken.push(b);
+        if (lead) {
+          const lx = ax === 'start' ? tx - 3 : tx + 3, ly = ty + 7, a = Math.atan2(ly - p.py, lx - p.px);
+          out.push(`<line x1="${p.px + Math.cos(a) * 8}" y1="${p.py + Math.sin(a) * 8}" x2="${lx}" y2="${ly}" stroke="${C.axis}"/>`);
+        }
+        out.push(`<text x="${tx}" y="${ty + 11}" fill="${C.ink}" font-size="12" font-weight="500" text-anchor="${ax}">${xml(p.name)}</text>`);
+        out.push(`<text x="${tx}" y="${ty + 23}" fill="${C.muted}" font-size="10" font-family="${MONO}" letter-spacing="0.6" text-anchor="${ax}">${xml(p.variant)}</text>`);
+        break;
+      }
+    }
+  });
+  out.push('</svg>');
+  return out.join('\n') + '\n';
+}
+
+// Datos para los badges de shields.io (endpoint JSON en el propio repo).
+function badgeData(t) {
+  const rows = testRows(t);
+  const scored = scoredRows(t);
+  const top = scored[0];
+  return {
+    schemaVersion: 1,
+    label: testConfig(t).title ?? t.toUpperCase(),
+    message: top ? `${scored.length}/${rows.length} modelos · mejor ${esNum(top.sc.total, 1)} ${top.m.name}` : `sin resultados · ${rows.length} modelos`,
+    color: top ? 'blue' : 'lightgrey',
+  };
+}
+
+function publicReadme() {
+  const repo = `https://github.com/${PUBLIC_REPO}`;
+  const raw = `https://raw.githubusercontent.com/${PUBLIC_REPO}/main`;
+  const tests = PUBLIC_TESTS();
+  const L = [
+    `# ${SITE_TITLE}`,
+    '',
+    `[![Tests de los scripts](${repo}/actions/workflows/tests.yml/badge.svg)](${repo}/actions/workflows/tests.yml)`,
+    `[![Informes al día](${repo}/actions/workflows/reports.yml/badge.svg)](${repo}/actions/workflows/reports.yml)`,
+    `[![GitHub Pages](${repo}/actions/workflows/pages/pages-build-deployment/badge.svg)](${PAGES_URL})`,
+    ...tests.map((t) => `[![${testConfig(t).title ?? t}](https://img.shields.io/endpoint?url=${encodeURIComponent(`${raw}/badges/${t}.json`)})](${PAGES_URL}#${t})`),
+    `![Modelos](https://img.shields.io/badge/modelos-${MODELS.length}-2a78d6) ![Node](https://img.shields.io/badge/node-24-339933?logo=node.js&logoColor=white)`,
+    '',
+    `<a href="${PAGES_URL}"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cover-dark.svg"><img alt="Nota frente a coste por tarea de cada modelo, con la frontera de eficiencia" src="assets/cover.svg"></picture></a>`,
+    '',
+    `**[Web interactiva](${PAGES_URL})**: gráfico de nota frente a coste, tokens, pasos o tiempo, con la frontera de eficiencia, y la clasificación con los **pesos de la nota ajustables** (corrección, autonomía, tests, código y robustez).`,
+    '',
+    'Cada modelo de opencode-go resuelve la misma tarea en autopiloto, aislado en su carpeta y con su variante de razonamiento más alta. La nota 0–10 combina una suite de tests oculta, la valoración de un juez (código y tests), la autonomía y la robustez. La suite oculta no se publica para que siga siendo válida en futuras tiradas.',
+    '',
+    '## Resultados',
+    '',
+  ];
+  for (const t of tests) {
+    const cfg = testConfig(t);
+    const rows = testRows(t);
+    const scored = scoredRows(t);
+    L.push(`### ${cfg.title ?? t} · ${scored.length} de ${rows.length} modelos con nota`, '', cfg.description ?? '', '');
+    if (!scored.length) {
+      L.push('_Todavía no hay resultados._', '');
+      continue;
+    }
+    L.push('| # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |', '|---|---|---|---|---|---|---|---|---|');
+    scored.forEach(({ m, r, j, sc }, i) => {
+      L.push(`| ${i + 1} | ${m.name} | \`${r.session.variant ?? 'default'}\` | **${esNum(sc.total, 1)}** | ${j.hidden.passed}/${j.hidden.total} | ${j.verdict.codeQuality.score} | ${j.verdict.testQuality.score} | ${fmtCostEs(r.session.cost)} | ${fmtDur(r.session.activeMs)} |`);
+    });
+    L.push('', `[Tabla completa](benchmarks/${t}/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/${t}/DETAILS.md) · [Enunciado](benchmarks/${t}/PROMPT.md) · [Cómo se calcula la nota](benchmarks/${t}/RUBRIC.md) · [Gráfico](${PAGES_URL}#${t})`, '');
+  }
+  const local = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  const guide = local.includes('<!-- guia -->') ? local.slice(local.indexOf('<!-- guia -->') + '<!-- guia -->'.length).trim() : '';
+  return `${L.join('\n')}\n${guide ? `\n${guide}\n` : ''}`;
+}
+
 function publish(opts) {
   for (const t of fs.readdirSync(path.join(ROOT, 'benchmarks'))) {
     if (fs.existsSync(path.join(ROOT, 'benchmarks', t, 'PROMPT.md'))) report({ ...opts, test: t, fragment: undefined });
@@ -1413,7 +1577,13 @@ function publish(opts) {
     fs.mkdirSync(path.dirname(dst), { recursive: true });
     fs.writeFileSync(dst, publishContent(rp));
   }
-  fs.writeFileSync(path.join(PUBLISH_DIR, 'index.html'), fullDocument(renderReport('Clasificación de modelos opencode', siteData())));
+  fs.writeFileSync(path.join(PUBLISH_DIR, 'index.html'), fullDocument(renderReport(SITE_TITLE, siteData())));
+  fs.writeFileSync(path.join(PUBLISH_DIR, 'README.md'), publicReadme());
+  fs.mkdirSync(path.join(PUBLISH_DIR, 'assets'), { recursive: true });
+  fs.writeFileSync(path.join(PUBLISH_DIR, 'assets', 'cover.svg'), coverSvg('light'));
+  fs.writeFileSync(path.join(PUBLISH_DIR, 'assets', 'cover-dark.svg'), coverSvg('dark'));
+  fs.mkdirSync(path.join(PUBLISH_DIR, 'badges'), { recursive: true });
+  for (const t of PUBLIC_TESTS()) fs.writeFileSync(path.join(PUBLISH_DIR, 'badges', `${t}.json`), JSON.stringify(badgeData(t), null, 2) + '\n');
   fs.writeFileSync(path.join(PUBLISH_DIR, '.nojekyll'), '');
   // Comprobación final: nada privado en la copia.
   const leaks = sh('grep', ['-rliE', PRIVATE_RE, '--exclude-dir=.git', PUBLISH_DIR]).stdout.trim();
@@ -1507,7 +1677,12 @@ async function main() {
   report(opts);
 }
 
-main().catch((e) => {
-  log(`💥 ${e.message}`);
-  process.exit(1);
-});
+const isMain = process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+if (isMain) {
+  main().catch((e) => {
+    log(`💥 ${e.message}`);
+    process.exit(1);
+  });
+}
+
+export { ROOT, MODELS, testConfig, computeScore, sanitize, isolationReport, reportData, renderReport, testRows, lastUpdate, byCategory };

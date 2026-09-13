@@ -29,5 +29,6 @@
   "excludeModels": [
     "glm-5.3"
   ],
-  "excludeReason": "Cuota de opencode-go: GLM-5.3 ($3 / 5 h) consumió el 42 % de la ventana en RRULE"
+  "excludeReason": "Cuota de opencode-go: GLM-5.3 ($3 / 5 h) consumió el 42 % de la ventana en RRULE",
+  "hiddenCases": 173
 }

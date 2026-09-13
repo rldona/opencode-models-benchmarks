@@ -1,0 +1,24 @@
+name: Informes al día
+
+# Regenera RESULTS.md, DETAILS.md y REPORT.html de cada prueba a partir de los resultados publicados y falla si
+# no coinciden con lo que hay en el repo (informes desactualizados o generación no determinista).
+on:
+  push:
+  pull_request:
+
+jobs:
+  reports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Regenerar informes
+        run: |
+          for d in benchmarks/*/; do
+            t=$(basename "$d")
+            [ -f "$d/PROMPT.md" ] && node scripts/bench.mjs report --test "$t"
+          done
+      - name: Comprobar que coinciden con el repo
+        run: git diff --stat --exit-code -- benchmarks/

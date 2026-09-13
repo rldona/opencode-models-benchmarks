@@ -1,0 +1,18 @@
+name: Tests de los scripts
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Sintaxis de los scripts
+        run: for f in scripts/*.mjs scripts/test/*.mjs benchmarks/*/judge/oracle/*.mjs; do node --check "$f"; done
+      - name: Tests unitarios (nota, anonimización, aislamiento, informe, comparación SQL)
+        run: node --test 'scripts/test/*.test.mjs'
