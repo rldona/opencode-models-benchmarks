@@ -62,6 +62,19 @@ test('models.json: slugs únicos e ids de opencode-go', () => {
   }
 });
 
+// experiments/ no se publica: en el repo público no existe y el test se salta.
+const EXP_REGISTRY = path.join(ROOT, 'experiments', 'models.json');
+test('experiments/models.json: nombres únicos y distintos de models.json', { skip: !fs.existsSync(EXP_REGISTRY) }, () => {
+  const official = new Set(MODELS.map((m) => m.slug));
+  const seen = new Set();
+  for (const e of JSON.parse(fs.readFileSync(EXP_REGISTRY, 'utf8'))) {
+    assert.ok(e.slug && e.name && e.id, `experimento incompleto: ${JSON.stringify(e)}`);
+    assert.ok(!official.has(e.slug), `${e.slug} coincide con un modelo oficial`);
+    assert.ok(!seen.has(e.slug), `experimento repetido: ${e.slug}`);
+    seen.add(e.slug);
+  }
+});
+
 test('bench.json: los pesos de cada prueba suman 10', () => {
   for (const t of fs.readdirSync(path.join(ROOT, 'benchmarks'))) {
     if (!fs.existsSync(path.join(ROOT, 'benchmarks', t, 'bench.json'))) continue;

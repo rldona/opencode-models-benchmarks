@@ -10,6 +10,11 @@
 //   node scripts/bench.mjs reset   <slug...>           [--test rrule]   (archiva carpeta y resultados para repetir)
 //   node scripts/bench.mjs report                      [--test rrule]
 //   node scripts/bench.mjs publish                     [--no-push] [--message "…"]   (copia limpia → GitHub + Pages)
+//   node scripts/bench.mjs run|collect|judge|reset --exp <nombre> --model <proveedor/modelo> [--label "…"] [--variant v]
+//                                  [--provider "…"] [--test rrule]
+//   node scripts/bench.mjs report  --experiments       [--test rrule]
+//                                  (experimentos no vinculantes, registrados en experiments/models.json; informe común en
+//                                  experiments/<test>/; no entran en las tablas oficiales, la web ni publish)
 //
 // Métricas: sesión de opencode (export + tabla session de la BD). Tests: se re-ejecutan con vitest
 // de forma independiente, sin fiarse de lo que diga el modelo. Nota 0-10: suite oculta + juez LLM
@@ -146,13 +151,21 @@ const fmtTok = (n) => (n == null ? '' : n >= 1e6 ? `${(n / 1e6).toFixed(2)}M` : 
 const fmtCost = (c) => (c == null ? '' : c === 0 ? '$0' : `$${c.toFixed(c < 1 ? 4 : 2)}`);
 
 function modelBySlug(slug) {
-  const m = MODELS.find((x) => x.slug === slug);
-  if (!m) throw new Error(`Modelo desconocido: ${slug}. Disponibles: ${MODELS.map((x) => x.slug).join(', ')}`);
+  const m = EXP ? EXP.models.find((x) => x.slug === slug) : MODELS.find((x) => x.slug === slug);
+  if (!m) throw new Error(`Modelo desconocido: ${slug}. Disponibles: ${(EXP ? EXP.models : MODELS).map((x) => x.slug).join(', ')}`);
   return m;
 }
 
-const workDir = (slug, test) => path.join(ROOT, 'models', slug, test);
-const resultsDir = (test) => path.join(ROOT, 'benchmarks', test, 'results');
+// Modo experimento (--exp <nombre> --model <proveedor/modelo>): pruebas no vinculantes con modelos fuera de
+// models.json (p. ej. el mismo modelo por la API directa de su proveedor). Mismo esquema que el benchmark, bajo
+// experiments/: registro en models.json, carpetas de trabajo en models/<nombre>/<test>/ y un informe común por
+// prueba en <test>/ con todos los experimentos. No entra en las tablas oficiales, la web ni publish.
+const EXP_DIR = path.join(ROOT, 'experiments');
+const EXP_REGISTRY = path.join(EXP_DIR, 'models.json');
+let EXP = null; // { model: el experimento de la orden (null en report --experiments), models: el registro }
+const workDir = (slug, test) => path.join(EXP ? EXP_DIR : ROOT, 'models', slug, test);
+const reportDir = (test) => path.join(EXP ? EXP_DIR : path.join(ROOT, 'benchmarks'), test);
+const resultsDir = (test) => path.join(reportDir(test), 'results');
 const resultFile = (slug, test) => path.join(resultsDir(test), `${slug}.json`);
 const runningFile = (slug, test) => path.join(resultsDir(test), `${slug}.running`);
 
@@ -202,7 +215,7 @@ function sessionTree(rootId) {
 
 // Detecta contaminación: contexto del editor inyectado y accesos a rutas del repo fuera de la carpeta del modelo.
 function isolationReport(exports, dir, slug) {
-  const ownModelDir = path.join(ROOT, 'models', slug);
+  const ownModelDir = path.dirname(dir); // models/<slug> (o experiments/models/<nombre>)
   const inside = (p, base) => p === base || p.startsWith(base + path.sep);
   // repo: otras soluciones, resultados o suite oculta (contamina) · ancestro/home: tu carpeta personal fuera del
   // benchmark (no contamina, pero es exploración fuera de su carpeta) · el resto (/usr, /tmp…) se ignora.
@@ -578,6 +591,12 @@ function collect(slug, opts) {
   const accessBlocked = !!session.accessError && !project.found;
   if (accessBlocked) warnings.push(`el proveedor no da acceso al modelo: "${session.accessError}"`);
 
+  // Detenido a mano antes de terminar (--stopped "motivo"): se valora lo que había hecho, con asterisco.
+  const prev = readJson(resultFile(slug, opts.test));
+  const stopped = typeof opts.stopped === 'string' ? opts.stopped : prev?.session?.id === session.id ? prev?.stopped : undefined;
+  const progress = opts.progress != null ? Number(opts.progress) : prev?.session?.id === session.id ? prev?.progress : undefined;
+  if (stopped) warnings.push(`no terminó${progress != null ? ` (≈${progress} % hecho)` : ''}: ${stopped}`);
+
   const result = {
     test: opts.test,
     slug,
@@ -588,6 +607,7 @@ function collect(slug, opts) {
     project,
     quotaBlocked,
     accessBlocked,
+    ...(stopped ? { stopped, ...(progress != null ? { progress } : {}) } : {}),
     warnings,
   };
   fs.mkdirSync(resultsDir(opts.test), { recursive: true });
@@ -1003,7 +1023,7 @@ function computeScore(r, j) {
 
   const correctness = v.adapter.ok && j.hidden.total ? (W.correctness * j.hidden.passed) / j.hidden.total : 0;
 
-  const blocked = s.inProgress || r.warnings.some((w) => w.startsWith('timeout'));
+  const blocked = s.inProgress || !!r.stopped || r.warnings.some((w) => w.startsWith('timeout'));
   const interventions = s.interventions ?? s.userMessages - 1;
   const autonomy = W.autonomy * (blocked ? 0 : interventions === 0 ? 1 : interventions === 1 ? 0.5 : 0);
 
@@ -1029,6 +1049,7 @@ function computeScore(r, j) {
 
   return {
     total: Math.round(total * 10) / 10,
+    ...(r.stopped ? { stopped: r.stopped, progress: r.progress ?? null } : {}),
     parts: {
       correctness: round2(correctness),
       autonomy: round2(autonomy),
@@ -1046,7 +1067,7 @@ function computeScore(r, j) {
 // Cada columna recibe (resultado de collect, modelo, resultado del juez, nota).
 const AUTO_COLUMNS = [
   ['Modelo', (r, m) => m.name],
-  ['Nota', (r, m, j, sc) => (sc ? `**${sc.total.toFixed(1)}**` : '')],
+  ['Nota', (r, m, j, sc) => (sc ? `**${sc.total.toFixed(1)}**${sc.stopped ? '\\*' : ''}` : '')],
   ['Estado', (r, m) => (m.running ? '⏳ ejecutando' : status(r))],
   ['Suite oculta', (r, m, j) => (j ? `${j.hidden.passed}/${j.hidden.total}` : '')],
   ['Cód.', (r, m, j) => j?.verdict.codeQuality.score ?? ''],
@@ -1103,6 +1124,7 @@ function status(r) {
   if (!r) return '';
   if (r.quotaBlocked) return '⛔ cuota (repetir)';
   if (r.accessBlocked) return '⛔ sin acceso al modelo';
+  if (r.stopped) return `⏹ no terminó${r.progress != null ? ` (≈${r.progress} %)` : ''}\\*`;
   const w = r.warnings.length ? ' ⚠️' : '';
   if (r.session.inProgress) return `⏳ incompleta${w}`;
   if (!r.project.found) return r.session.truncations ? '⛔ cortado sin proyecto' : '⛔ sin proyecto';
@@ -1113,20 +1135,34 @@ const cell = (v) => String(v ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const splitRow = (line) => line.trim().replace(/^\||\|$/g, '').split(/(?<!\\)\|/).map((c) => c.trim());
 
 // Una fila por modelo de la prueba (los excluidos solo si tienen resultado): collect, juez y nota.
+// Experimentos: los que tienen resultado en la prueba (o están en marcha), ordenados por nombre.
 function testRows(test) {
-  const excluded = new Set(testConfig(test).excludeModels ?? []);
-  const shown = MODELS.filter((m) => !excluded.has(m.slug) || fs.existsSync(resultFile(m.slug, test)));
-  return shown.map((m) => {
+  const row = (m) => {
     if (isRunning(m.slug, test)) return { m: { ...m, running: true }, r: null, j: null, sc: null };
     const r = readJson(resultFile(m.slug, test));
     const j = readJson(judgeFile(m.slug, test));
     return { m, r, j, sc: computeScore(r, j) };
-  });
+  };
+  if (!EXP) {
+    const excluded = new Set(testConfig(test).excludeModels ?? []);
+    return MODELS.filter((m) => !excluded.has(m.slug) || fs.existsSync(resultFile(m.slug, test))).map(row);
+  }
+  return EXP.models
+    .filter((m) => fs.existsSync(resultFile(m.slug, test)) || isRunning(m.slug, test))
+    .map(row)
+    .sort((a, b) => a.m.name.localeCompare(b.m.name));
 }
 
+const EXP_INTRO = (test) =>
+  `Pruebas no vinculantes con modelos por la API directa de su proveedor. No entran en la clasificación oficial ` +
+  `ni en la web. Enunciado, rúbrica y suite oculta: los de [benchmarks/${test}](../../benchmarks/${test}/).`;
+
 function report(opts) {
-  const file = path.join(ROOT, 'benchmarks', opts.test, 'RESULTS.md');
-  const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : `# ${opts.test} — Resultados\n\n`;
+  const file = path.join(reportDir(opts.test), 'RESULTS.md');
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8')
+    : EXP ? `# Experimentos · ${opts.test} — Resultados\n\n${EXP_INTRO(opts.test)}\n\n`
+    : `# ${opts.test} — Resultados\n\n`;
   const lines = text.split('\n');
   const start = lines.findIndex((l) => l.trim().startsWith('|'));
   let end = start;
@@ -1172,8 +1208,8 @@ function reportData(test, rows) {
   return {
     test,
     short: cfg.title ?? test.toUpperCase(),
-    title: `Clasificación ${cfg.title ?? test.toUpperCase()}`,
-    description: cfg.description ?? '',
+    title: `${EXP ? 'Experimentos' : 'Clasificación'} ${cfg.title ?? test.toUpperCase()}`,
+    description: EXP ? EXP_INTRO(test).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') : cfg.description ?? '',
     generatedAt: lastUpdate([test]),
     hiddenTotal: cases.length || cfg.hiddenCases || Math.max(0, ...rows.map((x) => x.j?.hidden?.total ?? 0)),
     judge: judges.join(', ') || DEFAULT_JUDGE,
@@ -1184,6 +1220,7 @@ function reportData(test, rows) {
         : !r ? 'pending'
         : r.quotaBlocked ? 'quota'
         : r.accessBlocked ? 'access'
+        : r.stopped && sc ? 'stopped'
         : sc?.reason?.startsWith('usa módulos') ? 'forbidden'
         : sc?.reason ? 'zero'
         : sc ? 'scored'
@@ -1192,6 +1229,8 @@ function reportData(test, rows) {
         slug: m.slug,
         name: m.name,
         provider: m.provider ?? null,
+        stopped: r?.stopped ?? null,
+        progress: r?.progress ?? null,
         variant: s?.variant ?? m.variant ?? 'default',
         status,
         score: sc?.total ?? null,
@@ -1249,8 +1288,17 @@ const fullDocument = (fragment) =>
 
 function writeChartReport(test, rows, fragmentPath) {
   const data = reportData(test, rows);
-  const fragment = renderReport(data.title, { tests: [data] });
-  const file = path.join(ROOT, 'benchmarks', test, 'REPORT.html');
+  const fragment = renderReport(
+    data.title,
+    EXP
+      ? {
+          tests: [data],
+          siteTitle: 'API Models Benchmarks',
+          eyebrow: 'Experimentos no vinculantes',
+        }
+      : { tests: [data] },
+  );
+  const file = path.join(reportDir(test), 'REPORT.html');
   writeAtomic(file, fullDocument(fragment));
   log(`📊 ${rel(file)} actualizado`);
   if (fragmentPath) fs.writeFileSync(fragmentPath, fragment); // para publicarlo como página (sin <html>/<head>)
@@ -1272,11 +1320,14 @@ function byCategory(cases) {
 function writeDetails(test, rows) {
   const W = testConfig(test).weights;
   const judged = rows.filter((x) => x.sc).sort((a, b) => b.sc.total - a.sc.total);
-  const file = path.join(ROOT, 'benchmarks', test, 'DETAILS.md');
+  const file = path.join(reportDir(test), 'DETAILS.md');
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const bench = EXP ? `../../benchmarks/${test}/` : ''; // la rúbrica es la de la prueba
   const md = [
-    `# ${test} — Detalle de la nota`,
+    `# ${EXP ? 'Experimentos · ' : ''}${test} — Detalle de la nota`,
     '',
-    'Generado por `node scripts/bench.mjs report`. Cómo se calcula: [RUBRIC.md](RUBRIC.md).',
+    `Generado por \`node scripts/bench.mjs report${EXP ? ' --experiments' : ''}\`. Cómo se calcula: [RUBRIC.md](${bench}RUBRIC.md).`,
+    ...(EXP ? ['', EXP_INTRO(test)] : []),
     '',
     '## Ranking',
     '',
@@ -1284,7 +1335,7 @@ function writeDetails(test, rows) {
     '|---|---|---|---|---|---|---|---|---|',
     ...judged.map(({ m, sc }, i) => {
       const p = sc.parts;
-      return `| ${i + 1} | ${m.name} | **${sc.total.toFixed(1)}** | ${p.correctness} | ${p.autonomy} | ${p.ownTests} | ${p.codeQuality} | ${p.robustness} | ${p.penalty || ''} |`;
+      return `| ${i + 1} | ${m.name}${sc.stopped ? '\\*' : ''} | **${sc.total.toFixed(1)}**${sc.stopped ? '\\*' : ''} | ${p.correctness} | ${p.autonomy} | ${p.ownTests} | ${p.codeQuality} | ${p.robustness} | ${p.penalty || ''} |`;
     }),
     '',
   ];
@@ -1302,8 +1353,9 @@ function writeDetails(test, rows) {
     const q = W.ownTests / 4;
     const cats = byCategory(j.hidden.cases);
     md.push(
-      `## ${m.name} — ${sc.total.toFixed(1)}`,
+      `## ${m.name} — ${sc.total.toFixed(1)}${sc.stopped ? '\\*' : ''}`,
       '',
+      ...(sc.stopped ? [`> ⏹ **\\* No terminó${sc.progress != null ? ` (≈${sc.progress} % hecho)` : ''}**: ${sc.stopped}. Se valora el código tal como estaba al detenerlo; autonomía 0.`, ''] : []),
       `> ${v.summary ?? ''}`,
       '',
       `- **Corrección** ${p.correctness}/${W.correctness}: suite oculta ${j.hidden.passed}/${j.hidden.total}` +
@@ -1455,7 +1507,7 @@ function coverSvg(theme) {
     const ox = pi * PW;
     const M = { top: HEAD + 40, right: 170, bottom: 50, left: 64 };
     const pw = PW - M.left - M.right, ph = PH - 40 - M.bottom;
-    const pts = rows.map(({ m, r, sc }) => ({ name: m.name, variant: (r.session.variant ?? m.variant ?? 'default').toUpperCase(), x: r.session.cost ?? 0, y: sc.total }));
+    const pts = rows.map(({ m, r, sc }) => ({ name: m.name + (sc.stopped ? ' *' : ''), variant: (r.session.variant ?? m.variant ?? 'default').toUpperCase(), x: r.session.cost ?? 0, y: sc.total }));
     // Frontera: nadie tiene a la vez más nota y menos coste.
     const front = new Set();
     let best = -Infinity;
@@ -1554,7 +1606,7 @@ function highlightsSvg(t, theme) {
       out.push(rot
         ? `<text x="${cx + 3.5}" y="${ty - 5}" fill="${C.ink}" font-size="10.5" font-weight="500" font-family="${MONO}" transform="rotate(-90 ${cx + 3.5} ${ty - 5})">${xml(h.f(y.v))}</text>`
         : `<text x="${cx}" y="${ty - 6}" fill="${C.ink}" font-size="11" font-weight="500" font-family="${MONO}" text-anchor="middle">${xml(h.f(y.v))}</text>`);
-      out.push(`<text x="${cx + 3}" y="${base + 14}" fill="${C.ink2}" font-size="11" text-anchor="end" transform="rotate(-45 ${cx + 3} ${base + 14})">${xml(y.x.m.name)}</text>`);
+      out.push(`<text x="${cx + 3}" y="${base + 14}" fill="${C.ink2}" font-size="11" text-anchor="end" transform="rotate(-45 ${cx + 3} ${base + 14})">${xml(y.x.m.name + (y.x.sc.stopped ? ' *' : ''))}</text>`);
     });
   });
   out.push('</svg>');
@@ -1611,8 +1663,10 @@ function publicReadme() {
     );
     L.push('| # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |', '|---|---|---|---|---|---|---|---|---|');
     scored.forEach(({ m, r, j, sc }, i) => {
-      L.push(`| ${i + 1} | ${m.name} | \`${r.session.variant ?? 'default'}\` | **${esNum(sc.total, 1)}** | ${j.hidden.passed}/${j.hidden.total} | ${j.verdict.codeQuality.score} | ${j.verdict.testQuality.score} | ${fmtCostEs(r.session.cost)} | ${fmtDur(r.session.activeMs)} |`);
+      L.push(`| ${i + 1} | ${m.name}${sc.stopped ? '\\*' : ''} | \`${r.session.variant ?? 'default'}\` | **${esNum(sc.total, 1)}**${sc.stopped ? '\\*' : ''} | ${j.hidden.passed}/${j.hidden.total} | ${j.verdict.codeQuality.score} | ${j.verdict.testQuality.score} | ${fmtCostEs(r.session.cost)} | ${fmtDur(r.session.activeMs)} |`);
     });
+    const stoppedRows = scored.filter((x) => x.sc.stopped);
+    if (stoppedRows.length) L.push('', ...stoppedRows.map((x) => `\\* ${x.m.name}: no terminó${x.sc.progress != null ? ` (≈${x.sc.progress} % hecho)` : ''} — ${x.sc.stopped}; se valora lo que había hecho.`));
     L.push('', `[Tabla completa](benchmarks/${t}/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/${t}/DETAILS.md) · [Enunciado](benchmarks/${t}/PROMPT.md) · [Cómo se calcula la nota](benchmarks/${t}/RUBRIC.md) · [Gráfico](${PAGES_URL}#${t})`, '');
   }
   const local = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
@@ -1677,7 +1731,7 @@ function parseArgs(argv) {
   const opts = { test: 'rrule', targets: [] };
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
-    if (['--all', '--force', '--no-judge', '--no-push'].includes(a)) opts[a.slice(2)] = true;
+    if (['--all', '--force', '--no-judge', '--no-push', '--experiments'].includes(a)) opts[a.slice(2)] = true;
     else if (a.startsWith('--')) opts[a.slice(2)] = rest[++i];
     else opts.targets.push(a);
   }
@@ -1689,6 +1743,35 @@ async function main() {
   // excludeModels (bench.json): fuera de --all para esa prueba; con el slug explícito se puede lanzar igualmente.
   const excluded = new Set(testConfig(opts.test).excludeModels ?? []);
   let slugs = opts.all ? MODELS.map((m) => m.slug).filter((s) => !excluded.has(s)) : opts.targets;
+  if (opts.exp || opts.experiments) {
+    if (cmd === 'publish' || opts.all) throw new Error('--exp/--experiments no admiten publish ni --all');
+    const models = readJson(EXP_REGISTRY) ?? [];
+    let model = null;
+    if (opts.exp) {
+      if (!/^[a-z0-9][a-z0-9._-]*$/.test(opts.exp)) throw new Error('--exp: usa un nombre simple, p. ej. deepseek-directo');
+      if (MODELS.some((m) => m.slug === opts.exp)) throw new Error(`--exp: ${opts.exp} ya es un modelo de models.json, usa otro nombre`);
+      const prev = models.find((m) => m.slug === opts.exp) ?? {};
+      model = Object.fromEntries(
+        Object.entries({
+          slug: opts.exp,
+          name: opts.label ?? prev.name ?? opts.model ?? opts.exp,
+          id: opts.model ?? prev.id,
+          variant: opts.variant ?? prev.variant,
+          provider: opts.provider ?? prev.provider,
+        }).filter(([, v]) => v != null),
+      );
+      if (!model.id) throw new Error('--exp necesita --model <proveedor/modelo> la primera vez (p. ej. deepseek/deepseek-flash)');
+      const i = models.findIndex((m) => m.slug === model.slug);
+      if (JSON.stringify(models[i]) !== JSON.stringify(model)) {
+        if (i >= 0) models[i] = model;
+        else models.push(model);
+        fs.mkdirSync(EXP_DIR, { recursive: true });
+        writeAtomic(EXP_REGISTRY, JSON.stringify(models, null, 2) + '\n');
+      }
+      slugs = [opts.exp];
+    } else if (cmd !== 'report') throw new Error('--experiments solo sirve con report; para lanzar o recoger usa --exp <nombre>');
+    EXP = { model, models };
+  }
   if (cmd === 'publish') return publish(opts);
   if (!['open', 'run', 'collect', 'judge', 'report', 'reset'].includes(cmd) || (cmd !== 'report' && !slugs.length)) {
     const src = fs.readFileSync(fileURLToPath(import.meta.url), 'utf8').split('\n');

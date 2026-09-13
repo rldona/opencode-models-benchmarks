@@ -1,0 +1,22 @@
+{
+  "name": "rrule-expander",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-dependency RRULE subset expander with IANA time zone support (DST aware)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:tz": "TZ=America/New_York vitest run && TZ=Pacific/Kiritimati vitest run && TZ=Asia/Kolkata vitest run",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm test && npm run test:tz"
+  },
+  "devDependencies": {
+    "@types/node": "^24.8.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "test": "rrule",
+  "slug": "minimax-m2.7",
+  "name": "MiniMax-M2.7",
+  "expectedModel": "opencode-go/minimax-m2.7",
+  "collectedAt": "2026-09-11T14:39:17.952Z",
+  "session": {
+    "id": "ses_f6f33c6a1ffeKvIoeK7v5wNAz2",
+    "childSessions": 0,
+    "title": "rrule · MiniMax-M2.7",
+    "models": [
+      "opencode-go/minimax-m2.7"
+    ],
+    "variant": "default",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 1854309,
+    "activeMs": 1851802,
+    "userMessages": 4,
+    "interventions": 2,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 60,
+    "toolCalls": 69,
+    "toolErrors": 1,
+    "tools": {
+      "bash": 25,
+      "todowrite": 3,
+      "write": 21,
+      "read": 7,
+      "edit": 13
+    },
+    "errors": [],
+    "tokens": {
+      "input": 64367,
+      "output": 30051,
+      "reasoning": 38650,
+      "cacheRead": 1687085,
+      "cacheWrite": 223621
+    },
+    "cost": 0.20297640000000008,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/minimax-m2.7/rrule",
+    "hash": "ff1ea41dfa71",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": false,
+      "errors": 1
+    },
+    "loc": {
+      "src": 324,
+      "test": 207,
+      "srcFiles": 5,
+      "testFiles": 4
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}

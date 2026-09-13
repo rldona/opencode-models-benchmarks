@@ -1,0 +1,208 @@
+{
+  "test": "rrule",
+  "slug": "minimax-m2.7",
+  "judgedAt": "2026-09-11T14:41:23.449Z",
+  "projectHash": "ff1ea41dfa71",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 0.35833840000000006,
+    "turns": 21,
+    "isError": false,
+    "usage": {
+      "input_tokens": 20,
+      "cache_creation_input_tokens": 35787,
+      "cache_read_input_tokens": 604552,
+      "output_tokens": 9424,
+      "output_tokens_details": {
+        "thinking_tokens": 4457
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 35787,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 383,
+          "cache_read_input_tokens": 70595,
+          "cache_creation_input_tokens": 5283,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 5283
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "result": "He completado las tres partes:\n\n1. **`__bench__/adapter.ts`** — traduce el `BenchInput` al formato de `expandParsed` de la solución (construye `RRule` con `byDay`/`count`/`until`, invoca con `start`/`tz`/`from`/`to`, y convierte el resultado a ISO strings). El smoke test pasa.\n\n2. **Evaluación**: los 7 tests propios de la solución pasan (`npx vitest run`), y cubren los cuatro escenarios pedidos con aserciones concretas de fechas. Encontré un bug real no cubierto por sus propios tests: BYDAY con varios días solo usa el primero de la lista (silenciosamente ignora el resto), además de otras debilidades menores de robustez (fallback silencioso ante FREQ desconocido, aritmética de calendario acoplada a la zona del proceso Node).\n\n3. **`__bench__/judge.json`** — escrito con `codeQuality: 6`, `testQuality: 6`, cobertura completa en los cuatro escenarios, y el bug de BYDAY multi-día como hallazgo principal.",
+    "permissionDenials": [
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01YcAa8h5PPLJdQoffTrxU2t",
+        "tool_input": {
+          "command": "cat > <tmp> << 'EOF'\nEOF\nnode --experimental-strip-types -e \"\nimport('./src/index.ts').catch(e=>console.log('cant import ts directly', e.message));\n\"\n"
+        }
+      }
+    ],
+    "durationMs": 124793,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": [
+        "La solución trata el límite superior de la ventana como inclusivo (utcMs > to.getTime()) mientras el contrato usa [from, to) semiabierto; no se compensó porque el enunciado no especifica exclusividad y el contrato garantiza que ningún caso tiene ocurrencias justo en el borde."
+      ]
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 6,
+      "strengths": [
+        "Separación clara en módulos (types, parse, offset, expand) sin dependencias externas",
+        "Conversión zona-horaria/UTC bien resuelta con Intl.DateTimeFormat, incluyendo doble ajuste de offset para DST",
+        "Bucles acotados con límites explícitos (no iteración indefinida)"
+      ],
+      "weaknesses": [
+        "BYDAY con varios días (p. ej. MO,WE,FR) solo usa byDay[0] tanto en WEEKLY como en MONTHLY, ignorando silenciosamente el resto",
+        "FREQ desconocido o BYDAY malformado se descartan silenciosamente (fallback a WEEKLY, filter(Boolean)) en vez de fallar con un error claro",
+        "La aritmética de calendario (getNthWeekdayOfMonth, addLocalDays) usa new Date(year,month,day) en la zona horaria del proceso Node en vez de ser independiente de la máquina, acoplando el resultado a un supuesto implícito",
+        "Bastante duplicación entre las tres ramas de FREQ (DAILY/WEEKLY/MONTHLY) para acumular resultados y comprobar UNTIL/COUNT"
+      ]
+    },
+    "testQuality": {
+      "score": 6,
+      "strengths": [
+        "Aserciones con fechas y horas concretas (no solo longitudes o toBeDefined) para los cuatro escenarios pedidos",
+        "El test de DST verifica explícitamente que la hora local se mantiene en 09:00 tanto antes como después del cambio de hora",
+        "Nombres de test descriptivos que explican el escenario cubierto"
+      ],
+      "weaknesses": [
+        "No hay test con BYDAY de varios días a la vez, que habría detectado el bug de byDay[0]",
+        "Falta cobertura de INTERVAL>1 combinado con BYDAY/DST, UNTIL inclusivo, o ventanas parciales que corten ocurrencias",
+        "Los valores esperados no están contrastados con una fuente independiente (p. ej. otra librería o calendario de referencia), solo calculados a mano/mentalmente por quien escribió el test junto al código"
+      ]
+    },
+    "bugs": [
+      "BYDAY con múltiples días (FREQ=WEEKLY o MONTHLY;BYDAY=MO,WE,FR) solo genera ocurrencias para el primer día de la lista, ignorando los demás sin avisar",
+      "FREQ=MONTHLY sin BYDAY en meses sin el día original (p.ej. día 31) desplaza la ocurrencia al último día del mes en vez de omitirla, que es el comportamiento habitual de RRULE",
+      "parseRRule ignora un FREQ desconocido devolviendo WEEKLY por defecto en lugar de lanzar un error, ocultando entradas inválidas",
+      "getNthWeekdayOfMonth y addLocalDays construyen Date con new Date(year,month,day) en la zona horaria del proceso en vez de ser agnósticos a la máquina, acoplando el cálculo de calendario a un supuesto no documentado"
+    ],
+    "summary": "La solución cubre correctamente los cuatro escenarios pedidos con tests de aserciones concretas y pasa todos sus tests, pero tiene una limitación real no detectada por su propia suite (BYDAY multi-día solo usa el primer valor) y varias decisiones de robustez (fallback silencioso de FREQ, aritmética de calendario ligada a new Date sin tz) que la dejan en un nivel intermedio de calidad."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 9,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": false
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": false
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": false
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": false
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": false
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": false
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": true
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": false
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": false
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": false
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": false
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expandParsed } from '../src/index';\nimport type { RRule, ByDay, Weekday } from '../src/types';\n\nfunction toByDay(byday: string[]): ByDay[] {\n  return byday.map((item) => {\n    const m = /^(-?\\d)?(MO|TU|WE|TH|FR|SA|SU)$/.exec(item);\n    if (!m) throw new Error(`BYDAY no soportado: ${item}`);\n    return {\n      position: m[1] ? parseInt(m[1], 10) : undefined,\n      weekday: m[2] as Weekday,\n    };\n  });\n}\n\nexport const expand: Expand = (input) => {\n  const rule: RRule = {\n    freq: input.rule.freq,\n    interval: input.rule.interval,\n    ...(input.rule.byday ? { byDay: toByDay(input.rule.byday) } : {}),\n    ...(input.rule.count !== undefined ? { count: input.rule.count } : {}),\n    ...(input.rule.until !== undefined ? { until: new Date(input.rule.until) } : {}),\n  };\n\n  const start = new Date(input.dtstartUtc);\n  const from = new Date(input.from);\n  const to = new Date(input.to);\n\n  const occurrences = expandParsed(start, rule, input.tz, from, to);\n  return occurrences.map((d) => d.toISOString());\n};\n"
+}

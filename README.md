@@ -15,7 +15,7 @@ Cada modelo de opencode-go resuelve la misma tarea en autopiloto, aislado en su 
 
 ## Resultados
 
-### RRULE · 16 de 20 modelos con nota
+### RRULE · 20 de 20 modelos con nota
 
 Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INTERVAL, BYDAY con 2TU/-1FR, COUNT, UNTIL) en TypeScript + Vitest, respetando la hora local con zonas IANA y cambios de hora.
 
@@ -28,17 +28,23 @@ Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INT
 | 3 | GLM-5.3 | `max` | **9,8** | 19/19 | 9 | 9 | $0,58 | 15m 20s |
 | 4 | GPT-5.6 Luna | `max` | **9,6** | 19/19 | 9 | 9 | $0,0677 | 6m 12s |
 | 5 | GLM-5.3-Flash | `max` | **9,6** | 19/19 | 8 | 9 | $0,0797 | 10m 32s |
-| 6 | DeepSeek V4 Pro (New) | `max` | **9,4** | 19/19 | 8 | 8 | $0,0813 | 6m 47s |
-| 7 | Grok 4.6 | `xhigh` | **9,2** | 19/19 | 8 | 7 | $0,44 | 7m 56s |
-| 8 | MiniMax-M3 | `thinking` | **9,1** | 17/19 | 8 | 8 | $0,15 | 6m 49s |
-| 9 | Kimi K2.7 Code | `default` | **8,9** | 18/19 | 7 | 8 | $0,19 | 8m 41s |
-| 10 | Kimi K3 | `max` | **8,9** | 16/19 | 8 | 9 | $0,48 | 11m 00s |
-| 11 | MiMo V2.5 | `default` | **8,7** | 16/19 | 7 | 8 | $0,0168 | 5m 11s |
-| 12 | Qwen3.7 Max | `default` | **8,6** | 17/19 | 7 | 6 | $0,46 | 4m 45s |
-| 13 | MiMo V2.5 Pro | `default` | **8,2** | 13/19 | 8 | 8 | $0,0485 | 7m 33s |
-| 14 | Muse Spark 1.3 Contributor | `xhigh` | **8,1** | 14/19 | 7 | 8 | $0,0110 | 3m 41s |
-| 15 | LongCat-2.0 | `high` | **7,9** | 17/19 | 4 | 6 | $0,11 | 20m 53s |
-| 16 | Qwen3.6 Plus | `default` | **7,3** | 13/19 | 5 | 7 | $0,18 | 4m 15s |
+| 6 | Qwen3.8 Flash | `xhigh` | **9,5** | 18/19 | 9 | 9 | $0,14 | 26m 02s |
+| 7 | DeepSeek V4 Pro (New) | `max` | **9,4** | 19/19 | 8 | 8 | $0,0813 | 6m 47s |
+| 8 | Grok 4.6 | `xhigh` | **9,2** | 19/19 | 8 | 7 | $0,44 | 7m 56s |
+| 9 | MiniMax-M3 | `thinking` | **9,1** | 17/19 | 8 | 8 | $0,15 | 6m 49s |
+| 10 | Kimi K2.7 Code | `default` | **8,9** | 18/19 | 7 | 8 | $0,19 | 8m 41s |
+| 11 | Kimi K3 | `max` | **8,9** | 16/19 | 8 | 9 | $0,48 | 11m 00s |
+| 12 | MiMo V2.5 | `default` | **8,7** | 16/19 | 7 | 8 | $0,0168 | 5m 11s |
+| 13 | Qwen3.7 Max | `default` | **8,6** | 17/19 | 7 | 6 | $0,46 | 4m 45s |
+| 14 | Qwen3.7 Plus | `default` | **8,5** | 17/19 | 6 | 7 | $0,14 | 7m 30s |
+| 15 | MiMo V2.5 Pro | `default` | **8,2** | 13/19 | 8 | 8 | $0,0485 | 7m 33s |
+| 16 | Muse Spark 1.3 Contributor | `xhigh` | **8,1** | 14/19 | 7 | 8 | $0,0110 | 3m 41s |
+| 17 | LongCat-2.0 | `high` | **7,9** | 17/19 | 4 | 6 | $0,11 | 20m 53s |
+| 18 | Qwen3.6 Plus | `default` | **7,3** | 13/19 | 5 | 7 | $0,18 | 4m 15s |
+| 19 | Qwen3.8 Max\* | `xhigh` | **6,3**\* | 19/19 | 9 | 0 | $0,84 | 28m 30s |
+| 20 | MiniMax-M2.7 | `default` | **5,5** | 9/19 | 6 | 6 | $0,20 | 30m 52s |
+
+\* Qwen3.8 Max: no terminó (≈70 % hecho) — detenido a mano por tardar demasiado (24 min, $0,84): código completo y tsc limpio, sin tests ni README; se valora lo que había hecho.
 
 [Tabla completa](benchmarks/rrule/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/rrule/DETAILS.md) · [Enunciado](benchmarks/rrule/PROMPT.md) · [Cómo se calcula la nota](benchmarks/rrule/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#rrule)
 

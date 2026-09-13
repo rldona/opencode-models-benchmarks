@@ -1,0 +1,126 @@
+{
+  "test": "rrule",
+  "slug": "qwen3.8-max",
+  "name": "Qwen3.8 Max",
+  "expectedModel": "opencode-go/qwen3.8-max",
+  "collectedAt": "2026-09-11T14:54:55.452Z",
+  "session": {
+    "id": "ses_f6f233c66ffe3yzjnM0QxF3Ziu",
+    "childSessions": 0,
+    "title": "rrule · Qwen3.8 Max",
+    "models": [
+      "opencode-go/qwen3.8-max (xhigh)"
+    ],
+    "variant": "xhigh",
+    "inProgress": true,
+    "lastFinish": null,
+    "wallMs": 1711910,
+    "activeMs": 1709884,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 33,
+    "toolCalls": 38,
+    "toolErrors": 1,
+    "tools": {
+      "bash": 16,
+      "todowrite": 1,
+      "write": 12,
+      "edit": 9
+    },
+    "errors": [],
+    "tokens": {
+      "input": 95511,
+      "output": 24695,
+      "reasoning": 34497,
+      "cacheRead": 1185280,
+      "cacheWrite": 0
+    },
+    "cost": 0.842494,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": "../../../.npm",
+          "kind": "home",
+          "status": "error",
+          "blocked": true
+        }
+      ],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/qwen3.8-max/rrule",
+    "hash": "fded53e7a6c3",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": false,
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": false,
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": false,
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": false,
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 1038,
+      "test": 0,
+      "srcFiles": 7,
+      "testFiles": 0
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "stopped": "detenido a mano por tardar demasiado (24 min, $0,84): código completo y tsc limpio, sin tests ni README",
+  "progress": 70,
+  "warnings": [
+    "no terminó (≈70 % hecho): detenido a mano por tardar demasiado (24 min, $0,84): código completo y tsc limpio, sin tests ni README"
+  ]
+}

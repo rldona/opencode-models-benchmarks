@@ -1,0 +1,124 @@
+{
+  "test": "rrule",
+  "slug": "qwen3.8-flash",
+  "name": "Qwen3.8 Flash",
+  "expectedModel": "opencode-go/qwen3.8-flash",
+  "collectedAt": "2026-09-11T14:43:38.555Z",
+  "session": {
+    "id": "ses_f6f2b7bb5ffeqdZZtbTk8nNoHx",
+    "childSessions": 0,
+    "title": "rrule · Qwen3.8 Flash",
+    "models": [
+      "opencode-go/qwen3.8-flash (xhigh)"
+    ],
+    "variant": "xhigh",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 1564044,
+    "activeMs": 1561506,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 76,
+    "toolCalls": 74,
+    "toolErrors": 3,
+    "tools": {
+      "bash": 33,
+      "todowrite": 2,
+      "write": 12,
+      "edit": 21,
+      "invalid": 1,
+      "read": 5
+    },
+    "errors": [],
+    "tokens": {
+      "input": 456,
+      "output": 83936,
+      "reasoning": 0,
+      "cacheRead": 5003713,
+      "cacheWrite": 110609
+    },
+    "cost": 0.141699528,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": "../../../.nvm",
+          "kind": "home",
+          "status": "error",
+          "blocked": true
+        }
+      ],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/qwen3.8-flash/rrule",
+    "hash": "bb5cf976ddf3",
+    "deps": [
+      "@types/node",
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "tests": {
+      "ok": true,
+      "total": 55,
+      "passed": 55,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {
+      "UTC": {
+        "ok": true,
+        "total": 55,
+        "passed": 55,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "America/New_York": {
+        "ok": true,
+        "total": 55,
+        "passed": 55,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      },
+      "Asia/Kolkata": {
+        "ok": true,
+        "total": 55,
+        "passed": 55,
+        "failed": 0,
+        "failedSuites": 0,
+        "failedNames": []
+      }
+    },
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 892,
+      "test": 762,
+      "srcFiles": 4,
+      "testFiles": 2
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}
