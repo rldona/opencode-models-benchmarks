@@ -1168,9 +1168,12 @@ function reportData(test, rows) {
   const cases = readJson(path.join(judgeDir(test), 'hidden', 'cases.json')) ?? [];
   const judges = [...new Set(rows.map((x) => x.j?.meta?.judge).filter(Boolean))];
   const plainCats = (list) => byCategory(list).replace(/\*\*/g, '') || null;
+  const cfg = testConfig(test);
   return {
     test,
-    title: `Clasificación ${test.toUpperCase()}`,
+    short: cfg.title ?? test.toUpperCase(),
+    title: `Clasificación ${cfg.title ?? test.toUpperCase()}`,
+    description: cfg.description ?? '',
     generatedAt: lastUpdate([test]),
     hiddenTotal: cases.length,
     judge: judges.join(', ') || DEFAULT_JUDGE,
@@ -1219,17 +1222,24 @@ function lastUpdate(tests) {
   return new Date(t || Date.now()).toISOString();
 }
 
+// La plantilla admite una o varias pruebas ({ tests: [...] }); con varias muestra un selector (y #prueba en la URL).
+function renderReport(title, data) {
+  return fs
+    .readFileSync(path.join(ROOT, 'scripts', 'report-template.html'), 'utf8')
+    .replace('__TITLE__', title)
+    .replace('/*__DATA__*/null', JSON.stringify(data).replace(/</g, '\\u003c'));
+}
+
+// `</body>` explícito: servidores de desarrollo como Live Server inyectan su script de recarga antes de él
+// (sin él lo meten dentro del primer <svg> y rompen la página).
+const fullDocument = (fragment) =>
+  `<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n${fragment}\n</body>\n</html>\n`;
+
 function writeChartReport(test, rows, fragmentPath) {
   const data = reportData(test, rows);
-  const fragment = fs
-    .readFileSync(path.join(ROOT, 'scripts', 'report-template.html'), 'utf8')
-    .replace('__TITLE__', data.title)
-    .replace('/*__DATA__*/null', JSON.stringify(data).replace(/</g, '\\u003c'));
+  const fragment = renderReport(data.title, { tests: [data] });
   const file = path.join(ROOT, 'benchmarks', test, 'REPORT.html');
-  const head = '<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n';
-  // `</body>` explícito: servidores de desarrollo como Live Server inyectan su script de recarga antes de él
-  // (sin él lo meten dentro del primer <svg> y rompen la página).
-  writeAtomic(file, `${head}${fragment}\n</body>\n</html>\n`);
+  writeAtomic(file, fullDocument(fragment));
   log(`📊 ${rel(file)} actualizado`);
   if (fragmentPath) fs.writeFileSync(fragmentPath, fragment); // para publicarlo como página (sin <html>/<head>)
 }
@@ -1370,46 +1380,23 @@ function publishContent(rp) {
   return sanitize(text);
 }
 
-function indexData() {
+function siteData() {
   const tests = fs
     .readdirSync(path.join(ROOT, 'benchmarks'))
     .filter((t) => fs.existsSync(path.join(ROOT, 'benchmarks', t, 'PROMPT.md')))
     .sort((a, b) => (a === 'rrule' ? -1 : b === 'rrule' ? 1 : a.localeCompare(b)));
   const blob = (p) => `https://github.com/${PUBLIC_REPO}/blob/main/${p}`;
   return {
-    generatedAt: lastUpdate(tests),
     repoUrl: `https://github.com/${PUBLIC_REPO}`,
-    tests: tests.map((t) => {
-      const cfg = testConfig(t);
-      const rows = testRows(t);
-      const scored = rows.filter((x) => x.sc && !x.sc.reason);
-      const cases = readJson(path.join(judgeDir(t), 'hidden', 'cases.json')) ?? [];
-      return {
-        id: t,
-        title: cfg.title ?? t.toUpperCase(),
-        description: cfg.description ?? '',
-        scored: scored.length,
-        total: rows.length,
-        hiddenTotal: cases.length,
-        top: scored
-          .sort((a, b) => b.sc.total - a.sc.total || (a.r.session.cost ?? 0) - (b.r.session.cost ?? 0))
-          .slice(0, 5)
-          .map(({ m, r, j, sc }) => ({
-            name: m.name,
-            variant: r.session.variant ?? m.variant ?? 'default',
-            score: sc.total,
-            hidden: j ? `${j.hidden.passed}/${j.hidden.total}` : null,
-            cost: r.session.cost,
-          })),
-        report: `benchmarks/${t}/REPORT.html`,
-        links: [
-          ['Tabla completa (RESULTS.md)', blob(`benchmarks/${t}/RESULTS.md`)],
-          ['Detalle y comentarios del juez', blob(`benchmarks/${t}/DETAILS.md`)],
-          ['Enunciado', blob(`benchmarks/${t}/PROMPT.md`)],
-          ['Cómo se calcula la nota', blob(`benchmarks/${t}/RUBRIC.md`)],
-        ],
-      };
-    }),
+    tests: tests.map((t) => ({
+      ...reportData(t, testRows(t)),
+      links: [
+        ['Tabla completa', blob(`benchmarks/${t}/RESULTS.md`)],
+        ['Detalle y comentarios del juez', blob(`benchmarks/${t}/DETAILS.md`)],
+        ['Enunciado', blob(`benchmarks/${t}/PROMPT.md`)],
+        ['Cómo se calcula la nota', blob(`benchmarks/${t}/RUBRIC.md`)],
+      ],
+    })),
   };
 }
 
@@ -1426,13 +1413,7 @@ function publish(opts) {
     fs.mkdirSync(path.dirname(dst), { recursive: true });
     fs.writeFileSync(dst, publishContent(rp));
   }
-  const index = fs
-    .readFileSync(path.join(ROOT, 'scripts', 'index-template.html'), 'utf8')
-    .replace('/*__DATA__*/null', JSON.stringify(indexData()).replace(/</g, '\\u003c'));
-  fs.writeFileSync(
-    path.join(PUBLISH_DIR, 'index.html'),
-    `<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n${index}\n</body>\n</html>\n`,
-  );
+  fs.writeFileSync(path.join(PUBLISH_DIR, 'index.html'), fullDocument(renderReport('Clasificación de modelos opencode', siteData())));
   fs.writeFileSync(path.join(PUBLISH_DIR, '.nojekyll'), '');
   // Comprobación final: nada privado en la copia.
   const leaks = sh('grep', ['-rliE', PRIVATE_RE, '--exclude-dir=.git', PUBLISH_DIR]).stdout.trim();
