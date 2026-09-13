@@ -1,0 +1,114 @@
+{
+  "test": "regex",
+  "slug": "gpt-5.6-luna",
+  "name": "GPT-5.6 Luna",
+  "expectedModel": "opencode-go/gpt-5.6-luna",
+  "collectedAt": "2026-09-11T20:37:07.064Z",
+  "session": {
+    "id": "ses_f6dec1b8bffeE56r546ZgF7mG2",
+    "childSessions": 1,
+    "title": "regex · GPT-5.6 Luna",
+    "models": [
+      "opencode-go/gpt-5.6-luna (max)"
+    ],
+    "variant": "max",
+    "inProgress": false,
+    "lastFinish": "stop",
+    "wallMs": 1843237,
+    "activeMs": 1837116,
+    "userMessages": 2,
+    "interventions": 0,
+    "questions": 0,
+    "planQuestions": 0,
+    "startedInPlan": true,
+    "truncations": 0,
+    "steps": 178,
+    "toolCalls": 199,
+    "toolErrors": 6,
+    "tools": {
+      "glob": 18,
+      "task": 1,
+      "todowrite": 5,
+      "bash": 82,
+      "apply_patch": 70,
+      "read": 16,
+      "grep": 7
+    },
+    "errors": [],
+    "tokens": {
+      "input": 534,
+      "output": 52347,
+      "reasoning": 80790,
+      "cacheRead": 18863879,
+      "cacheWrite": 193299
+    },
+    "cost": 0.5854735299999998,
+    "isolation": {
+      "editorContext": [],
+      "externalAccess": [
+        {
+          "tool": "bash",
+          "target": "../../..",
+          "kind": "ancestro",
+          "status": "error",
+          "blocked": true
+        },
+        {
+          "tool": "read",
+          "target": "models",
+          "kind": "repo",
+          "status": "error",
+          "blocked": true
+        },
+        {
+          "tool": "glob",
+          "target": "models",
+          "kind": "repo",
+          "status": "error",
+          "blocked": true
+        }
+      ],
+      "leaked": false,
+      "explored": false
+    },
+    "quotaError": false,
+    "accessError": null,
+    "quotaLog": []
+  },
+  "project": {
+    "found": true,
+    "dir": "models/gpt-5.6-luna/regex",
+    "hash": "564d12959ba5",
+    "deps": [
+      "typescript",
+      "vitest"
+    ],
+    "extraDeps": [],
+    "externalImports": [],
+    "forbiddenImports": [],
+    "builtinSyntax": [],
+    "tests": {
+      "ok": true,
+      "total": 33,
+      "passed": 33,
+      "failed": 0,
+      "failedSuites": 0,
+      "failedNames": []
+    },
+    "tzRuns": {},
+    "tsc": {
+      "ok": true,
+      "errors": 0
+    },
+    "loc": {
+      "src": 1638,
+      "test": 515,
+      "srcFiles": 3,
+      "testFiles": 6
+    },
+    "notes": []
+  },
+  "quotaBlocked": false,
+  "accessBlocked": false,
+  "warnings": []
+}
