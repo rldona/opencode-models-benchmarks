@@ -15,9 +15,11 @@ Cada modelo de opencode-go resuelve la misma tarea en autopiloto, aislado en su 
 
 ## Resultados
 
-### RRULE · 14 de 20 modelos con nota
+### RRULE · 16 de 20 modelos con nota
 
 Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INTERVAL, BYDAY con 2TU/-1FR, COUNT, UNTIL) en TypeScript + Vitest, respetando la hora local con zonas IANA y cambios de hora.
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/highlights-rrule-dark.svg"><img alt="Destacados de RRULE: top 10 por nota, velocidad y coste por tarea" src="assets/highlights-rrule.svg"></picture>
 
 | # | Modelo | Variante | Nota | Suite oculta | Código | Tests | Coste | Tiempo |
 |---|---|---|---|---|---|---|---|---|
@@ -32,9 +34,11 @@ Expansor de eventos recurrentes (subconjunto de RRULE: DAILY/WEEKLY/MONTHLY, INT
 | 9 | Kimi K2.7 Code | `default` | **8,9** | 18/19 | 7 | 8 | $0,19 | 8m 41s |
 | 10 | Kimi K3 | `max` | **8,9** | 16/19 | 8 | 9 | $0,48 | 11m 00s |
 | 11 | MiMo V2.5 | `default` | **8,7** | 16/19 | 7 | 8 | $0,0168 | 5m 11s |
-| 12 | MiMo V2.5 Pro | `default` | **8,2** | 13/19 | 8 | 8 | $0,0485 | 7m 33s |
-| 13 | Muse Spark 1.3 Contributor | `xhigh` | **8,1** | 14/19 | 7 | 8 | $0,0110 | 3m 41s |
-| 14 | LongCat-2.0 | `high` | **7,9** | 17/19 | 4 | 6 | $0,11 | 20m 53s |
+| 12 | Qwen3.7 Max | `default` | **8,6** | 17/19 | 7 | 6 | $0,46 | 4m 45s |
+| 13 | MiMo V2.5 Pro | `default` | **8,2** | 13/19 | 8 | 8 | $0,0485 | 7m 33s |
+| 14 | Muse Spark 1.3 Contributor | `xhigh` | **8,1** | 14/19 | 7 | 8 | $0,0110 | 3m 41s |
+| 15 | LongCat-2.0 | `high` | **7,9** | 17/19 | 4 | 6 | $0,11 | 20m 53s |
+| 16 | Qwen3.6 Plus | `default` | **7,3** | 13/19 | 5 | 7 | $0,18 | 4m 15s |
 
 [Tabla completa](benchmarks/rrule/RESULTS.md) · [Detalle y comentarios del juez](benchmarks/rrule/DETAILS.md) · [Enunciado](benchmarks/rrule/PROMPT.md) · [Cómo se calcula la nota](benchmarks/rrule/RUBRIC.md) · [Gráfico](https://rldona.github.io/opencode-models-benchmarks/#rrule)
 

@@ -36,8 +36,10 @@
 <circle cx="848.87014585" cy="223.75000000000006" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="796.5784889500001" cy="247.24999999999997" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="452.52713199999994" cy="247.24999999999997" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="473.919685" cy="282.5" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="971.48687806" cy="329.5000000000001" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="892.19253622" cy="364.75" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="811.618795" cy="435.25" r="5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="993.817332535" cy="141.49999999999991" r="5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="1009.7491421139999" cy="270.7500000000001" r="5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="1016.72512657" cy="341.25" r="5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
@@ -65,8 +67,12 @@
 <text x="796.5784889500001" y="280.25" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="middle">DEFAULT</text>
 <text x="461.52713199999994" y="247.24999999999997" fill="#0b0b0b" font-size="12" font-weight="500" text-anchor="start">Kimi K3</text>
 <text x="461.52713199999994" y="259.25" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">MAX</text>
+<text x="482.919685" y="282.5" fill="#0b0b0b" font-size="12" font-weight="500" text-anchor="start">Qwen3.7 Max</text>
+<text x="482.919685" y="294.5" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
 <text x="962.48687806" y="329.5000000000001" fill="#0b0b0b" font-size="12" font-weight="500" text-anchor="end">MiMo V2.5 Pro</text>
 <text x="962.48687806" y="341.5000000000001" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">DEFAULT</text>
 <text x="883.19253622" y="364.75" fill="#0b0b0b" font-size="12" font-weight="500" text-anchor="end">LongCat-2.0</text>
 <text x="883.19253622" y="376.75" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="end">HIGH</text>
+<text x="820.618795" y="435.25" fill="#0b0b0b" font-size="12" font-weight="500" text-anchor="start">Qwen3.6 Plus</text>
+<text x="820.618795" y="447.25" fill="#898781" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="0.6" text-anchor="start">DEFAULT</text>
 </svg>

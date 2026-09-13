@@ -1,0 +1,283 @@
+{
+  "test": "rrule",
+  "slug": "qwen3.6-plus",
+  "judgedAt": "2026-09-11T14:17:20.813Z",
+  "projectHash": "e672827385e3",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 1.0705674,
+    "turns": 39,
+    "isError": false,
+    "usage": {
+      "input_tokens": 66,
+      "cache_creation_input_tokens": 94001,
+      "cache_read_input_tokens": 2293407,
+      "output_tokens": 23575,
+      "output_tokens_details": {
+        "thinking_tokens": 16340
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 94001,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 385,
+          "cache_read_input_tokens": 92088,
+          "cache_creation_input_tokens": 1913,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1913
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "result": "He completado la evaluación:\n\n1. **Adaptador** (`__bench__/adapter.ts`): conecta directamente con `expandRRule` de la solución, sin lógica propia de cálculo. El smoke test y el test suite propio (10 tests) pasan.\n\n2. **Evaluación**: los 4 escenarios pedidos están cubiertos con aserciones concretas. Al leer el código encontré dos bugs reales que verifiqué ejecutando casos ad-hoc (luego eliminados): `FREQ=DAILY` con `INTERVAL` que cruza meses de distinta longitud (p.ej. INTERVAL=31) deriva de fecha por reutilizar un `maxDay` obsoleto, y `FREQ=WEEKLY` con `INTERVAL>1` + `BYDAY` de varios días no produce un patrón regular — precisamente el caso que los tests del modelo nunca ejercitan (todos usan INTERVAL=1).\n\n3. Escrito `__bench__/judge.json` con `codeQuality: 5`, `testQuality: 7`, cobertura completa en los 4 escenarios.",
+    "permissionDenials": [
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01RYhHFoJCQjnpP4Efoxck4g",
+        "tool_input": {
+          "command": "cd \"<eval>/rrule/qwen3.6-plus\" && find . -not -path \"./node_modules/*\" -not -path \"./.git/*\" | sort"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01Stc75QiPXmss3L6TmTP5s4",
+        "tool_input": {
+          "command": "cd \"<eval>/rrule/qwen3.6-plus\" && find . -not -path \"./node_modules/*\" -not -path \"./.git/*\" | sort",
+          "description": "List project files excluding node_modules and .git"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01L2Jb2TZo1aocpghTHHgfNZ",
+        "tool_input": {
+          "command": "date; cat /etc/timezone 2>/dev/null; node -e \"console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)\"",
+          "description": "Check system timezone"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01HoW2gJDAXDeqYq9gbCwdKf",
+        "tool_input": {
+          "command": "node -e \"console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)\"",
+          "description": "Print system timezone"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01H7iWv5yevnpE5amNsPDgEw",
+        "tool_input": {
+          "command": "node -e \"console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)\"",
+          "description": "Print system timezone",
+          "dangerouslyDisableSandbox": true
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01XArCKQzsURmetA3heXokMD",
+        "tool_input": {
+          "command": "cd \"<eval>/rrule/qwen3.6-plus\" && ls node_modules/.bin/ 2>/dev/null | head -5",
+          "description": "Check node_modules bin"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01CHukYofjKgXyFMn9yB2aAh",
+        "tool_input": {
+          "command": "cd \"<eval>/rrule/qwen3.6-plus\" && ls node_modules/.bin/ 2>/dev/null | head -5",
+          "description": "Check node_modules bin directory contents"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01XXpWYV71M9LBF8edozDUur",
+        "tool_input": {
+          "command": "ls \"<eval>/rrule/qwen3.6-plus/node_modules/.bin/\"",
+          "description": "List node_modules bin directory"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01N8e67tqcgeFnqWoAwYNpCd",
+        "tool_input": {
+          "command": "npm install",
+          "description": "Install npm dependencies",
+          "dangerouslyDisableSandbox": true
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01LX9hhJsttwxC6TE3N3ebTB",
+        "tool_input": {
+          "command": "npm install",
+          "description": "Install npm dependencies for the project"
+        }
+      }
+    ],
+    "durationMs": 279592,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "coverage": {
+      "dstOctubreMadrid": true,
+      "ultimoViernes": true,
+      "mesesSin31": true,
+      "countConByday": true
+    },
+    "codeQuality": {
+      "score": 5,
+      "strengths": [
+        "Buena separación entre parseo (parseRRule/parseByDay), resolución de días de BYDAY y conversión de zona horaria",
+        "Conversión hora local <-> instante independiente de la zona del sistema, verificado ejecutando los tests con TZ=America/New_York",
+        "Tipado sin 'any' con interfaces claras (ParsedRRule, ByDayRule, Occurrence)",
+        "Bucles acotados con maxIterations, sin recorrido día a día ilimitado en WEEKLY/MONTHLY"
+      ],
+      "weaknesses": [
+        "Bug confirmado: FREQ=DAILY con INTERVAL que no divide la duración del mes (p.ej. INTERVAL=31) reutiliza un 'maxDay' obsoleto en el rollover y no resincroniza tras normalizar fechas inválidas (día 31 en febrero), haciendo que el día del mes derive progresivamente mes a mes",
+        "Bug confirmado: FREQ=WEEKLY con INTERVAL>1 combinado con BYDAY de varios días no repite un patrón consistente cada N semanas (probado con INTERVAL=2;BYDAY=MO,WE, produce una secuencia irregular en vez de pares Lunes/Miércoles cada dos semanas)",
+        "Código muerto: en el bucle WEEKLY se calcula la variable 'diff' pero nunca se usa",
+        "Lógica de condiciones de parada (winEnd/until/count) muy duplicada entre las tres ramas FREQ, y sin validar INTERVAL<=0 u otros valores fuera de rango"
+      ]
+    },
+    "testQuality": {
+      "score": 7,
+      "strengths": [
+        "Aserciones concretas sobre instantes ISO UTC exactos en los tests de DST, no solo sobre hora local",
+        "Cubre los cuatro escenarios pedidos con casos realistas (Europe/Madrid, meses sin 31, último viernes, COUNT+BYDAY)",
+        "Valores esperados parecen calculados de forma independiente (fechas y offsets concretos), no derivados de la propia implementación",
+        "Incluye también tests unitarios del parser (parseRRule/parseByDay)"
+      ],
+      "weaknesses": [
+        "Nunca se prueba INTERVAL>1 combinado con BYDAY ni FREQ=DAILY con INTERVAL grande, que es justo donde están los bugs detectados",
+        "Algunas aserciones usan 'toContain' sobre arrays en vez de comparar la secuencia completa y ordenada, lo que oculta duplicados o elementos extra",
+        "No hay test de UNTIL ni de ventanas parciales/varias zonas horarias"
+      ]
+    },
+    "bugs": [
+      "FREQ=DAILY con INTERVAL que no divide la duración del mes (p.ej. INTERVAL=31) produce fechas incorrectas: el 'maxDay' del rollover de mes queda obsoleto y el día del mes deriva progresivamente en iteraciones sucesivas.",
+      "FREQ=WEEKLY con INTERVAL>1 combinado con BYDAY de varios días no repite un patrón regular cada N semanas (verificado con INTERVAL=2;BYDAY=MO,WE).",
+      "Variable 'diff' calculada en el bucle WEEKLY pero nunca utilizada (código muerto que sugiere lógica no depurada).",
+      "No se valida INTERVAL<=0, lo que podría generar ocurrencias duplicadas hasta el límite de iteraciones sin ningún aviso.",
+      "El día MONTHLY 'BYMONTHDAY' no forma parte del subconjunto RRULE pedido en el enunciado (solo BYDAY), aunque se usa para el test de meses sin día 31."
+    ],
+    "summary": "La solución acierta en los cuatro escenarios pedidos con INTERVAL=1 (el único valor que prueban), con buena gestión de DST y BYDAY con ordinales, pero tiene bugs reales y verificados en el manejo de INTERVAL>1 para WEEKLY+BYDAY y para DAILY al cruzar meses de distinta longitud, precisamente el caso que los tests no cubren."
+  },
+  "hidden": {
+    "mode": "completa",
+    "total": 19,
+    "passed": 13,
+    "cases": [
+      {
+        "id": "01",
+        "name": "semanal cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "02",
+        "name": "semanal sin BYDAY cruza cambio de hora de marzo (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "03",
+        "name": "diario cruza cambio de hora de octubre (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "04",
+        "name": "diario INTERVAL=3 recortado por la ventana (UTC)",
+        "passed": true
+      },
+      {
+        "id": "05",
+        "name": "último viernes de mes con cambio de hora (Europe/Madrid)",
+        "passed": true
+      },
+      {
+        "id": "06",
+        "name": "segundo martes de mes con COUNT (America/New_York)",
+        "passed": true
+      },
+      {
+        "id": "07",
+        "name": "mensual día 31 salta los meses sin día 31 (COUNT)",
+        "passed": false
+      },
+      {
+        "id": "08",
+        "name": "mensual día 31 sin fin, ventana de febrero a junio",
+        "passed": false
+      },
+      {
+        "id": "09",
+        "name": "COUNT + BYDAY semanal (MO,WE,FR)",
+        "passed": true
+      },
+      {
+        "id": "10",
+        "name": "COUNT se cuenta desde el inicio, no desde la ventana",
+        "passed": false
+      },
+      {
+        "id": "11",
+        "name": "semanal INTERVAL=2 BYDAY=TU,TH con UNTIL inclusivo y cambio de hora",
+        "passed": false
+      },
+      {
+        "id": "12",
+        "name": "diario con UNTIL (UTC)",
+        "passed": false
+      },
+      {
+        "id": "13",
+        "name": "mensual primer y último lunes (1MO,-1MO) con COUNT",
+        "passed": true
+      },
+      {
+        "id": "14",
+        "name": "mensual BYDAY=FR sin ordinal = todos los viernes del mes",
+        "passed": true
+      },
+      {
+        "id": "15",
+        "name": "mensual INTERVAL=2 último viernes",
+        "passed": true
+      },
+      {
+        "id": "16",
+        "name": "semanal INTERVAL=2 empezando en miércoles (semanas con WKST=MO)",
+        "passed": false
+      },
+      {
+        "id": "17",
+        "name": "semanal cruza cambio de hora del hemisferio sur (Australia/Sydney)",
+        "passed": true
+      },
+      {
+        "id": "18",
+        "name": "regla infinita consultada años después (eficiencia)",
+        "passed": true
+      },
+      {
+        "id": "19",
+        "name": "ventana anterior al inicio devuelve vacío",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "import type { Expand } from './contract';\nimport { expandRRule } from '../src/rrule-expander';\n\nexport const expand: Expand = (input) => {\n  const occurrences = expandRRule(\n    input.dtstartLocal,\n    input.rrule,\n    input.tz,\n    input.from,\n    input.to,\n  );\n  return occurrences.map((o) => o.start.toISOString());\n};\n"
+}
