@@ -1,0 +1,4114 @@
+{
+  "test": "regex",
+  "slug": "deepseek-v4.1-flash",
+  "judgedAt": "2026-09-11T19:40:34.931Z",
+  "projectHash": "c9bef985ebc4",
+  "meta": {
+    "judge": "claude:sonnet",
+    "cost": 1.7899982,
+    "turns": 53,
+    "isError": false,
+    "usage": {
+      "input_tokens": 84,
+      "cache_creation_input_tokens": 155143,
+      "cache_read_input_tokens": 5055691,
+      "output_tokens": 15812,
+      "output_tokens_details": {
+        "thinking_tokens": 7045
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 155143,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 722,
+          "cache_read_input_tokens": 154742,
+          "cache_creation_input_tokens": 401,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 401
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "result": "sé todo `src/` (parser → AST, compilador a bytecode tipo VM, un backtracker con memoización de estados que garantiza tiempo lineal, y un motor NFA incremental genuino para streaming), ejecuté la suite propia (349/349 tests pasan) y `tsc --noEmit` (sin errores).\n\n   - **builtinEngine: \"auxiliar\"** — solo 5 literales `/…/.test()` en `parser.ts` para validar nombres de grupo y dígitos hexadecimales de escapes, exactamente el ejemplo que da el enunciado como \"auxiliar\".\n   - **codeQuality: 9/10** — arquitectura en fases limpia, backtracking memoizado bien razonado (excluye correctamente estados \"sensibles a registro\"), streaming con simulación Thompson-NFA real (no reprocesa todo el texto), sin `any`.\n   - **testQuality: 8/10** — comparaciones exhaustivas contra `RegExp` nativo y `matchAll`, con verificación del momento exacto de entrega en streaming; el único punto débil es que los tests de tipos no usan igualdad de tipos estricta.\n   - **Bug real encontrado y verificado**: con el flag `y`, `stream()` cae a un modo `BufferedStream` que acumula todo el texto y retrasa **todas** las coincidencias hasta `end()`, incumpliendo tanto el requisito de entrega temprana como el de no guardar más texto del necesario. Lo confirmé ejecutando un caso mínimo (`/a/y` sobre `\"ab\"`): la coincidencia no se devuelve hasta `end()`. Los propios tests de streaming con `y` no lo detectan porque solo comparan el resultado agregado final.\n\n3. **`__bench__/judge.json`**: escrito con el veredicto completo.",
+    "permissionDenials": [
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01KP4P3p8yqghV3YpYgdmhnC",
+        "tool_input": {
+          "command": "find . -not -path './node_modules/*' -not -path './.git/*' -type f | sort"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01DE4qP9hDy4SX8ibir4ZjTq",
+        "tool_input": {
+          "command": "find . -not -path './node_modules/*' -not -path './.git/*' -type f | sort",
+          "description": "List all project files excluding node_modules and .git"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01Mtg7NTUUG1cU1GBois1QC4",
+        "tool_input": {
+          "command": "cd \"$(pwd)\" && node_modules/.bin/vitest run --config __bench__/vitest.config.mjs 2>&1 | tail -60",
+          "description": "Run smoke test to check adapter connects"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01YFH6Pfx2zv8uddTVXXyWHv",
+        "tool_input": {
+          "command": "cat > <tmp> << 'EOF'\nimport { compile } from './src/regex.js';\nEOF\nnpx tsx -e \"\nimport { compile } from './src/regex.ts';\nconst s = compile('a','y').stream();\nconsole.log('feed a ->', JSON.stringify(s.feed('a')));\nconsole.log('feed b ->', JSON.stringify(s.feed('b')));\nconsole.log('end ->', JSON.stringify(s.end()));\n\"\n",
+          "description": "Check whether sticky stream returns matches eagerly per feed"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01EydrB7mDio8GimfyEvL7DT",
+        "tool_input": {
+          "command": "npx tsx <tmp>",
+          "description": "Check timing of sticky-flag stream match delivery"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01EQyCvdr6q1yWCsdLEdizUZ",
+        "tool_input": {
+          "command": "npx tsx <tmp>",
+          "description": "Run script to inspect sticky-flag stream timing behaviour"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_011Ezm7TmDBdYY7FjJyBzMhR",
+        "tool_input": {
+          "command": "npx tsx <tmp>",
+          "description": "Run script to inspect sticky-flag stream timing behaviour"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01226W9ujhxM1WJnRMzbZ1Hg",
+        "tool_input": {
+          "command": "node -e \"JSON.parse(require('fs').readFileSync('./__bench__/judge.json','utf8')); console.log('valid json')\" && node_modules/.bin/vitest run --config __bench__/vitest.config.mjs 2>&1 | tail -20",
+          "description": "Validate judge.json and re-run smoke test"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01J6zZvFSWFTozvBiawY9ZrJ",
+        "tool_input": {
+          "command": "node -e \"JSON.parse(require('fs').readFileSync('./__bench__/judge.json','utf8')); console.log('valid json')\"",
+          "description": "Validate judge.json is well-formed JSON"
+        }
+      },
+      {
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_018TQsWyr2UFExktmsZZVeKc",
+        "tool_input": {
+          "command": "node -e \"JSON.parse(require('fs').readFileSync('./__bench__/judge.json','utf8')); console.log('valid json')\"",
+          "description": "Validate judge.json is well-formed JSON"
+        }
+      }
+    ],
+    "durationMs": 206286,
+    "exitCode": 0
+  },
+  "verdict": {
+    "adapter": {
+      "ok": true,
+      "workarounds": []
+    },
+    "builtinEngine": "auxiliar",
+    "builtinEngineWhere": "src/parser.ts líneas 336, 371, 390, 426 y 456: usa literales /regex/.test(...) solo para validar identificadores de nombre de grupo y dígitos hexadecimales de escapes, no para hacer coincidir el patrón de entrada.",
+    "coverage": {
+      "capturasRepeticion": true,
+      "perezososCodiciosos": true,
+      "mayusculas": true,
+      "paresSustitutos": true,
+      "lastIndex": true,
+      "tiempoLineal": true,
+      "streaming": true,
+      "tipos": true
+    },
+    "codeQuality": {
+      "score": 9,
+      "strengths": [
+        "Arquitectura en fases limpia: parser a AST, compilador a bytecode tipo VM (Save/Clear/Split/Loop/LoopBack/SetReg/EmptyCheck), y dos motores de ejecución bien separados.",
+        "Backtracker con memoización de estados (pc, pos) fallidos/activos que garantiza tiempo lineal cuando no hay backreferences ni lookahead, incluyendo un análisis de qué instrucciones son 'sensibles a registro' (dependientes de la iteración del bucle) para excluirlas de la memoización de forma correcta.",
+        "Motor de streaming (NfaStream) es una auténtica simulación Thompson-NFA incremental con hilos, pausas en asserts que dependen de más texto, y compactación del buffer reteniendo solo lo necesario; no es un buffer-and-reprocess.",
+        "Semántica de ECMAScript centralizada (canonicalización de 'i' con y sin 'u', puntos de código con pares sustitutos, limpieza de capturas por iteración) en chars.ts/casefold.ts, sin duplicación evidente ni 'any'."
+      ],
+      "weaknesses": [
+        "stream() cae a BufferedStream (que acumula todo el buffer y no libera matches hasta end()) en cuanto el patrón tiene el flag 'y', aunque no tenga backreferences ni lookahead, incumpliendo el requisito de entrega temprana y de guardar solo el texto necesario para ese caso.",
+        "El mismo fallback se activa si loopCount > 30, un límite arbitrario no documentado en el enunciado que podría afectar a patrones complejos legítimos.",
+        "Alguna duplicación entre Backtracker.search/matchAt (construcción de captures, normalización unicode) que podría factorizarse."
+      ]
+    },
+    "testQuality": {
+      "score": 8,
+      "strengths": [
+        "La mayoría de los tests de exec/sintaxis comparan directamente contra el RegExp nativo (incluyendo lastIndex), lo que da valores esperados independientes de la implementación.",
+        "Tests de streaming muy rigurosos: comparan contra matchAll con distintos tamaños de trozo y además verifican el momento exacto de entrega feed a feed (p. ej. 'waits while a greedy repetition could still extend', '\\d+' definitividad, división de pares sustitutos entre chunks).",
+        "Casos límite bien cubiertos: mayúsculas Unicode con 'i'/'iu' (ẞ, Kelvin sign, ſ, Ω), backreferences a grupos no participantes, lastIndex con valores fuera de rango tipo ToLength, patrones inválidos variados.",
+        "Test de rendimiento explícito para streaming (2MB en chunks de 1KB) y para tiempo lineal con los tres patrones patológicos del enunciado más 'a*b' sobre 100k caracteres."
+      ],
+      "weaknesses": [
+        "Los tests de tipos no usan aserciones de igualdad de tipos (p. ej. expectTypeOf); solo asignan a variables anotadas, lo que no detecta si un campo que debería ser 'string' es en realidad más amplio.",
+        "No hay ningún test que distinga el comportamiento de streaming con flag 'y' en cuanto al momento exacto de entrega (el test de sticky solo compara el resultado final agregado), por lo que no detecta el bug de BufferedStream para ese caso."
+      ]
+    },
+    "bugs": [
+      "stream() con el flag 'y' usa BufferedStream incluso sin backreferences ni lookahead: todas las coincidencias se retrasan hasta end() y se guarda el texto completo en memoria, en vez de entregarlas en cuanto son definitivas y liberar el buffer no necesario (src/regex.ts líneas 72-82).",
+      "El mismo fallback a BufferedStream se dispara cuando loopCount > 30, un límite interno no derivado del enunciado que penaliza patrones legítimos con muchas repeticiones anidadas."
+    ],
+    "summary": "Implementación muy sólida: motor propio (sin depender del RegExp del lenguaje salvo validaciones auxiliares) con backtracking memoizado para garantizar tiempo lineal y un motor NFA incremental genuino para streaming, tipos a nivel de tipos correctos y tests exhaustivos comparados contra RegExp nativo. El defecto más relevante es que el streaming con el flag 'y' se degrada a un modo buffer-and-wait que no entrega coincidencias a tiempo ni limita la memoria usada, sin que los propios tests lo detecten."
+  },
+  "hidden": {
+    "mode": "main: 2 caso(s) colgaron o tumbaron el proceso y se aislaron (285, 379)",
+    "total": 561,
+    "passed": 554,
+    "cases": [
+      {
+        "id": "001",
+        "name": "grupos reiniciados en cada iteración (ejemplo de la especificación)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "002",
+        "name": "grupo de una alternativa no elegida (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "003",
+        "name": "grupo de una alternativa no elegida (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "004",
+        "name": "la última iteración borra la captura de otra rama (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "005",
+        "name": "la última iteración borra la captura de otra rama (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "006",
+        "name": "la última iteración borra la captura de otra rama (3)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "007",
+        "name": "grupos en alternativas dentro de repetición (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "008",
+        "name": "grupos en alternativas dentro de repetición (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "009",
+        "name": "grupos en alternativas dentro de repetición (3)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "010",
+        "name": "repetición vacía no captura (regla del bucle vacío) (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "011",
+        "name": "repetición vacía no captura (regla del bucle vacío) (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "012",
+        "name": "repetición + con grupo que puede ser vacío (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "013",
+        "name": "repetición + con grupo que puede ser vacío (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "014",
+        "name": "grupo vacío opcional en bucle (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "015",
+        "name": "grupo vacío opcional en bucle (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "016",
+        "name": "bucle con opcional vacío (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "017",
+        "name": "bucle con opcional vacío (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "018",
+        "name": "capturas anidadas con cuantificador",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "019",
+        "name": "lista separada por guiones (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "020",
+        "name": "lista separada por guiones (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "021",
+        "name": "grupo opcional al final (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "022",
+        "name": "grupo opcional al final (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "023",
+        "name": "grupo dentro de repetición con retroceso (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "024",
+        "name": "grupo dentro de repetición con retroceso (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "025",
+        "name": "grupos con nombre (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "026",
+        "name": "grupos con nombre (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "027",
+        "name": "nombre con $ y _",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "028",
+        "name": "captura de cadena vacía frente a no participar (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "029",
+        "name": "captura de cadena vacía frente a no participar (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "030",
+        "name": "alternativa vacía en grupo",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "031",
+        "name": "cuantificador {2} sobre grupo",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "032",
+        "name": "grupo cuantificado {0}",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "033",
+        "name": "grupos anidados opcionales (1)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "034",
+        "name": "grupos anidados opcionales (2)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "035",
+        "name": "grupos anidados opcionales (3)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "036",
+        "name": "grupos anidados opcionales (4)",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "037",
+        "name": "perezoso con capturas",
+        "category": "capturas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "038",
+        "name": "{2,3} codicioso (1)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "039",
+        "name": "{2,3} codicioso (2)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "040",
+        "name": "{2,3} perezoso",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "041",
+        "name": "+? mínimo",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "042",
+        "name": "*? hasta el siguiente",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "043",
+        "name": ".* codicioso",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "044",
+        "name": "?? perezoso",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "045",
+        "name": "{n,} abierto (1)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "046",
+        "name": "{n,} abierto (2)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "047",
+        "name": "repetición de alternativas (1)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "048",
+        "name": "repetición de alternativas (2)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "049",
+        "name": "perezoso seguido de ancla",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "050",
+        "name": "codicioso cede al retroceder",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "051",
+        "name": "perezoso crece al retroceder",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "052",
+        "name": "repetición vacía perezosa",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "053",
+        "name": "cuantificador sobre clase",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "054",
+        "name": "cuantificador sobre escape",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "055",
+        "name": "repeticiones anidadas (1)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "056",
+        "name": "repeticiones anidadas (2)",
+        "category": "cuantificadores",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "057",
+        "name": "la primera alternativa gana",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "058",
+        "name": "orden inverso",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "059",
+        "name": "ejemplo de la especificación",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "060",
+        "name": "alternativas con retroceso entre grupos",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "061",
+        "name": "alternativa vacía primero",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "062",
+        "name": "alternativa vacía en medio (1)",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "063",
+        "name": "alternativa vacía en medio (2)",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "064",
+        "name": "la más a la izquierda aunque sea más corta",
+        "category": "alternancia",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "065",
+        "name": "rango",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "066",
+        "name": "negada",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "067",
+        "name": "guion al principio y al final (1)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "068",
+        "name": "guion al principio y al final (2)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "069",
+        "name": "guion escapado (válido con u)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "070",
+        "name": "escapes de clase dentro de corchetes",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "071",
+        "name": "\\b dentro de clase es retroceso",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "072",
+        "name": "clase vacía no coincide nunca",
+        "category": "clases",
+        "group": "semantica",
+        "passed": false
+      },
+      {
+        "id": "073",
+        "name": "[^] coincide con todo",
+        "category": "clases",
+        "group": "semantica",
+        "passed": false
+      },
+      {
+        "id": "074",
+        "name": "\\s incluye espacios Unicode (1)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "075",
+        "name": "\\s incluye espacios Unicode (2)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "076",
+        "name": "\\w solo ASCII",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "077",
+        "name": "\\D \\W \\S (1)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "078",
+        "name": "\\D \\W \\S (2)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "079",
+        "name": "\\D \\W \\S (3)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "080",
+        "name": "escapes \\x y \\u",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "081",
+        "name": "escape de control \\cJ",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "082",
+        "name": "\\0 y \\t \\v \\f",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "083",
+        "name": "caracteres especiales escapados",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "084",
+        "name": "punto no cruza fin de línea (1)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "085",
+        "name": "punto no cruza fin de línea (2)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "086",
+        "name": "punto no cruza fin de línea (3)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "087",
+        "name": "punto no cruza fin de línea (4)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "088",
+        "name": "punto no cruza fin de línea (5)",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "089",
+        "name": "clase negada con escape de clase",
+        "category": "clases",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "090",
+        "name": "^ sin m (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "091",
+        "name": "^ sin m (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "092",
+        "name": "$ sin m (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "093",
+        "name": "$ sin m (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "094",
+        "name": "$ sin m (3)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "095",
+        "name": "^ con m tras cada fin de línea (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "096",
+        "name": "^ con m tras cada fin de línea (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "097",
+        "name": "^ con m tras cada fin de línea (3)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "098",
+        "name": "$ con m antes de fin de línea (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "099",
+        "name": "$ con m antes de fin de línea (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "100",
+        "name": "frontera de palabra (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "101",
+        "name": "frontera de palabra (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "102",
+        "name": "frontera de palabra (3)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "103",
+        "name": "no frontera (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "104",
+        "name": "no frontera (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "105",
+        "name": "frontera con caracteres no ASCII",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "106",
+        "name": "^$ con m sobre líneas vacías",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "107",
+        "name": "anclas en alternativas (1)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "108",
+        "name": "anclas en alternativas (2)",
+        "category": "anclas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "109",
+        "name": "s hace que . cruce líneas (1)",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "110",
+        "name": "s hace que . cruce líneas (2)",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "111",
+        "name": "g avanza lastIndex",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "112",
+        "name": "g reinicia a 0 al fallar",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "113",
+        "name": "y exige empezar en lastIndex (1)",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "114",
+        "name": "y exige empezar en lastIndex (2)",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "115",
+        "name": "y con lastIndex inicial",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "116",
+        "name": "g con coincidencia vacía no avanza",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "117",
+        "name": "lastIndex mayor que el texto",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "118",
+        "name": "sin g ni y se ignora lastIndex",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "119",
+        "name": "^ con y en posición distinta de 0",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "120",
+        "name": "^ con y y m tras salto de línea",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "121",
+        "name": "gy juntos",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "122",
+        "name": "g con grupos",
+        "category": "flags",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "123",
+        "name": "i en ASCII (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "124",
+        "name": "i en ASCII (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "125",
+        "name": "i en clase y rango",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "126",
+        "name": "i en clase negada",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "127",
+        "name": "ſ frente a s sin u (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "128",
+        "name": "ſ frente a s sin u (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "129",
+        "name": "ſ frente a s sin u (3)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "130",
+        "name": "ſ frente a s con u (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "131",
+        "name": "ſ frente a s con u (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "132",
+        "name": "signo Kelvin frente a k (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "133",
+        "name": "signo Kelvin frente a k (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "134",
+        "name": "signo Kelvin frente a k con u (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "135",
+        "name": "signo Kelvin frente a k con u (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "136",
+        "name": "rango ASCII y Kelvin sin u (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "137",
+        "name": "rango ASCII y Kelvin sin u (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "138",
+        "name": "\\w con iu incluye ſ y K (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "139",
+        "name": "\\w con iu incluye ſ y K (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "140",
+        "name": "\\w con i sin u (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "141",
+        "name": "\\w con i sin u (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "142",
+        "name": "\\b con iu y ſ (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "143",
+        "name": "\\b con iu y ſ (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "144",
+        "name": "ß no se expande a SS (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "145",
+        "name": "ß no se expande a SS (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "146",
+        "name": "ß y ẞ con u",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "147",
+        "name": "letras con tilde",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "148",
+        "name": "sigma final (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "149",
+        "name": "sigma final (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "150",
+        "name": "sigma final con u (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "151",
+        "name": "sigma final con u (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "152",
+        "name": "i sin punto (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "153",
+        "name": "i sin punto (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "154",
+        "name": "I con punto",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "155",
+        "name": "letra titular ǅ (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "156",
+        "name": "letra titular ǅ (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "157",
+        "name": "astral con u (Deseret)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "158",
+        "name": "astral sin u no se pliega",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "159",
+        "name": "clase negada con iu (1)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "160",
+        "name": "clase negada con iu (2)",
+        "category": "mayusculas",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "161",
+        "name": "punto y par sustituto",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "162",
+        "name": "punto y par sustituto con u (1)",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "163",
+        "name": "punto y par sustituto con u (2)",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "164",
+        "name": "mitad alta sin u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "165",
+        "name": "mitad alta con u no parte el par (1)",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "166",
+        "name": "mitad alta con u no parte el par (2)",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "167",
+        "name": "mitad baja con u no parte el par (1)",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "168",
+        "name": "mitad baja con u no parte el par (2)",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "169",
+        "name": "mitad baja sin u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "170",
+        "name": "clase con astral",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "171",
+        "name": "clase con astral con u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "172",
+        "name": "rango astral",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "173",
+        "name": "cuantificador sobre astral",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "174",
+        "name": "cuantificador sobre astral con u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "175",
+        "name": "índice en unidades UTF-16",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "176",
+        "name": "\\S con u toma el par entero",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "177",
+        "name": "clase negada con u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "178",
+        "name": "clase negada sin u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "179",
+        "name": "\\u{…} con u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "180",
+        "name": "escape \\u de par sustituto con u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "181",
+        "name": "g y u avanzan por puntos de código",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "182",
+        "name": "frontera de palabra junto a astral",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "183",
+        "name": "lastIndex dentro de un par con u",
+        "category": "unicode",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "184",
+        "name": "retrorreferencia simple (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "185",
+        "name": "retrorreferencia simple (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "186",
+        "name": "a un grupo que no participa: vacía",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "187",
+        "name": "hacia delante: vacía",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "188",
+        "name": "palabras repetidas (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "189",
+        "name": "palabras repetidas (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "190",
+        "name": "con nombre",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "191",
+        "name": "con retroceso (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "192",
+        "name": "con retroceso (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "193",
+        "name": "a una alternativa no elegida",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "194",
+        "name": "dentro de repetición (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "195",
+        "name": "dentro de repetición (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "196",
+        "name": "insensible a mayúsculas (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "197",
+        "name": "insensible a mayúsculas (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "198",
+        "name": "insensible con u y ſ (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "199",
+        "name": "insensible con u y ſ (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "200",
+        "name": "insensible sin u y ſ",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "201",
+        "name": "a grupo reiniciado en la iteración (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "202",
+        "name": "a grupo reiniciado en la iteración (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "203",
+        "name": "comillas emparejadas",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "204",
+        "name": "con astral y u (1)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "205",
+        "name": "con astral y u (2)",
+        "category": "retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "206",
+        "name": "lookahead positivo",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "207",
+        "name": "lookahead negativo",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "208",
+        "name": "capturas dentro de lookahead positivo",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "209",
+        "name": "capturas en lookahead negativo son undefined (1)",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "210",
+        "name": "capturas en lookahead negativo son undefined (2)",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "211",
+        "name": "lookahead atómico (ejemplo de la especificación)",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "212",
+        "name": "lookahead atómico sin retroceso",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "213",
+        "name": "contraseña (1)",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "214",
+        "name": "contraseña (2)",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "215",
+        "name": "contraseña (3)",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "216",
+        "name": "lookahead al final",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "217",
+        "name": "negativo con alternativas",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "218",
+        "name": "lookahead dentro de repetición",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "219",
+        "name": "lookahead vacío",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "220",
+        "name": "negativo vacío nunca coincide",
+        "category": "lookahead",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "221",
+        "name": "error: paréntesis sin cerrar",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "222",
+        "name": "error: paréntesis sin abrir",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "223",
+        "name": "error: corchete sin cerrar",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "224",
+        "name": "error: rango al revés",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "225",
+        "name": "error: cuantificador {2,1}",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "226",
+        "name": "error: nada que repetir",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "227",
+        "name": "error: cuantificador doble",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "228",
+        "name": "error: repetir alternativa vacía",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "229",
+        "name": "error: cuantificador tras cuantificador {}",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "230",
+        "name": "error: grupo con nombre repetido",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "231",
+        "name": "error: nombre de grupo vacío",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "232",
+        "name": "error: nombre que empieza por dígito",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "233",
+        "name": "error: \\k a un nombre inexistente",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "234",
+        "name": "error: barra invertida final",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "235",
+        "name": "error: grupo no terminado",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "236",
+        "name": "error: \\u{} fuera de rango",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "237",
+        "name": "error: flag repetido",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "238",
+        "name": "error: flag desconocido",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "239",
+        "name": "error: flags mezclados con uno no válido",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "240",
+        "name": "source y flags: flags ordenados",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "241",
+        "name": "source y flags: flags ordenados (todos)",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "242",
+        "name": "source y flags: sin flags",
+        "category": "sintaxis",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "243",
+        "name": "azar (?:(?:|[a-c]{2,}(A)*(b|.{2,}?b{1,2}?))) /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "244",
+        "name": "azar .|(?<g1>b{2}c(?:(?:[^a]a\\w)){1,2})?a{2}? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "245",
+        "name": "azar (\\d)*? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "246",
+        "name": "azar (?:(\\dc)*)*? /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "247",
+        "name": "azar (b{0,2}b{1,2}?) /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "248",
+        "name": "azar a(\\B(?:()(?:A))+?)?a|() /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "249",
+        "name": "azar (?<g1>|\\d)* /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "250",
+        "name": "azar (b|(?<g2>(?:b[ab]){2}|){2,}[ab])? /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "251",
+        "name": "azar |a{0,2}?(?<g1>) /mu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "252",
+        "name": "azar b(((\\Ba*)){1,2}?){2}?|.*.+? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "253",
+        "name": "azar (|(){2}?)*\\s*?| /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "254",
+        "name": "azar (?:a.{2,})*?([ab]\\s*?|) /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "255",
+        "name": "azar ([^a]){2}?((\\s{1,2}(?<g4>\\s?))??)\\b /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "256",
+        "name": "azar (\\w)(?:){2,}? /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "257",
+        "name": "azar (?<g1>[^a][ab]{2}) /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "258",
+        "name": "azar (?<g1>\\s?\\w?\\B){2} /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "259",
+        "name": "azar ((?:))\\B /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "260",
+        "name": "azar (A{1,2})||[a-c]+[^a]+? /mu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "261",
+        "name": "azar (\\w.?)b* /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "262",
+        "name": "azar (?<g1>a*?(?:a(b*?b??A){2,}))? /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "263",
+        "name": "azar (?<g1>)? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "264",
+        "name": "azar \\b|(?<g1>c{2,}?A{0,2}$)\\s /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "265",
+        "name": "azar (|(?:)??|\\w{1,2}[^a]) /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "266",
+        "name": "azar (?<g1>\\w){1,2} /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "267",
+        "name": "azar ((?:)((?:[^a]\\w)+(a+A*|\\b\\b^))??$){0,2}| /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "268",
+        "name": "azar ((?<g2>)(?<g3>))?b? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "269",
+        "name": "azar (\\d)*?b\\s* /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "270",
+        "name": "azar |([^a]){2} /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "271",
+        "name": "azar cb(|(a))*|[a-c] /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "272",
+        "name": "azar ((a?|a()*?(?:\\d+|\\s)){2,}?){1,2}?b? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "273",
+        "name": "azar ([a-c]) /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "274",
+        "name": "azar .+\\w*?([^a]) /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "275",
+        "name": "azar |.+c(((?<g3>a+?){2,}b{1,2}a)+?){2}| /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "276",
+        "name": "azar (?:c(?:)(?:(cc)*?)){0,2} /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "277",
+        "name": "azar \\d*b{2}() /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "278",
+        "name": "azar ((?:([^a]+[ab]+?)())*?)* /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "279",
+        "name": "azar (a\\w){0,2}A+?| /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "280",
+        "name": "azar (\\s*){2}([a-c]{1,2}(A))?? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "281",
+        "name": "azar ((([ab]|$|[ab]*?))(?<g4>()){1,2}?)? /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "282",
+        "name": "azar (?<g1>) /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "283",
+        "name": "azar (\\b)*(?:(?:a?c)|)? /mu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "284",
+        "name": "azar (b\\d??(?<g2>(?:A\\d*\\d)(\\B){2}))*|A+ /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "285",
+        "name": "azar $|(?:[a-c]?)*(b)b?? /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": false
+      },
+      {
+        "id": "286",
+        "name": "azar .?\\w((?<g2>(\\d?|bc[ab])?a)) /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "287",
+        "name": "azar (?:\\B((?<g2>[^a]a))|a{1,2}?)+ /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "288",
+        "name": "azar \\w{0,2}()A|.|\\s(?:([ab]+?(?:\\b)??.){2}) /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "289",
+        "name": "azar A*?(){1,2} /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "290",
+        "name": "azar A{0,2}|(b*\\Ba)b /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "291",
+        "name": "azar (?:.??\\b(($)*?(){0,2}?)|())*? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "292",
+        "name": "azar ((?<g2>a)?b*|(\\d*)*b).+ /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "293",
+        "name": "azar ([ab]{2})+[a-c]{2} /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "294",
+        "name": "azar ((?:\\da|()(?:A?|[^a]*|b))){2} /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "295",
+        "name": "azar (?:||((c*))*){2,}? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "296",
+        "name": "azar ([ab]{2}([a-c]))?(?:\\b|ab{1,2}?) /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "297",
+        "name": "azar a|()?| /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "298",
+        "name": "azar ([ab]{0,2}) /mu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "299",
+        "name": "azar \\w(a)? /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "300",
+        "name": "azar A(?:)?() /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "301",
+        "name": "azar [^a]((?<g2>([a-c].)*()){1,2}?)+ /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "302",
+        "name": "azar ()+ /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "303",
+        "name": "azar (\\b)|(){2} /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "304",
+        "name": "azar ($){1,2}\\b /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "305",
+        "name": "azar (\\w{1,2}?){0,2} /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "306",
+        "name": "azar ()(?:){0,2}? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "307",
+        "name": "azar ([ab])(?:)() /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "308",
+        "name": "azar (?:(?<g1>(.{1,2}a+\\s)*?)\\w?A)* /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "309",
+        "name": "azar (.){0,2} /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "310",
+        "name": "azar (ab|(?:\\s{2,}?(|[ab]AA|\\d\\b\\s*)*?\\B)A*?) /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "311",
+        "name": "azar \\b([^a]?\\w(|b*\\d+?))|(\\b[^a]{2})|[^a]\\s /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "312",
+        "name": "azar (\\w+a{0,2}){2}? /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "313",
+        "name": "azar (?<g1>)|\\b[a-c]| /mu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "314",
+        "name": "azar [ab]*($)?? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "315",
+        "name": "azar (?:(b{0,2}?).+) /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "316",
+        "name": "azar (a\\d*)+? /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "317",
+        "name": "azar A(\\w) /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "318",
+        "name": "azar ()+?[ab]{2}? /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "319",
+        "name": "azar ((?:))(((c\\s*?)|(?:\\B){2,}?|)*){2} /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "320",
+        "name": "azar ()^b+ /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "321",
+        "name": "azar (?<g1>[ab])*|b|(?:\\B) /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "322",
+        "name": "azar \\B(|)? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "323",
+        "name": "azar (|\\w){2}(?:[^a].*|\\w{0,2}){2}?[ab] /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "324",
+        "name": "azar (a)*()(b{0,2}?bb+)? /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "325",
+        "name": "azar (?<g1>){1,2} /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "326",
+        "name": "azar (a*|(?:[^a]([^a]*?[a-c]{0,2})[^a]?)*)\\B /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "327",
+        "name": "azar a\\w(c(?:c+b)b{1,2}){0,2}? /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "328",
+        "name": "azar ([^a]b(?<g2>ba+?|\\B|\\d(^.{2}?)??))|^ /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "329",
+        "name": "azar [ab](?<g1>((?:[ab]b{2,}))*?c())+|\\d*? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "330",
+        "name": "azar a*() /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "331",
+        "name": "azar [ab]*()? /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "332",
+        "name": "azar (){1,2}?bA? /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "333",
+        "name": "azar [^a]?\\s{1,2}(b|A|(?:(\\d\\d\\w))\\B^)| /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "334",
+        "name": "azar a((?<g2>(?:a|c??b)c+)+?)|a|$ /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "335",
+        "name": "azar (^b{2})(A)+?^||A /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "336",
+        "name": "azar ([ab](.*?(\\w*$).|)+). /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "337",
+        "name": "azar b[a-c]() /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "338",
+        "name": "azar (?:\\s{0,2}(?<g1>c+?\\B)+.){0,2}?[a-c]?? /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "339",
+        "name": "azar |a{2}a(\\s?)* /mu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "340",
+        "name": "azar (?<g1>(A\\s?|(?<g3>a*?a)?c))? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "341",
+        "name": "azar (^\\d?){1,2} /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "342",
+        "name": "azar a(?<g1>(?:[a-c])*?[ab]\\B)*|[^a] /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "343",
+        "name": "azar (?:(?:\\B)(?<g1>(?<g2>\\dab)(A?)*[ab])|) /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "344",
+        "name": "azar ((?<g2>b[^a])?){1,2}.{0,2}? /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "345",
+        "name": "azar (?:.)((?<g2>^(\\sa)))?? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "346",
+        "name": "azar .{1,2}a(A{2,})* /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "347",
+        "name": "azar (.?(?:\\d*a){1,2}){0,2} /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "348",
+        "name": "azar (^[^a][a-c])*?c*b* /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "349",
+        "name": "azar b|\\d?(?:b\\s|bc{0,2})A|(?<g1>\\s{0,2}?) /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "350",
+        "name": "azar (a+\\w{0,2})*? /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "351",
+        "name": "azar \\w(\\w??)|[^a]b{1,2} /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "352",
+        "name": "azar [a-c]b(?:()(\\w+a?A??)) /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "353",
+        "name": "azar \\w|((?<g2>\\w{2,})?ab){0,2}?[^a]{1,2} /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "354",
+        "name": "azar (?:($))?(A+(a*A||[^a]?)+(()c)?|(?:)*|)* /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "355",
+        "name": "azar \\d+(\\s{0,2}?\\w^)|[^a] /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "356",
+        "name": "azar (?<g1>\\d)+| /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "357",
+        "name": "azar ba^ /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "358",
+        "name": "azar b{2} /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "359",
+        "name": "azar [ab](\\d[ab])b /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "360",
+        "name": "azar \\s{2} /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "361",
+        "name": "azar ((?<g2>$(?:bbA+)(\\sa)+?){2,}a)b+? /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "362",
+        "name": "azar (?:((\\Ba{2}[^a]))a)[ab]{0,2} /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "363",
+        "name": "azar A /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "364",
+        "name": "azar [^a].(?:\\bb(.\\d)??) /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "365",
+        "name": "azar \\b /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "366",
+        "name": "azar \\d{1,2}?.{0,2}?b /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "367",
+        "name": "azar \\b[^a]?(a\\bb+?) /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "368",
+        "name": "azar c{2,} /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "369",
+        "name": "azar \\d /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "370",
+        "name": "azar \\w((?:(b{2}))b{1,2}\\s) /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "371",
+        "name": "azar ((?:b[a-c]){1,2})+?A /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "372",
+        "name": "azar c((\\s+b{1,2}?a)+) /y",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "373",
+        "name": "azar (b)\\w{2}c{0,2}? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "374",
+        "name": "azar [ab]+c??(?:a(?:\\s*))|[^a]{2}\\d /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "375",
+        "name": "azar [^a]{2} /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "376",
+        "name": "azar (((\\s*?[ab]{0,2}$)+))b?.|\\w{0,2}c{1,2} /g",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "377",
+        "name": "azar (?:a?A([a-c]?a?.{2,})) /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "378",
+        "name": "azar \\d /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "379",
+        "name": "azar (b{0,2}((?<g3>$.*?c|b?)+?b??)?)(?:c) /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": false
+      },
+      {
+        "id": "380",
+        "name": "azar [ab]{0,2}?A /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "381",
+        "name": "azar aa\\B /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "382",
+        "name": "azar \\w?(?<g1>\\s{0,2}(?:|A(?:){1,2}|)[ab])\\w /s",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "383",
+        "name": "azar \\s??$c /iu",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "384",
+        "name": "azar A /u",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "385",
+        "name": "azar \\s /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "386",
+        "name": "azar bA(\\w) /m",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "387",
+        "name": "azar ([a-c]{2})((?:[a-c]a){2,}?\\B)*\\s /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "388",
+        "name": "azar [a-c]b|(?<g1>.)*?\\Ba{1,2}? /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "389",
+        "name": "azar \\w{2}? /gi",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "390",
+        "name": "azar [^a](?:((bb\\d)^\\d*))+ /",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "391",
+        "name": "azar [a-c]\\B(((?:a)(a|[a-c]A{2}?){0,2})a+)?? /su",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "392",
+        "name": "azar A{1,2}? /i",
+        "category": "azar",
+        "group": "semantica",
+        "passed": true
+      },
+      {
+        "id": "393",
+        "name": "azar (|ab|\\1) /su",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "394",
+        "name": "azar \\d[a-c]\\s|((\\2.)) /mu",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "395",
+        "name": "azar ((?:\\w\\1)?b{1,2}) /i",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "396",
+        "name": "azar (?<g1>c+.|\\1\\s)?(?:A)[^a] /iu",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "397",
+        "name": "azar (?<g1>(?:)[ab]??(?=)) /su",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "398",
+        "name": "azar (?<g1>b*\\1)+ /i",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "399",
+        "name": "azar ((\\1(?!c*|a)[a-c]{2}?)*?)||\\b /u",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "400",
+        "name": "azar (\\1(?:(?=\\sb*\\d?))??) /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "401",
+        "name": "azar b{2,}|b(bA*\\1)(?=)|(())+ /g",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "402",
+        "name": "azar (b(?!(?:A)aA{2}?))+ /u",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "403",
+        "name": "azar ((?:\\1|(b){0,2}(\\1))(?!ab)) /u",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "404",
+        "name": "azar (?!A(?!(?<g1>a?)A)(?:(?:^\\1){1,2}?)*|c) /gi",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "405",
+        "name": "azar [ab]|(a+\\1|a{2}a+)*A{2,} /mu",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "406",
+        "name": "azar ()*\\1(\\1[ab]) /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "407",
+        "name": "azar [a-c](\\1(?!a\\d)){1,2}? /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "408",
+        "name": "azar |(A(?:){0,2}?|a(?=\\w*)A+){2} /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "409",
+        "name": "azar (\\1\\1)(?<g2>(?!(?<g3>bb?){1,2})) /y",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "410",
+        "name": "azar (.\\b(?!)){0,2}\\B /gi",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "411",
+        "name": "azar |b{2}\\w{2}|\\w?a{2}(?<g1>\\ba?\\1) /g",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "412",
+        "name": "azar (\\s|\\1[a-c]+?|)+(.)+? /s",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "413",
+        "name": "azar (?=(?:A([ab])??(?=c+)))c|\\1\\B|[a-c]+? /m",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "414",
+        "name": "azar (^((?:A))b)\\2|\\2 /y",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "415",
+        "name": "azar (?!a+a(\\1b*?)|\\bb*?)[^a] /m",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "416",
+        "name": "azar AA+[^a]|(\\1(?:([^a]b??a|b??A{2,}))){1,2} /i",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "417",
+        "name": "azar (?=(\\1))\\1 /s",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "418",
+        "name": "azar (\\1|\\w){1,2} /gi",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "419",
+        "name": "azar ((?:\\w{0,2}\\B\\1|[ab]+)?|)*|^ /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "420",
+        "name": "azar (?=(?:(a*?)\\s)?) /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "421",
+        "name": "azar (A?\\s){0,2}\\1\\1 /m",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "422",
+        "name": "azar [a-c]?(\\1)a /u",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "423",
+        "name": "azar a(?=(b)(c\\B\\b)[a-c])c /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "424",
+        "name": "azar (?!(?=)) /u",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "425",
+        "name": "azar ((?:[^a]{2,}(^)*)\\1(c??)*) /iu",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "426",
+        "name": "azar \\d(?!A) /",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "427",
+        "name": "azar (?!(?:(c[^a]{2}?.??)\\B){0,2}c|)\\1 /iu",
+        "category": "azar-retro",
+        "group": "retro",
+        "passed": true
+      },
+      {
+        "id": "428",
+        "name": "stream: números cortados entre trozos",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "429",
+        "name": "stream: alternativa corta frente a larga",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "430",
+        "name": "stream: grupos y nombres",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "431",
+        "name": "stream: coincidencias vacías",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "432",
+        "name": "stream: vacío con u avanza por punto de código",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "433",
+        "name": "stream: punto con u y pares cortados",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "434",
+        "name": "stream: punto sin u y pares cortados",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "435",
+        "name": "stream: anclas de línea con m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "436",
+        "name": "stream: $ sin m solo al final",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "437",
+        "name": "stream: fronteras de palabra",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "438",
+        "name": "stream: i con u y ſ",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "439",
+        "name": "stream: perezoso",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "440",
+        "name": "stream: retrorreferencia",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "441",
+        "name": "stream: lookahead",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "442",
+        "name": "stream: lookahead negativo",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "443",
+        "name": "stream: sticky",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "444",
+        "name": "stream: texto en un solo trozo",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "445",
+        "name": "stream: trozos vacíos",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "446",
+        "name": "stream: coincidencia larga pendiente",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "447",
+        "name": "stream: emails",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "448",
+        "name": "stream: azar a(\\b\\b\\b)*? /u",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "449",
+        "name": "stream: azar a /",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "450",
+        "name": "stream: azar b*[^a]{1,2}?(?:[^a]){2,}? /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "451",
+        "name": "stream: azar [a-c] /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "452",
+        "name": "stream: azar [a-c](?:)(?:[^a])* /u",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "453",
+        "name": "stream: azar [a-c] /s",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "454",
+        "name": "stream: azar ()?(?:[^a]*){0,2} /s",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "455",
+        "name": "stream: azar \\s /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "456",
+        "name": "stream: azar .? /u",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "457",
+        "name": "stream: azar \\w{1,2} /",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "458",
+        "name": "stream: azar b||()? /i",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "459",
+        "name": "stream: azar cb*(?<g1>a*?|) /",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "460",
+        "name": "stream: azar \\s* /iu",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "461",
+        "name": "stream: azar b? /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "462",
+        "name": "stream: azar \\w* /",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "463",
+        "name": "stream: azar b /iu",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "464",
+        "name": "stream: azar ()??[^a]{1,2}? /s",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "465",
+        "name": "stream: azar \\w{1,2} /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "466",
+        "name": "stream: azar b*|(\\B) /i",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "467",
+        "name": "stream: azar [ab] /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "468",
+        "name": "stream: azar (?<g1>\\w\\w) /",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "469",
+        "name": "stream: azar b|^((\\B[^a])^)+ /m",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "470",
+        "name": "stream: azar b /i",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "471",
+        "name": "stream: azar (?<g1>a+)* /i",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "472",
+        "name": "stream: azar \\w(?<g1>ba|[ab]*b*){2}b*? /u",
+        "category": "streaming",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "473",
+        "name": "a tiempo: número seguido de separador",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "474",
+        "name": "a tiempo: alternativa pendiente",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "475",
+        "name": "a tiempo: perezoso definitivo al instante",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "476",
+        "name": "a tiempo: codicioso pendiente",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "477",
+        "name": "a tiempo: vacío al final del trozo",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "478",
+        "name": "a tiempo: $ sin m espera al final",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "479",
+        "name": "a tiempo: $ con m ante salto de línea",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "480",
+        "name": "a tiempo: frontera de palabra al final del trozo",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "481",
+        "name": "a tiempo: par sustituto cortado con u",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "482",
+        "name": "a tiempo: par sustituto cortado sin u",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "483",
+        "name": "a tiempo: grupo opcional pendiente",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "484",
+        "name": "a tiempo: repetición de grupo",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "485",
+        "name": "a tiempo: ancla ^ con m",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "486",
+        "name": "a tiempo: alternativas con prefijo común",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "487",
+        "name": "a tiempo: clase y límite",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "488",
+        "name": "a tiempo: i con u",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "489",
+        "name": "a tiempo: coincidencias vacías entre trozos",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "490",
+        "name": "a tiempo: perezoso con sufijo",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "491",
+        "name": "a tiempo: azar [a-c](\\b) /m",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "492",
+        "name": "a tiempo: azar [^a] /",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "493",
+        "name": "a tiempo: azar ^()+?b /",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "494",
+        "name": "a tiempo: azar [ab]*a|[ab]+\\s.* /",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "495",
+        "name": "a tiempo: azar . /i",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "496",
+        "name": "a tiempo: azar .\\s /m",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "497",
+        "name": "a tiempo: azar [^a] /m",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "498",
+        "name": "a tiempo: azar a /m",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "499",
+        "name": "a tiempo: azar b /i",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "500",
+        "name": "a tiempo: azar [^a]+\\wa? /",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "501",
+        "name": "a tiempo: azar [ab] /",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "502",
+        "name": "a tiempo: azar a?[ab] /",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "503",
+        "name": "a tiempo: azar [^a]+ /i",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "504",
+        "name": "a tiempo: azar \\s /i",
+        "category": "a-tiempo",
+        "group": "streaming",
+        "passed": true
+      },
+      {
+        "id": "505",
+        "name": "(a|a)*b sobre 50.000 a",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "506",
+        "name": "(x+x+)+y sobre 50.000 x",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "507",
+        "name": ".*.*=.* sobre 50.000 caracteres",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "508",
+        "name": "a*b sobre 100.000 a (búsqueda lineal)",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "509",
+        "name": "(?:a?){25}a{25} (retroceso exponencial clásico)",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "510",
+        "name": "(\\w+\\s?)+$ sin coincidencia",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "511",
+        "name": "^(\\d+)*$ sin coincidencia",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "512",
+        "name": "repeticiones {1,20} anidadas",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "513",
+        "name": "capturas enormes",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "514",
+        "name": "iu sobre 50.000 ſ",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "515",
+        "name": "(.)*z con u sobre 50.000 astrales",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "516",
+        "name": "stream: \\d+ sobre 2 MB en trozos de 1 KB",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "517",
+        "name": "stream: emails sobre 1 MB en trozos de 997",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "518",
+        "name": "stream: (a|a)*b con una coincidencia de 200.000",
+        "category": "rendimiento",
+        "group": "rendimiento",
+        "passed": true
+      },
+      {
+        "id": "519",
+        "name": "sin grupos: tupla de un elemento",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "520",
+        "name": "un grupo obligatorio",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "521",
+        "name": "los grupos sin captura no cuentan",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "522",
+        "name": "paréntesis escapados no son grupos",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "523",
+        "name": "paréntesis dentro de una clase",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "524",
+        "name": "corchete escapado dentro de una clase",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "525",
+        "name": "barra invertida escapada antes de un grupo",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "526",
+        "name": "\\k<nombre> no es un grupo",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "527",
+        "name": "anidamiento profundo",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "528",
+        "name": "diez grupos",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "529",
+        "name": "escapes \\u{…} con llaves",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "530",
+        "name": "lookahead sin captura no cuenta",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "531",
+        "name": "grupo con ?",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "532",
+        "name": "grupo con *",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "533",
+        "name": "grupo con + es obligatorio",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "534",
+        "name": "{0}, {0,2} y {0,} son opcionales",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "535",
+        "name": "{2}, {1,} y {3,5} son obligatorios",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "536",
+        "name": "perezosos: ?? y *? opcionales, +? obligatorio",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "537",
+        "name": "alternativa principal: todos opcionales",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "538",
+        "name": "alternativa dentro del grupo: el grupo es obligatorio",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": false
+      },
+      {
+        "id": "539",
+        "name": "alternativa con rama vacía dentro del grupo",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": false
+      },
+      {
+        "id": "540",
+        "name": "grupo en una rama de un grupo",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": false
+      },
+      {
+        "id": "541",
+        "name": "grupo dentro de un grupo opcional",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "542",
+        "name": "grupo dentro de un grupo con +",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "543",
+        "name": "alternativa principal con rama vacía",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "544",
+        "name": "grupos dentro de lookahead",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "545",
+        "name": "el ? del perezoso no hace opcional",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "546",
+        "name": "la opcionalidad se hereda en varios niveles",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "547",
+        "name": "grupos con nombre",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "548",
+        "name": "nombre inexistente es un error",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "549",
+        "name": "grupo con nombre opcional",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "550",
+        "name": "nombres en alternativas",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "551",
+        "name": "sin grupos con nombre: groups vacío",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "552",
+        "name": "nombres y números mezclados",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "553",
+        "name": "nombre con $ y _",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "554",
+        "name": "cuantificadores sobre grupos con nombre",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "555",
+        "name": "patrón largo tipo URL",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "556",
+        "name": "exec puede devolver null",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "557",
+        "name": "los flags no cambian los tipos",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "558",
+        "name": "coincidencias de stream().feed tipadas",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "559",
+        "name": "coincidencias de stream().end tipadas",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "560",
+        "name": "patrón no literal: tupla abierta",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      },
+      {
+        "id": "561",
+        "name": "patrón no literal: groups como Record",
+        "category": "tipos",
+        "group": "tipos",
+        "passed": true
+      }
+    ]
+  },
+  "adapter": "export { compile } from '../src/index';\n"
+}

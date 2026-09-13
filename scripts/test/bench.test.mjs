@@ -114,9 +114,17 @@ test('casos especiales: sin proyecto = 0, motor prohibido = 0, cuota o sin acces
   const forbidden = computeScore(result('sql', { project: { forbiddenImports: ['node:sqlite (src/db.ts)'] } }), verdict(173, 173));
   assert.equal(forbidden.total, 0);
   assert.match(forbidden.reason, /prohibido/);
-  const builtin = computeScore(result('rrule'), verdict(19, 19, { builtinEngine: true, builtinEngineWhere: 'src/a.ts:3' }));
-  assert.equal(builtin.total, 0);
-  assert.match(builtin.reason, /motor del lenguaje: src\/a\.ts:3/);
+  // Motor del lenguaje: sustancial → 0; auxiliar → −1 (builtinPenalty); detectado sin veredicto del juez → auxiliar.
+  const sustancial = computeScore(result('regex'), verdict(10, 10, { builtinEngine: 'sustancial', builtinEngineWhere: 'src/a.ts:3' }));
+  assert.equal(sustancial.total, 0);
+  assert.match(sustancial.reason, /parte sustancial: src\/a\.ts:3/);
+  const clean = computeScore(result('regex'), verdict(10, 10, { builtinEngine: 'ninguno' }));
+  const aux = computeScore(result('regex'), verdict(10, 10, { builtinEngine: 'auxiliar' }));
+  assert.equal(aux.parts.penalty, -1);
+  assert.equal(Math.round((clean.total - aux.total) * 10) / 10, 1);
+  const detected = computeScore(result('regex', { project: { builtinSyntax: ['literal /…/ (src/p.ts:3)'] } }), verdict(10, 10, { builtinEngine: 'ninguno' }));
+  assert.equal(detected.parts.penalty, -1);
+  assert.equal(computeScore(result('regex'), verdict(10, 10, { builtinEngine: true })).total, 0); // veredicto antiguo
   assert.equal(computeScore(result('rrule', { flags: { quotaBlocked: true } }), verdict(19, 19)), null);
   assert.equal(computeScore(result('rrule', { flags: { accessBlocked: true } }), verdict(19, 19)), null);
 });

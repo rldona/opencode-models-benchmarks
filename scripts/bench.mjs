@@ -612,6 +612,7 @@ function checkProject(dir, test) {
   // (p. ej. node:sqlite o child_process en el motor SQL).
   const externalImports = new Set();
   const forbiddenImports = new Set();
+  const builtinSyntax = new Set(); // usos de construcciones prohibidas (RegExp, /…/…): el juez decide su impacto
   const bare = (s) => s.replace(/^node:/, '');
   for (const f of srcFiles) {
     const code = fs.readFileSync(f, 'utf8');
@@ -623,7 +624,7 @@ function checkProject(dir, test) {
     }
     // Construcciones prohibidas por la prueba (p. ej. RegExp y literales /…/ en el motor de expresiones regulares).
     if (cfg.forbiddenSyntax?.length) {
-      for (const hit of forbiddenSyntax(code, cfg.forbiddenSyntax)) forbiddenImports.add(`${hit.rule} (${path.relative(proj, f)}:${hit.line})`);
+      for (const hit of forbiddenSyntax(code, cfg.forbiddenSyntax)) builtinSyntax.add(`${hit.rule} (${path.relative(proj, f)}:${hit.line})`);
     }
   }
 
@@ -635,6 +636,7 @@ function checkProject(dir, test) {
     extraDeps,
     externalImports: [...externalImports],
     forbiddenImports: [...forbiddenImports],
+    builtinSyntax: [...builtinSyntax],
     tests,
     tzRuns,
     tsc,
@@ -686,6 +688,7 @@ function collect(slug, opts) {
   log(`… ${slug}: verificando proyecto (vitest ×${1 + testConfig(opts.test).extraTzs.length}, tsc)`);
   const project = checkProject(dir, opts.test);
   if (project.forbiddenImports?.length) warnings.push(`usa código prohibido por el enunciado: ${project.forbiddenImports.join(', ')} → nota 0`);
+  if (project.builtinSyntax?.length) warnings.push(`usa el motor de expresiones del lenguaje en src/: ${project.builtinSyntax.join(', ')} → el juez decide si es auxiliar (penalización) o sustancial (nota 0)`);
 
   // Cortado por cuota del proveedor y sin una solución que funcione: resultado no válido, hay que repetirlo.
   const quotaBlocked = !!session.quotaError && !(project.found && project.tests.ok);
@@ -1004,7 +1007,7 @@ function vitestCases(evalDir, testFile, pattern, timeoutMs) {
   const args = ['run', '--config', '__bench__/vitest.config.mjs', '--root', evalDir, '--reporter=json', `--outputFile=${out}`,
     `__bench__/${testFile}`];
   if (pattern) args.push('-t', pattern);
-  sh(path.join(evalDir, 'node_modules', '.bin', 'vitest'), args, { cwd: evalDir, env: { ...process.env, CI: '1', BENCH_TSC }, timeout: timeoutMs });
+  sh(path.join(evalDir, 'node_modules', '.bin', 'vitest'), args, { cwd: evalDir, env: { ...process.env, CI: '1', BENCH_TSC, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --max-old-space-size=2048`.trim() }, timeout: timeoutMs });
   const j = readJson(out);
   fs.rmSync(out, { force: true });
   if (!j) return null;
@@ -1012,9 +1015,41 @@ function vitestCases(evalDir, testFile, pattern, timeoutMs) {
   const byId = new Map();
   for (const a of file?.assertionResults ?? []) {
     const id = /^\[(\d+)\]/.exec(a.title)?.[1];
-    if (id) byId.set(id, { passed: a.status === 'passed', message: (a.failureMessages?.[0] ?? '').split('\n').slice(0, 6).join('\n').slice(0, 600) });
+    // ran: el caso llegó a terminar (pasó o falló). Si el proceso se cae a mitad, los siguientes quedan sin terminar.
+    if (id) byId.set(id, { passed: a.status === 'passed', ran: a.status === 'passed' || a.status === 'failed', message: (a.failureMessages?.[0] ?? '').split('\n').slice(0, 6).join('\n').slice(0, 600) });
   }
   return { byId, suiteMessage: (file?.message ?? '').slice(0, 600) };
+}
+
+// Ejecuta los casos `ids` de un fichero de la suite. Si el proceso se cuelga o se cae (bucle infinito, memoria
+// agotada…), los casos que no llegaron a terminar se reparten en mitades y se repiten hasta aislar el que lo tumba,
+// que cuenta como fallo; el resto se evalúa con normalidad. Timeout proporcional al número de casos.
+// Devuelve los ids aislados.
+function runSubset(evalDir, file, ids, all, suiteTimeoutMs, caseTimeoutMs, results) {
+  if (!ids.length) return [];
+  const pattern = ids.length === all.length ? null : `^\\[(${ids.join('|')})\\]`;
+  const timeout = ids.length === 1 ? caseTimeoutMs : Math.max(2 * caseTimeoutMs, Math.round((suiteTimeoutMs * ids.length) / all.length));
+  // Memoria acotada (NODE_OPTIONS en vitestCases): una solución que se desboca cae antes y se aísla antes.
+  const run = vitestCases(evalDir, file, pattern, timeout);
+  const rest = [];
+  for (const id of ids) {
+    const r = run?.byId.get(id);
+    if (r?.ran) results.set(id, { passed: r.passed, message: r.message });
+    else rest.push(id);
+  }
+  if (!rest.length) return [];
+  if (ids.length === 1) {
+    results.set(ids[0], { passed: false, message: 'se colgó o tumbó el proceso (timeout, bucle infinito o memoria agotada)' });
+    return ids;
+  }
+  // Si algunos terminaron, el que tumba el proceso es el primero de los que faltan: se repite el resto entero (el
+  // culpable vuelve a caer el primero y, sin progreso, se parte en mitades).
+  if (rest.length < ids.length) return runSubset(evalDir, file, rest, all, suiteTimeoutMs, caseTimeoutMs, results);
+  const half = Math.ceil(rest.length / 2);
+  return [
+    ...runSubset(evalDir, file, rest.slice(0, half), all, suiteTimeoutMs, caseTimeoutMs, results),
+    ...runSubset(evalDir, file, rest.slice(half), all, suiteTimeoutMs, caseTimeoutMs, results),
+  ];
 }
 
 // Cada fichero hidden*.test.ts es una suite (hidden.test.ts = main, hidden-perf.test.ts = perf…) con sus casos
@@ -1031,18 +1066,8 @@ function runHidden(evalDir, test) {
   for (const file of files) {
     const suite = file === 'hidden.test.ts' ? 'main' : file.replace(/^hidden-/, '').replace(/\.test\.ts$/, '');
     const ids = cases.filter((c) => (c.suite ?? 'main') === suite).map((c) => c.id);
-    let run = vitestCases(evalDir, file, null, cfg.hiddenTimeoutMs[suite] ?? 120_000);
-    if (!run) {
-      // Se colgó o reventó (bucle infinito síncrono, implementación muy lenta…): caso a caso con timeout propio.
-      modes.push(`${suite}: caso a caso (la ejecución completa se colgó)`);
-      const byId = new Map();
-      for (const id of ids) {
-        const one = vitestCases(evalDir, file, `^\\[${id}\\]`, cfg.hiddenCaseTimeoutMs[suite] ?? 30_000);
-        byId.set(id, one?.byId.get(id) ?? { passed: false, message: 'timeout o caída del proceso' });
-      }
-      run = { byId, suiteMessage: '' };
-    }
-    for (const id of ids) results.set(id, run.byId.get(id) ?? { passed: false, message: run.suiteMessage || 'no se ejecutó' });
+    const isolated = runSubset(evalDir, file, ids, ids, cfg.hiddenTimeoutMs[suite] ?? 120_000, cfg.hiddenCaseTimeoutMs[suite] ?? 30_000, results);
+    if (isolated.length) modes.push(`${suite}: ${isolated.length} caso(s) colgaron o tumbaron el proceso y se aislaron (${isolated.join(', ')})`);
   }
   const out = cases.map((c) => ({ id: c.id, name: c.name, category: c.category, ...(c.group ? { group: c.group } : {}), ...results.get(c.id) }));
   return { mode: modes.join('; ') || 'completa', total: cases.length, passed: out.filter((x) => x.passed).length, cases: out };
@@ -1119,6 +1144,15 @@ function judge(slug, opts) {
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
+// 'ninguno' | 'auxiliar' | 'sustancial'. El veredicto antiguo (booleano true) cuenta como sustancial. Si el análisis
+// estático encontró usos y el juez dice que no hay, cuentan como auxiliares (el uso existe).
+function builtinUse(r, j) {
+  const v = j?.verdict?.builtinEngine;
+  if (v === true || v === 'sustancial') return 'sustancial';
+  if (v === 'auxiliar' || r?.project?.builtinSyntax?.length) return 'auxiliar';
+  return 'ninguno';
+}
+
 // Fracción de la suite oculta superada. Con correctnessGroups (bench.json) cada bloque de casos pesa lo indicado sea
 // cual sea su número de casos (regex: 14 de rendimiento pesan lo mismo que 71 de semántica); si no, todos igual.
 function hiddenFraction(test, hidden) {
@@ -1148,9 +1182,12 @@ function computeScore(r, j) {
     return { total: 0, reason: `usa código prohibido por el enunciado (${r.project.forbiddenImports.join(', ')})`, parts: ZERO_PARTS };
   }
   if (!r?.project?.found || !j?.verdict) return null;
-  // El juez comprueba lo que el análisis estático no ve (p. ej. delegar en String.prototype.match con un texto).
-  if (j.verdict.builtinEngine === true) {
-    return { total: 0, reason: `usa código prohibido por el enunciado (el juez vio que delega en el motor del lenguaje${j.verdict.builtinEngineWhere ? `: ${j.verdict.builtinEngineWhere}` : ''})`, parts: ZERO_PARTS };
+  // Uso del motor del lenguaje donde el enunciado lo prohíbe: se valora su impacto, no la mera presencia (lo decide el
+  // juez; el análisis estático garantiza que ningún uso pase inadvertido). Sustancial (resuelve parte de lo que había
+  // que implementar) → 0; auxiliar (validar un nombre, un hexadecimal…) → penalización (builtinPenalty en bench.json).
+  const builtin = builtinUse(r, j);
+  if (builtin === 'sustancial') {
+    return { total: 0, reason: `usa código prohibido por el enunciado (delega en el motor del lenguaje una parte sustancial${j.verdict.builtinEngineWhere ? `: ${j.verdict.builtinEngineWhere}` : ''})`, parts: ZERO_PARTS };
   }
   const W = testConfig(r.test).weights;
   const p = r.project;
@@ -1181,7 +1218,7 @@ function computeScore(r, j) {
     W.robustness *
     (tz.length ? (0.5 * tz.filter((x) => x.ok).length) / tz.length + 0.25 * tscScore + 0.25 * depsScore : 0.5 * tscScore + 0.5 * depsScore);
 
-  const penalty = p.externalImports?.length ? -1.5 : 0;
+  const penalty = (p.externalImports?.length ? -1.5 : 0) - (builtin === 'auxiliar' ? testConfig(r.test).builtinPenalty ?? 1 : 0);
   const total = Math.max(0, Math.min(10, correctness + autonomy + ownTests + codeQuality + robustness + penalty));
 
   return {
@@ -1195,6 +1232,7 @@ function computeScore(r, j) {
       codeQuality: round2(codeQuality),
       robustness: round2(robustness),
       penalty,
+      ...(builtin === 'auxiliar' ? { builtinAux: true } : {}),
     },
   };
 }
@@ -1515,7 +1553,10 @@ function writeDetails(test, rows) {
         `${r.session.startedInPlan ? ' (empezó en modo plan; la aprobación del plan no cuenta)' : ''}${r.session.inProgress ? ', sesión sin terminar' : ''}`,
       `- **Tests propios** ${p.ownTests}/${W.ownTests}: pasan ${d.pass}/${q} (${r.project.tests.passed}/${r.project.tests.total}) · cobertura ${d.coverage}/${q} · cantidad ${d.quantity}/${q} · calidad ${d.quality}/${q} (${v.testQuality.score}/10)`,
       `- **Código** ${p.codeQuality}/${W.codeQuality} (${v.codeQuality.score}/10)`,
-      `- **Robustez** ${p.robustness}/${W.robustness}` + (p.penalty ? ` · **Penalización** ${p.penalty} (importa: ${r.project.externalImports.join(', ')})` : ''),
+      `- **Robustez** ${p.robustness}/${W.robustness}` + (p.penalty ? ` · **Penalización** ${p.penalty} (${[
+        r.project.externalImports?.length && `importa: ${r.project.externalImports.join(', ')}`,
+        p.builtinAux && `usa el motor de expresiones del lenguaje en tareas auxiliares: ${v.builtinEngineWhere || r.project.builtinSyntax?.join(', ')}`,
+      ].filter(Boolean).join('; ')})` : ''),
       `- Cobertura de lo pedido: ${cov}`,
       '',
     );

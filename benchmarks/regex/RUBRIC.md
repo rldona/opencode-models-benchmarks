@@ -15,8 +15,9 @@ Pesos en [bench.json](bench.json); fórmula en `computeScore` de [scripts/bench.
 | **Tests propios** | 1 | ¼ pasan al re-ejecutarlos · ¼ escenarios pedidos cubiertos (juez, 8) · ¼ cantidad (10+ tests) · ¼ calidad (juez) |
 | **Calidad de código** | 1,5 | Nota del juez sobre 10 |
 | **Robustez** | 0,5 | ½ `tsc` limpio · ½ sin dependencias extra |
-| **Motor prohibido** | nota 0 | Si el código de `src/` usa `RegExp`, literales `/…/`, `eval`, `Function`, `child_process`, `worker_threads` o `vm` (análisis estático), o si el juez ve que delega en el motor del lenguaje por otra vía (`String.prototype.match` con un texto, etc.) |
-| **Penalización** | −1,5 | Otros paquetes externos importados desde el código |
+| **Motor del lenguaje en `src/`** | 0 o −1 | Se valora el impacto, no la presencia de un token: **sustancial** (resuelve con `RegExp` o equivalentes una parte de lo que había que implementar: buscar coincidencias, analizar el patrón, clases, mayúsculas…) → **nota 0**; **auxiliar** (validar un nombre de grupo, unos dígitos hexadecimales…) → **−1**. Lo decide el juez leyendo el código; el análisis estático (`RegExp`, literales `/…/`, `eval`, `Function`) garantiza que ningún uso pase inadvertido: si lo encuentra, cuenta como mínimo como auxiliar |
+| **Módulos prohibidos** | nota 0 | Importar `child_process`, `worker_threads` o `vm` desde `src/` |
+| **Penalización** | −1,5 | Paquetes externos importados desde el código |
 
 ## Suite oculta
 
@@ -42,4 +43,4 @@ Para regenerar: `node benchmarks/regex/judge/oracle/gen-cases.mjs`. Necesita mac
 
 ## Juez y adaptador
 
-El enunciado fija la API exacta, así que el adaptador de [judge/bench/contract.ts](judge/bench/contract.ts) solo re-exporta `compile` de la solución, sin envolverla, para que los tests de tipos vean sus tipos originales. El juez (por defecto `claude:sonnet`) comprueba además que `src/` no delegue en el motor del lenguaje por vías que el análisis estático no ve, y valora código y tests. La suite oculta se pasa sobre una copia del proyecto sin cambios del juez.
+El enunciado fija la API exacta, así que el adaptador de [judge/bench/contract.ts](judge/bench/contract.ts) solo re-exporta `compile` de la solución, sin envolverla, para que los tests de tipos vean sus tipos originales. El juez (por defecto `claude:sonnet`) clasifica el uso del motor del lenguaje en `src/` (ninguno, auxiliar o sustancial, también por vías que el análisis estático no ve, como `String.prototype.match` con un texto) y valora código y tests. La suite oculta se pasa sobre una copia del proyecto sin cambios del juez.
